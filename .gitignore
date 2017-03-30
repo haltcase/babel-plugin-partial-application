@@ -1,0 +1,9 @@
+# IDE configurations
+.c9
+.idea
+.vscode
+
+# ignore built files
+index.js
+
+node_modules

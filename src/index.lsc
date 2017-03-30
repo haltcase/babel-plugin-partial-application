@@ -1,0 +1,97 @@
+DEFAULT_PLACEHOLDER = '_'
+ALTERNATE_PLACEHOLDER = '__'
+
+makeIdentifierError (path, current) ->
+  path.buildCodeFrameError(
+    `Cannot use placeholder as an identifier.\n
+     If you need to use '${current}' as a variable name:
+     - set 'options.placeholder' to a different custom token
+     - set 'options.useAlternatePlaceholder' for '__'
+       ( a double underscore )\n
+    See https://github.com/citycide/babel-plugin-partial-application#caveats--limitations
+    for more information.\n`
+  )
+
+module.exports = ({ types: t }) ->
+  getPlaceholder (state) ->
+    let {
+      placeholder = DEFAULT_PLACEHOLDER,
+      useAlternatePlaceholder
+    } = state.opts
+
+    if placeholder == DEFAULT_PLACEHOLDER and useAlternatePlaceholder:
+      now placeholder = ALTERNATE_PLACEHOLDER
+
+    kind = typeof(placeholder)
+    if kind != 'string':
+      throw new TypeError(
+        'Expected a string for `options.placeholder` ' +
+        `and got ${kind}`
+      )
+
+    placeholder
+
+  isPlaceholder (node, placeholder) ->
+    t.isIdentifier(node, { name: placeholder })
+
+  hasPlaceholders(nodes, placeholder) ->
+    nodes.some(node => isPlaceholder(node, placeholder))
+
+  getArgName (path, name = 'a') ->
+    path.scope.generateUidIdentifier(name)
+
+  checkImports (path, placeholder) ->
+    for elem specifier in path.node.specifiers:
+      if specifier.local.name == placeholder:
+        throw makeIdentifierError(path, placeholder)
+
+  checkDeclarations (path, placeholder) ->
+    for elem declaration in path.node.declarations:
+      if declaration.id.name == placeholder:
+        throw makeIdentifierError(path, placeholder)
+
+  partiallyApply (path, placeholder) ->
+    { arguments: args, callee } = path.node
+    remainingParams = []
+
+    nextCallParams = args.map(arg =>
+      if !isPlaceholder(arg, placeholder):
+        return arg
+
+      name = getArgName(path)
+      remainingParams.push(name)
+      name
+    )
+
+    path.replaceWith(
+      t.functionExpression(
+        null,
+        remainingParams,
+        t.blockStatement([
+          t.returnStatement(
+            t.callExpression(
+              callee,
+              nextCallParams
+            )
+          )
+        ])
+      )
+    )
+
+  return {
+    name: 'transform-partial-application'
+    visitor: {
+      ImportDeclaration (path, state) ->
+        checkImports(path, getPlaceholder(state))
+
+      VariableDeclaration (path, state) ->
+        checkDeclarations(path, getPlaceholder(state))
+
+      CallExpression (path, state) ->
+        placeholder = getPlaceholder(state)
+        { arguments: args } = path.node
+
+        if args.length and hasPlaceholders(args, placeholder):
+          partiallyApply(path, placeholder)
+    }
+  }

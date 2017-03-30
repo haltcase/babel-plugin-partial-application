@@ -1,0 +1,55 @@
+{
+  "name": "babel-plugin-partial-application",
+  "version": "1.0.0-alpha.1",
+  "description": "Scale/Kotlin-esque partial application syntax for JavaScript.",
+  "author": {
+    "name": "Bo Lingen",
+    "email": "thecitycide@gmail.com",
+    "url": "github.com/citycide"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/citycide/babel-plugin-partial-application.git"
+  },
+  "homepage": "https://github.com/citycide/babel-plugin-partial-application",
+  "bugs": "https://github.com/citycide/babel-plugin-partial-application/issues",
+  "engines": {
+    "node": ">=4"
+  },
+  "keywords": [
+    "babel-plugin",
+    "functional",
+    "partial",
+    "application",
+    "currying",
+    "curried",
+    "scala",
+    "kotlin",
+    "template"
+  ],
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "build": "babel --no-babelrc --plugins lightscript src -d . -x .lsc",
+    "pretest": "npm run build",
+    "test": "ava",
+    "prepublish": "npm test"
+  },
+  "dependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-plugin-lightscript": "^0.4.2"
+  },
+  "devDependencies": {
+    "ava": "^0.18.2",
+    "lodash.get": "^4.4.2",
+    "lodash.map": "^4.6.0"
+  },
+  "ava": {
+    "files": [
+      "tests/*.js"
+    ],
+    "babel": "inherit"
+  }
+}
