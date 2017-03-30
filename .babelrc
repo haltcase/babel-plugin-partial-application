@@ -1,4 +1,6 @@
 {
-  "presets": [],
-  "plugins": ["./index"]
+  "presets": [["env", {
+    "targets": { "node": 4 }
+  }]],
+  "plugins": ["lightscript"]
 }

@@ -32,7 +32,7 @@
     "index.js"
   ],
   "scripts": {
-    "build": "babel --no-babelrc --plugins lightscript src -d . -x .lsc",
+    "build": "babel src -d . -x .lsc",
     "pretest": "npm run build",
     "test": "ava",
     "prepublish": "npm test"
@@ -41,7 +41,9 @@
   "devDependencies": {
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.0",
     "babel-plugin-lightscript": "^0.4.2",
+    "babel-preset-env": "^1.2.2",
     "lodash.get": "^4.4.2",
     "lodash.map": "^4.6.0"
   },

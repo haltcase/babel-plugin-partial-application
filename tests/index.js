@@ -14,7 +14,10 @@ testFiles.forEach(filePath => {
     const testPath = join(fixturesDir, filePath)
     const actualPath = join(testPath, 'actual.js')
     const expectedPath = join(testPath, 'expected.js')
-    const { code } = transformFileSync(actualPath)
+    const { code } = transformFileSync(actualPath, {
+      babelrc: false,
+      plugins: [require('..')]
+    })
 
     const expected = readFileSync(expectedPath).toString()
 
