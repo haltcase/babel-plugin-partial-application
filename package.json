@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-partial-application",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "Scale/Kotlin-esque partial application syntax for JavaScript.",
   "author": {
     "name": "Bo Lingen",
