@@ -15,10 +15,24 @@ testFiles.forEach(filePath => {
     const testPath = join(fixturesDir, filePath)
     const actualPath = join(testPath, 'actual.js')
     const expectedPath = join(testPath, 'expected.js')
-    const { code } = transformFileSync(actualPath, {
-      babelrc: false,
-      plugins: [require('..')]
-    })
+    let code = ''
+
+    try {
+      code = transformFileSync(actualPath, {
+        babelrc: false,
+        plugins: [require('..')]
+      }).code
+    } catch (e) {
+      if (filePath.startsWith('fail')) {
+        return t.pass(
+          `'${filePath}' failed as expected. :: ${e.message}`
+        )
+      } else {
+        return t.fail(
+          `Unexpected failure in '${filePath}' :: ${e.message}`
+        )
+      }
+    }
 
     let expected = ''
 
