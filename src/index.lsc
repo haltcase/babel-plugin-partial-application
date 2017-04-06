@@ -93,5 +93,28 @@ module.exports = ({ types: t }) ->
 
         if args.length and hasPlaceholders(args, placeholder):
           partiallyApply(path, placeholder)
+
+      MemberExpression (path, state) ->
+        placeholder = getPlaceholder(state)
+        { parent, node: { object, property } } = path
+
+        if !isPlaceholder(object, placeholder): return
+
+        id = getUniqueName(path)
+        exp = t.memberExpression(id, property)
+        ret = t.isCallExpression(parent)
+          ? t.callExpression(exp, parent.arguments)
+          : exp
+
+        path.replaceWith(
+          t.arrowFunctionExpression(
+            [id],
+            t.blockStatement([
+              t.returnStatement(ret)
+            ])
+          )
+        )
+
+        path.stop()
     }
   }
