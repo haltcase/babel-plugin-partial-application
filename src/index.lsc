@@ -22,7 +22,7 @@ module.exports = ({ types: t }) ->
     if placeholder == DEFAULT_PLACEHOLDER and useAlternatePlaceholder:
       now placeholder = ALTERNATE_PLACEHOLDER
 
-    kind = typeof(placeholder)
+    kind = typeof placeholder
     if kind != 'string':
       throw new TypeError(
         'Expected a string for `options.placeholder` ' +
