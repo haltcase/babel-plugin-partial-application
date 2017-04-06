@@ -6,11 +6,11 @@
 
 Use an `_` symbol ( or a custom identifier of your choosing )
 as a placeholder to signal that a function call is partially
-applied. That is, it's not actually called, but will return
+applied. That is, it's not actually called yet, but will return
 a new function receiving the arguments you signified as
 placeholders.
 
-You can provide one or several placeholders, in any order with
+You can provide one or several placeholders mixed in with
 the rest of the usual arguments. See the [examples](#examples)
 section to see what this looks like.
 
@@ -27,6 +27,8 @@ npm i --save-dev babel-cli
 ```
 
 ## examples
+
+### basic placeholders
 
 Transform this:
 
@@ -45,7 +47,7 @@ function sumOfThree (x, y, z) {
   return x + y + z;
 }
 
-let oneAndTwoPlusOther = function (_a) {
+let oneAndTwoPlusOther = _a => {
   return sumOfThree(1, 2, _a);
 };
 ```
@@ -59,28 +61,96 @@ const hasOwn = {}.hasOwnProperty.call(_, _);
 ... becomes:
 
 ```js
-const hasOwn = function (_a4, _a5) {
+const hasOwn = (_a4, _a5) => {
   return {}.hasOwnProperty.call(_a4, _a5);
 };
 ```
 
-A handy usage for this plugin is for emulating "curried"
-functions, where a function returns another function
-that would receive the data before finally returning
-the result.
+### spread placeholders
 
-Let's ignore the fact that [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide)
-exists for a second. It provides auto-curried functions, but in many situations
-it's both easily emulated and outperformed by this plugin - because this is at
-compile time instead of wrapping functions in functions and checking arguments
-and such at runtime.
+You can also use spread to represent multiple arguments:
 
-Try this:
+```js
+const maxOf = Math.max(..._)
+
+console.log(maxOf(1, 2, 3, 4, 5))
+// -> 5
+```
+
+This is compiled to:
+
+```js
+const maxOf = (..._a) => {
+  return Math.max(..._a)
+}
+```
+
+> If your target environment doesn't support rest / spread,
+> you'll have to transpile it separately as usual.
+
+### lambda parameters
+
+Easy shorthand for accessing properties or calling
+methods on the applied argument - useful in higher order
+functions like `Array#map()`:
+
+```js
+const people = [
+  { name: 'Jeff' },
+  { name: 'Karen' },
+  { name: 'Genevieve' }
+]
+
+console.log(people.map(_.name))
+// -> ['Jeff', 'Karen', 'Genevieve']
+```
+
+... compiles to:
+
+```js
+console.log(people.map(_a => {
+  return _a.name
+}))
+```
+
+### curried-style functions
+
+> or, compile-time lodash/fp... more or less.
+
+A handy usage for this plugin is for emulating "curried" style
+functions, where a function returns another function that would
+receive the data before finally returning the result.
+
+Take [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide)
+as an example. It provides auto-curried functions, which is something
+this plugin isn't intended to do, but it does so at runtime by creating
+a wrapper around your functions and checking how many arguments were
+provided each time. This is awesome, but comes with some overhead.
+
+While this plugin's partial application is a different thing, it can
+accomplish the same thing in most situations and does so with little
+runtime overhead.
+
+For example, this:
 
 ```js
 import { map, get } from 'lodash'
 
 const mapper = map(_, get(_, 'nested.key', 'default'))
+```
+
+... would compile to this:
+
+```js
+import { map, get } from 'lodash'
+
+const mapper = _a => {
+  return map(_a, _a2 => {
+    return get(_a2, 'nested.key', 'default')
+  })
+}
+
+// to be used something like this:
 
 const array = [
   { nested: { key: 'value' } },
