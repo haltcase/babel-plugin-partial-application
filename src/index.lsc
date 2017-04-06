@@ -34,6 +34,12 @@ module.exports = ({ types: t }) ->
   isPlaceholder (node, placeholder) ->
     t.isIdentifier(node, { name: placeholder })
 
+  isSpreadPlaceholder (node, placeholder) ->
+    t.isSpreadElement(node) and isPlaceholder(node.argument, placeholder)
+
+  isSomePlaceholder (node, placeholder) ->
+    isPlaceholder(node, placeholder) or isSpreadPlaceholder(node, placeholder)
+
   hasPlaceholders (nodes, placeholder) ->
     for elem node in nodes:
       if isPlaceholder(node, placeholder):
@@ -57,12 +63,18 @@ module.exports = ({ types: t }) ->
     remainingParams = []
 
     nextCallParams = args.map(arg =>
-      if !isPlaceholder(arg, placeholder):
+      if !isSomePlaceholder(arg, placeholder):
         return arg
 
-      name = getUniqueName(path)
-      remainingParams.push(name)
-      name
+      if isPlaceholder(arg, placeholder):
+        name = getUniqueName(path)
+        remainingParams.push(name)
+        return name
+
+      if isSpreadPlaceholder(arg, placeholder):
+        name = getUniqueName(path)
+        remainingParams.push(t.restElement(name))
+        return t.spreadElement(name)
     )
 
     path.replaceWith(
@@ -116,5 +128,31 @@ module.exports = ({ types: t }) ->
         )
 
         path.stop()
+
+      SpreadElement (path, state) {
+        placeholder = getPlaceholder(state)
+        { parent, parentPath, node: { argument } } = path
+
+        if !isPlaceholder(argument, placeholder): return
+
+        id = path.scope.generateUidIdentifier('a')
+        args = parent.arguments.slice(0, -1)
+
+        parentPath.replaceWith(
+          t.arrowFunctionExpression(
+            [t.restElement(id)],
+            t.blockStatement([
+              t.returnStatement(
+                t.callExpression(
+                  parent.callee,
+                  [...args, t.spreadElement(id)]
+                )
+              )
+            ])
+          )
+        )
+
+        parentPath.stop()
+      }
     }
   }
