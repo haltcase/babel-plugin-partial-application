@@ -129,11 +129,16 @@ module.exports = ({ types: t }) ->
 
         path.stop()
 
-      SpreadElement (path, state) {
+      SpreadElement (path, state) ->
         placeholder = getPlaceholder(state)
         { parent, parentPath, node: { argument } } = path
 
         if !isPlaceholder(argument, placeholder): return
+
+        if !t.isCallExpression(parent):
+          throw path.parentPath.buildCodeFrameError(
+            'Placeholder spread is unsupported outside call expressions.'
+          )
 
         id = path.scope.generateUidIdentifier('a')
         args = parent.arguments.slice(0, -1)
@@ -153,6 +158,5 @@ module.exports = ({ types: t }) ->
         )
 
         parentPath.stop()
-      }
     }
   }
