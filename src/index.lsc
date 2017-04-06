@@ -64,8 +64,7 @@ module.exports = ({ types: t }) ->
     )
 
     path.replaceWith(
-      t.functionExpression(
-        null,
+      t.arrowFunctionExpression(
         remainingParams,
         t.blockStatement([
           t.returnStatement(
