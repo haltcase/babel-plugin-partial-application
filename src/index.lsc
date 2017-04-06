@@ -35,10 +35,16 @@ module.exports = ({ types: t }) ->
     t.isIdentifier(node, { name: placeholder })
 
   isSpreadPlaceholder (node, placeholder) ->
-    t.isSpreadElement(node) and isPlaceholder(node.argument, placeholder)
+    t.isSpreadElement(node) and
+    isPlaceholder(node.argument, placeholder)
 
   isSomePlaceholder (node, placeholder) ->
-    isPlaceholder(node, placeholder) or isSpreadPlaceholder(node, placeholder)
+    isPlaceholder(node, placeholder) or
+    isSpreadPlaceholder(node, placeholder)
+
+  isCalleePlaceholder (node, placeholder) ->
+    t.isCallExpression(node) and
+    isPlaceholder(node.callee.object, placeholder)
 
   hasPlaceholders (nodes, placeholder) ->
     for elem node in nodes:
@@ -114,7 +120,7 @@ module.exports = ({ types: t }) ->
 
         id = getUniqueName(path)
         exp = t.memberExpression(id, property)
-        ret = t.isCallExpression(parent)
+        ret = isCalleePlaceholder(parent, placeholder)
           ? t.callExpression(exp, parent.arguments)
           : exp
 
