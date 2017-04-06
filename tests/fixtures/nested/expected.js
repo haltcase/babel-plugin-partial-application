@@ -1,8 +1,8 @@
 const map = require('lodash.map');
 const get = require('lodash.get');
 
-const mapper = function (_a) {
-  return map(_a, function (_a2) {
+const mapper = _a => {
+  return map(_a, _a2 => {
     return get(_a2, 'nested.key', 'default');
   });
 };
