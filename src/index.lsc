@@ -37,7 +37,7 @@ module.exports = ({ types: t }) ->
   hasPlaceholders(nodes, placeholder) ->
     nodes.some(node => isPlaceholder(node, placeholder))
 
-  getArgName (path, name = 'a') ->
+  getUniqueName (path, name = 'a') ->
     path.scope.generateUidIdentifier(name)
 
   checkImports (path, placeholder) ->
@@ -58,7 +58,7 @@ module.exports = ({ types: t }) ->
       if !isPlaceholder(arg, placeholder):
         return arg
 
-      name = getArgName(path)
+      name = getUniqueName(path)
       remainingParams.push(name)
       name
     )
