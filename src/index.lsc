@@ -34,8 +34,10 @@ module.exports = ({ types: t }) ->
   isPlaceholder (node, placeholder) ->
     t.isIdentifier(node, { name: placeholder })
 
-  hasPlaceholders(nodes, placeholder) ->
-    nodes.some(node => isPlaceholder(node, placeholder))
+  hasPlaceholders (nodes, placeholder) ->
+    for elem node in nodes:
+      if isPlaceholder(node, placeholder):
+        return true
 
   getUniqueName (path, name = 'a') ->
     path.scope.generateUidIdentifier(name)
