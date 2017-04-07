@@ -64,6 +64,19 @@ module.exports = ({ types: t }) ->
       if declaration.id.name == placeholder:
         throw makeIdentifierError(path, placeholder)
 
+  appliedChildVisitor = {
+    MemberExpression (childPath) ->
+      { node: { object } } = childPath
+
+      if !isPlaceholder(object, this.placeholder): return
+
+      id = getUniqueName(childPath)
+      this.path.node.params.unshift(id)
+      childPath.node.object = id
+
+      childPath.stop()
+  }
+
   partiallyApply (path, placeholder) ->
     { arguments: args, callee } = path.node
     remainingParams = []
@@ -96,6 +109,8 @@ module.exports = ({ types: t }) ->
         ])
       )
     )
+
+    path.traverse(appliedChildVisitor, { path, placeholder })
 
   return {
     visitor: {
