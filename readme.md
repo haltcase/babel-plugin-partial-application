@@ -113,6 +113,41 @@ console.log(people.map(_a => {
 }))
 ```
 
+### object placeholder
+
+> also called "lambda standalones"... only by me though
+
+The placeholder can stand in for an object on which you'll
+access properties or call methods. This is very similar to
+[lambda parameters](#lambda-parameters) but can be used
+outside function calls.
+
+As an example, we could re-implement the `hasOwn()` function
+from the [basic placeholders section](#basic-placeholders)
+like this:
+
+```js
+const hasOwn = _.hasOwnProperty(_)
+```
+
+... which compiles to:
+
+```js
+const hasOwn = (_a2, _a) => {
+  return _a2.hasOwnProperty(_a)
+};
+```
+
+The object that will replace the placeholder becomes the first
+argument to the resulting function, so you'd use it like this:
+
+```js
+const object = { flammable: true }
+
+hasOwn(object, 'flammable')
+// -> true
+```
+
 ### curried-style functions
 
 > or, compile-time lodash/fp... more or less.
