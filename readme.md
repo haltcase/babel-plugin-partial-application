@@ -37,18 +37,18 @@ function sumOfThreeNumbers (x, y, z) {
   return x + y + z;
 }
 
-let oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _);
+const oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _);
 ```
 
 Into this:
 
 ```js
-function sumOfThree (x, y, z) {
+function sumOfThreeNumbers (x, y, z) {
   return x + y + z;
 }
 
-let oneAndTwoPlusOther = _a => {
-  return sumOfThree(1, 2, _a);
+const oneAndTwoPlusOther = _a => {
+  return sumOfThreeNumbers(1, 2, _a);
 };
 ```
 
@@ -122,14 +122,15 @@ functions, where a function returns another function that would
 receive the data before finally returning the result.
 
 Take [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide)
-as an example. It provides auto-curried functions, which is something
-this plugin isn't intended to do, but it does so at runtime by creating
-a wrapper around your functions and checking how many arguments were
-provided each time. This is awesome, but comes with some overhead.
+as an example. It provides auto-curried functions ( which are awesome ),
+but it does so at runtime by creating a wrapper around your functions
+and checking how many arguments were provided each time. It's fun,
+but it comes with some overhead.
 
-While this plugin's partial application is a different thing, it can
-accomplish the same thing in most situations and does so with little
-runtime overhead.
+This plugin aims for something a little different - partial application
+[is a different thing](http://www.2ality.com/2011/09/currying-vs-part-eval.html) -
+but it can accomplish the same gaols in most situations and does
+so with little runtime overhead.
 
 For example, this:
 
