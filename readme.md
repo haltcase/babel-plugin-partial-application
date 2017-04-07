@@ -129,7 +129,7 @@ but it comes with some overhead.
 
 This plugin aims for something a little different - partial application
 [is a different thing](http://www.2ality.com/2011/09/currying-vs-part-eval.html) -
-but it can accomplish the same gaols in most situations and does
+but it can accomplish the same goals in most situations and does
 so with little runtime overhead.
 
 For example, this:
