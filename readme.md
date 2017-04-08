@@ -14,6 +14,7 @@
   - [babel-cli](#babel-cli)
   - [babel-api](#babel-api)
 - [caveats & limitations](#caveats--limitations)
+- [comparison to libraries](#comparison-to-libraries)
 - [see also](#see-also)
 - [contributing](#contributing)
 - [license](#license)
@@ -23,9 +24,11 @@
 ## overview
 
 Use the `_` symbol ( or a custom identifier of your choosing ) as a placeholder
-to signal that a function call is partially applied. That is, it's not actually
-called yet, but will return a new function receiving the arguments you signified
-as placeholders.
+to signal that a function call is partially applied, or that you'll provide the
+object of a method call at a later time.
+
+So basically - the original code isn't actually called yet, but will return a new
+function receiving the arguments you signified as placeholders.
 
 You can provide one or several placeholders mixed in with the rest of the usual
 arguments. Think of the values that aren't placeholders as being "bound". Check
@@ -165,23 +168,12 @@ hasOwn(object, 'flammable')
 
 ### curried-style functions
 
-> or, compile-time lodash/fp... more or less.
-
-A handy usage for this plugin is for emulating "curried" style functions,
-where a function returns another function that would receive the data before
+A handy usage for this plugin is emulating "curried" style functions,
+where a function returns another function that receives the data before
 finally returning the result.
 
-Take [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide) as an example.
-It provides auto-curried functions ( which are awesome ), but it does so at
-runtime by creating a wrapper around your functions and checking how many
-arguments were provided each time. It's fun, but it comes with some overhead.
-
-This plugin aims for something a little different - partial application
-[is a different thing](http://www.2ality.com/2011/09/currying-vs-part-eval.html) -
-but it can accomplish the same goals in most situations and does so with little
-runtime overhead.
-
-For example, this:
+While partial application [is a different thing][2ality], it can accomplish
+the same goals in a lot of situations. For example, this:
 
 ```js
 import { map, get } from 'lodash'
@@ -199,9 +191,11 @@ const mapper = _a => {
     return get(_a2, 'nested.key', 'default')
   })
 }
+```
 
-// to be used something like this:
+... to be used something like this:
 
+```js
 const array = [
   { nested: { key: 'value' } },
   { nested: { something: '' } },
@@ -249,7 +243,7 @@ This is the default configuration:
 babel --plugins partial-application src.js
 ```
 
-See Babel's [CLI documentation](http://babeljs.io/docs/usage/cli/) for more.
+See Babel's [CLI documentation][babel-cli] for more.
 
 ### Babel API
 
@@ -262,7 +256,7 @@ require('babel-core').transform('code', {
 
 ## caveats & limitations
 
-> `_` is a common variable name ( eg. for [lodash](https://github.com/lodash/lodash) )
+> `_` is a common variable name ( eg. for [lodash][lodash] )
 
 This is the most obvious potential pitfall when using this plugin. `_` is commonly
 used as the identifier for things like lodash's collection of utilities.
@@ -291,8 +285,8 @@ There are a few reasons this is not seen as problematic.
   become less common to see the entirety of lodash imported,
   especially with ES module tree-shaking on the horizon.
 
-  On top of that, [babel-plugin-lodash](https://github.com/lodash/babel-plugin-lodash)
-  still works effectively when you just import what you need like so:
+  On top of that, [babel-plugin-lodash][babel-lodash] still works
+  effectively when you just import what you need like so:
 
   ```js
   import { add } from 'lodash'
@@ -310,9 +304,25 @@ There are a few reasons this is not seen as problematic.
 
 4. Partial application with `_` is damn cool
 
+## comparison to libraries
+
+Lodash, Underscore, Ramda, and other libraries have provided partial application
+with a helper function something like `_.partial(fn, _)` which wraps the provided
+function, and basically just takes advantage of the fact that `{} !== {}` to recognize
+that the monolithic `_`, `_.partial.placeholder`, or Ramda's `R.__` is a specific
+object deemed a placeholder.
+
+This Babel plugin gives you the same features at the syntax level. Or even better, like
+[lambda parameters](#lambda-parameters) and [object placeholders](#object-placeholders),
+eat your heart out lodash :wink:. And it all comes with no runtime overhead. If you don't
+use placeholders your functions are unaffected. If you do, they're compiled away and turn
+into regular functions that don't have to check arguments to see if a placeholder was provided.
+
 ## see also
 
-- [LightScript](http://www.lightscript.org) - the compile-to-JS language this plugin is written in, leveraging [Babel](https://babeljs.io)
+- [LightScript][lightscript] - the compile-to-JS language this plugin is written in, leveraging [Babel][babel]
+- [lodash/fp][lodash-fp] - functional adaptation of the great Lodash utility library
+- [Ramda][ramda] - highly functional programming-oriented utility library
 
 ## contributing
 
@@ -327,3 +337,12 @@ found are always welcome.
 ## license
 
 MIT © [Bo Lingen / citycide](https://github.com/citycide)
+
+[2ality]: http://www.2ality.com/2011/09/currying-vs-part-eval.html
+[lightscript]: http://www.lightscript.org
+[babel]: https://babeljs.io
+[babel-cli]: http://babeljs.io/docs/usage/cli/
+[babel-lodash]: https://github.com/lodash/babel-plugin-lodash
+[lodash]: https://github.com/lodash/lodash
+[lodash-fp]: https://github.com/lodash/lodash/wiki/FP-Guide
+[ramda]: http://ramdajs.com/
