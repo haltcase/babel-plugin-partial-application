@@ -1,18 +1,35 @@
 # babel-plugin-partial-application &middot; [![Version](https://img.shields.io/npm/v/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![License](https://img.shields.io/npm/l/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![Travis CI](https://img.shields.io/travis/citycide/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://travis-ci.org/citycide/babel-plugin-partial-application) [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square&maxAge=3600)](https://standardjs.com)
 
-> Scala/Kotlin-esque partial application syntax for JavaScript.
+> Partial application syntax for JavaScript, inspired by Scala & Kotlin.
+
+- [overview](#overview)
+- [installation](#installation)
+- [examples & features](#examples)
+  - [basic placeholders](#basic-placeholders): `add(1, _)`
+  - [spread placeholders](#spread-placeholders): `Math.max(..._)`
+  - [lambda parameters](#lambda-parameters): `people.map(_.name)`
+  - [object placeholders](#object-placeholders): `_.hasOwnProperty('dapper')`
+- [usage](#usage)
+  - [babelrc](#babelrc)
+  - [babel-cli](#babel-cli)
+  - [babel-api](#babel-api)
+- [caveats & limitations](#caveats--limitations)
+- [see also](#see-also)
+- [contributing](#contributing)
+- [license](#license)
+
+---
 
 ## overview
 
-Use an `_` symbol ( or a custom identifier of your choosing )
-as a placeholder to signal that a function call is partially
-applied. That is, it's not actually called yet, but will return
-a new function receiving the arguments you signified as
-placeholders.
+Use the `_` symbol ( or a custom identifier of your choosing ) as a placeholder
+to signal that a function call is partially applied. That is, it's not actually
+called yet, but will return a new function receiving the arguments you signified
+as placeholders.
 
-You can provide one or several placeholders mixed in with
-the rest of the usual arguments. See the [examples](#examples)
-section to see what this looks like.
+You can provide one or several placeholders mixed in with the rest of the usual
+arguments. Think of the values that aren't placeholders as being "bound". Check
+out the [examples](#examples) section to see all the different ways this is useful.
 
 ## installation
 
@@ -40,7 +57,7 @@ function sumOfThreeNumbers (x, y, z) {
 const oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _);
 ```
 
-Into this:
+... into this:
 
 ```js
 function sumOfThreeNumbers (x, y, z) {
@@ -90,9 +107,8 @@ const maxOf = (..._a) => {
 
 ### lambda parameters
 
-Easy shorthand for accessing properties or calling
-methods on the applied argument - useful in higher order
-functions like `Array#map()`:
+Easy shorthand for accessing properties or calling methods on the
+applied argument - useful in higher order functions like `Array#map()`:
 
 ```js
 const people = [
@@ -113,18 +129,17 @@ console.log(people.map(_a => {
 }))
 ```
 
-### object placeholder
+### object placeholders
 
 > also called "lambda standalones"... only by me though
 
-The placeholder can stand in for an object on which you'll
-access properties or call methods. This is very similar to
-[lambda parameters](#lambda-parameters) but can be used
-outside function calls.
+The placeholder can stand in for an object on which you'll access properties
+or call methods. This is very similar to [lambda parameters](#lambda-parameters)
+but can be used outside function calls.
 
-As an example, we could re-implement the `hasOwn()` function
-from the [basic placeholders section](#basic-placeholders)
-like this:
+As an example, we could re-implement the `hasOwn()` function from the
+[basic placeholders section](#basic-placeholders) like this (although
+without `.call()` this time):
 
 ```js
 const hasOwn = _.hasOwnProperty(_)
@@ -138,8 +153,8 @@ const hasOwn = (_a2, _a) => {
 };
 ```
 
-The object that will replace the placeholder becomes the first
-argument to the resulting function, so you'd use it like this:
+The object that will replace the placeholder becomes the first argument to
+the resulting function, so you'd use it like this:
 
 ```js
 const object = { flammable: true }
@@ -152,20 +167,19 @@ hasOwn(object, 'flammable')
 
 > or, compile-time lodash/fp... more or less.
 
-A handy usage for this plugin is for emulating "curried" style
-functions, where a function returns another function that would
-receive the data before finally returning the result.
+A handy usage for this plugin is for emulating "curried" style functions,
+where a function returns another function that would receive the data before
+finally returning the result.
 
-Take [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide)
-as an example. It provides auto-curried functions ( which are awesome ),
-but it does so at runtime by creating a wrapper around your functions
-and checking how many arguments were provided each time. It's fun,
-but it comes with some overhead.
+Take [lodash/fp](https://github.com/lodash/lodash/wiki/FP-Guide) as an example.
+It provides auto-curried functions ( which are awesome ), but it does so at
+runtime by creating a wrapper around your functions and checking how many
+arguments were provided each time. It's fun, but it comes with some overhead.
 
 This plugin aims for something a little different - partial application
 [is a different thing](http://www.2ality.com/2011/09/currying-vs-part-eval.html) -
-but it can accomplish the same goals in most situations and does
-so with little runtime overhead.
+but it can accomplish the same goals in most situations and does so with little
+runtime overhead.
 
 For example, this:
 
@@ -209,9 +223,8 @@ const newArray = mapper(array))
 }
 ```
 
-Optionally configure the plugin by using an
-Array of `[pluginName, optionsObject]`. This is
-the default configuration:
+Optionally configure the plugin by using an Array of `[pluginName, optionsObject]`.
+This is the default configuration:
 
 ```json
 {
@@ -251,12 +264,11 @@ require('babel-core').transform('code', {
 
 > `_` is a common variable name ( eg. for [lodash](https://github.com/lodash/lodash) )
 
-This is the most obvious potential pitfall when using this plugin.
-`_` is commonly used as the identifier for things like lodash's
-collection of utilities.
+This is the most obvious potential pitfall when using this plugin. `_` is commonly
+used as the identifier for things like lodash's collection of utilities.
 
-This would be perfectly valid normally, but by default would
-cause an error when using this plugin:
+This would be perfectly valid normally, but by default would cause an error
+when using this plugin:
 
 ```js
 import _ from 'lodash'
@@ -264,9 +276,8 @@ import _ from 'lodash'
 // -> SyntaxError: src.js: Cannot use placeholder as an identifier.
 ```
 
-The reason this plugin uses `_` by default then is not to spite
-you or cause harm. There are a few reasons this is not seen as
-problematic.
+The reason this plugin uses `_` by default then is not to make your life harder.
+There are a few reasons this is not seen as problematic.
 
 1. `_` is a common symbol for partial application
 
