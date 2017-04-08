@@ -1,6 +1,6 @@
-[1, 2, 3].map((_a => {
+[1, 2, 3].map(_a => {
   return _a.toString();
-})());
+});
 
 const people = [{ name: 'Jeff' }, { name: 'Karen' }, { name: 'Genevieve' }];
 

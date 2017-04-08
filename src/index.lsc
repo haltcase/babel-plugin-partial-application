@@ -129,26 +129,36 @@ module.exports = ({ types: t }) ->
 
       MemberExpression (path, state) ->
         placeholder = getPlaceholder(state)
-        { parent, node: { object, property } } = path
+        { node: { object, property } } = path
 
         if !isPlaceholder(object, placeholder): return
 
         id = getUniqueName(path)
-        exp = t.memberExpression(id, property)
-        ret = isCalleePlaceholder(parent, placeholder)
-          ? t.callExpression(exp, parent.arguments)
-          : exp
+        object.name = id.name
 
-        path.replaceWith(
+        let tail = path
+        while tail.parentPath:
+          parent = tail.parentPath
+          isCalleeTail =
+            parent.isCallExpression() and
+            parent.get('callee') == tail
+          hasChainedParent =
+            parent.isMemberExpression() or
+            isCalleeTail
+
+          if !hasChainedParent: break
+          now tail = tail.parentPath
+
+        tail.replaceWith(
           t.arrowFunctionExpression(
             [id],
             t.blockStatement([
-              t.returnStatement(ret)
+              t.returnStatement(tail.node)
             ])
           )
         )
 
-        path.stop()
+        tail.stop()
 
       SpreadElement (path, state) ->
         placeholder = getPlaceholder(state)
