@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-partial-application",
   "version": "1.0.0-alpha.5",
-  "description": "Scale/Kotlin-esque partial application syntax for JavaScript.",
+  "description": "Partial application syntax for JavaScript, inspired by Scala & Kotlin.",
   "author": {
     "name": "Bo Lingen",
     "email": "thecitycide@gmail.com",
@@ -26,7 +26,8 @@
     "curried",
     "scala",
     "kotlin",
-    "template"
+    "template",
+    "placeholder"
   ],
   "files": [
     "index.js"
