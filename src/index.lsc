@@ -38,10 +38,6 @@ module.exports = ({ types: t }) ->
     t.isSpreadElement(node) and
     isPlaceholder(node.argument, placeholder)
 
-  isSomePlaceholder (node, placeholder) ->
-    isPlaceholder(node, placeholder) or
-    isSpreadPlaceholder(node, placeholder)
-
   isCalleePlaceholder (node, placeholder) ->
     t.isCallExpression(node) and
     isPlaceholder(node.callee.object, placeholder)
@@ -82,9 +78,6 @@ module.exports = ({ types: t }) ->
     remainingParams = []
 
     nextCallParams = args.map(arg =>
-      if !isSomePlaceholder(arg, placeholder):
-        return arg
-
       if isPlaceholder(arg, placeholder):
         name = getUniqueName(path)
         remainingParams.push(name)
@@ -94,6 +87,8 @@ module.exports = ({ types: t }) ->
         name = getUniqueName(path)
         remainingParams.push(t.restElement(name))
         return t.spreadElement(name)
+
+      arg
     )
 
     path.replaceWith(
