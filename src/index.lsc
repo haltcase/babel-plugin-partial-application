@@ -38,9 +38,20 @@ module.exports = ({ types: t }) ->
     t.isSpreadElement(node) and
     isPlaceholder(node.argument, placeholder)
 
+  isPartialCaller (node, placeholder) ->
+    t.isCallExpression(node) and
+    hasPlaceholders(node.arguments, placeholder)
+
   isCalleePlaceholder (node, placeholder) ->
     t.isCallExpression(node) and
     isPlaceholder(node.callee.object, placeholder)
+
+  shouldHoist (node) ->
+    !t.isLiteral(node) and [
+      'Identifier'
+      'FunctionExpression'
+      'ArrowFunctionExpression'
+    ].every(type => type != node.type)
 
   hasPlaceholders (nodes, placeholder) ->
     for elem node in nodes:
@@ -87,6 +98,19 @@ module.exports = ({ types: t }) ->
         name = getUniqueName(path)
         remainingParams.push(t.restElement(name))
         return t.spreadElement(name)
+
+      if shouldHoist(arg):
+        if isPartialCaller(arg, placeholder):
+          return arg
+
+        id = getUniqueName(path, 'ref')
+        ref = t.variableDeclaration('const', [
+          t.variableDeclarator(id, arg)
+        ])
+
+        parent = path.getStatementParent()
+        parent.insertBefore(ref)
+        return id
 
       arg
     )
