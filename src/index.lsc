@@ -42,10 +42,6 @@ module.exports = ({ types: t }) ->
     t.isCallExpression(node) and
     hasPlaceholders(node.arguments, placeholder)
 
-  isCalleePlaceholder (node, placeholder) ->
-    t.isCallExpression(node) and
-    isPlaceholder(node.callee.object, placeholder)
-
   shouldHoist (node) ->
     !t.isLiteral(node) and [
       'Identifier'
@@ -148,7 +144,7 @@ module.exports = ({ types: t }) ->
 
       MemberExpression (path, state) ->
         placeholder = getPlaceholder(state)
-        { node: { object, property } } = path
+        { node: { object } } = path
 
         if !isPlaceholder(object, placeholder): return
 
