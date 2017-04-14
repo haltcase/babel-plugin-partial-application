@@ -38,12 +38,14 @@
     "test": "ava",
     "prepublish": "npm test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-plugin-lightscript": "^0.5.0"
+  },
   "devDependencies": {
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
     "babel-core": "^6.24.0",
-    "babel-plugin-lightscript": "^0.4.2",
+    "babel-plugin-lightscript": "^0.5.0",
     "babel-preset-env": "^1.2.2",
     "lodash.get": "^4.4.2",
     "lodash.map": "^4.6.0"
