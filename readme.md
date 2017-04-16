@@ -9,6 +9,7 @@
   - [spread placeholders](#spread-placeholders): `Math.max(..._)`
   - [lambda parameters](#lambda-parameters): `people.map(_.name)`
   - [object placeholders](#object-placeholders): `_.hasOwnProperty('dapper')`
+  - [binary expressions](#binary-expressions): `_ === 'awesome'`, `_.getPower().level > 9000`
 - [usage](#usage)
   - [babelrc](#babelrc)
   - [babel-cli](#babel-cli)
@@ -164,6 +165,43 @@ const object = { flammable: true }
 
 hasOwn(object, 'flammable')
 // -> true
+```
+
+### binary expressions
+
+You can use placeholders within logical comparisons ( `===` ) or
+addition, subtraction, string concatenation, etc. So this:
+
+```js
+array.map(_ === true)
+```
+
+... transforms into this:
+
+```js
+array.map(_b => {
+  return _b === true
+})
+```
+
+And for a classic example, let's say you have an Array of numbers
+and want the total sum of them all:
+
+```js
+const array = [1, 2, 3, 4, 5]
+array.reduce(_ + _)
+// -> 15
+```
+
+You can combine this with object placeholders and lambda parameters:
+
+```js
+const heroes = [
+  { getPower () { return { level: 9001 } } }
+  { getPower () { return { level: 4500 } } }
+]
+
+heroes.filter(_.getPower().level > 9000)
 ```
 
 ### curried-style functions
