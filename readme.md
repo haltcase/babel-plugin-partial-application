@@ -1,6 +1,6 @@
 # babel-plugin-partial-application &middot; [![Version](https://img.shields.io/npm/v/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![License](https://img.shields.io/npm/l/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![Travis CI](https://img.shields.io/travis/citycide/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://travis-ci.org/citycide/babel-plugin-partial-application) [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square&maxAge=3600)](https://standardjs.com)
 
-> Partial application syntax for JavaScript, inspired by Scala & Kotlin.
+> Partial application syntax for JavaScript, inspired by Scala's `_` & Kotlin's `it`.
 
 - [overview](#overview)
 - [installation](#installation)
@@ -275,8 +275,9 @@ There are a few reasons this is not seen as problematic.
 
 1. `_` is a common symbol for partial application
 
-  Scala & Kotlin both use the underscore as a placeholder for
-  partially applied functions, so the idea is recognizable.
+  The Scala language uses the underscore as a placeholder for partially
+  applied functions, and tons of JavaScript libraries have used it as
+  well - so it's become recognizable.
 
 2. Monolithic builds of packages like lodash are on the way out
 
@@ -323,6 +324,7 @@ into regular functions that don't have to check arguments to see if a placeholde
 - [LightScript][lightscript] - the compile-to-JS language this plugin is written in, leveraging [Babel][babel]
 - [lodash/fp][lodash-fp] - functional adaptation of the great Lodash utility library
 - [Ramda][ramda] - highly functional programming-oriented utility library
+- [babel-plugin-transform-scala-lambda][scala-lambda] - a similar plugin for more limited Scala-like lambda syntax
 
 ## contributing
 
@@ -346,3 +348,4 @@ MIT © [Bo Lingen / citycide](https://github.com/citycide)
 [lodash]: https://github.com/lodash/lodash
 [lodash-fp]: https://github.com/lodash/lodash/wiki/FP-Guide
 [ramda]: http://ramdajs.com/
+[scala-lambda]: https://github.com/xtuc/babel-plugin-transform-scala-lambda
