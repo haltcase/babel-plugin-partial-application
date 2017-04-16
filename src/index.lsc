@@ -80,6 +80,15 @@ module.exports = ({ types: t }) ->
       childPath.stop()
   }
 
+  binaryChildVisitor = {
+    Identifier (childPath): void ->
+      if !isPlaceholder(childPath.node, this.placeholder): return
+
+      id = getUniqueName(childPath, 'b')
+      this.tail.node.params.push(id)
+      childPath.node.name = id.name
+  }
+
   partiallyApply (path, placeholder) ->
     { arguments: args, callee } = path.node
     remainingParams = []
@@ -159,6 +168,7 @@ module.exports = ({ types: t }) ->
             parent.get('callee') == tail
           hasChainedParent =
             parent.isMemberExpression() or
+            parent.isBinaryExpression() or
             isCalleeTail
 
           if !hasChainedParent: break
@@ -204,5 +214,30 @@ module.exports = ({ types: t }) ->
         )
 
         parentPath.stop()
+
+      BinaryExpression (path, state) ->
+        placeholder = getPlaceholder(state)
+        { node: { left, right } } = path
+        nodes = [left, right].filter(v => isPlaceholder(v, placeholder))
+
+        if !nodes.length: return
+
+        let tail = path
+        while t.isBinaryExpression(tail.parent):
+          now tail = tail.parentPath
+
+        tail.replaceWith(
+          t.arrowFunctionExpression(
+            [],
+            t.blockStatement([
+              t.returnStatement(
+                t.toExpression(tail.node)
+              )
+            ])
+          )
+        )
+
+        tail.traverse(binaryChildVisitor, { tail, placeholder })
+        tail.stop()
     }
   }
