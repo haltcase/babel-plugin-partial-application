@@ -82,7 +82,8 @@ module.exports = ({ types: t }) ->
 
   binaryChildVisitor = {
     Identifier (childPath): void ->
-      if !isPlaceholder(childPath.node, this.placeholder): return
+      if !isPlaceholder(childPath.node, this.placeholder):
+        return
 
       id = getUniqueName(childPath, 'b')
       this.tail.node.params.push(id)
@@ -157,8 +158,29 @@ module.exports = ({ types: t }) ->
 
         if !isPlaceholder(object, placeholder): return
 
-        id = getUniqueName(path)
-        object.name = id.name
+        let comparingPlaceholders = false
+        binaryParent = path.findParent(
+          p => t.isBinaryExpression(p)
+        )
+
+        ids = [getUniqueName(path)]
+
+        if binaryParent:
+          { right } = binaryParent.node
+          if isPlaceholder(right, placeholder):
+            now comparingPlaceholders = true
+          else:
+            let target = right?.object or right?.callee?.object
+            while target?.object or target?.callee:
+              now target = target.object or target.callee.object
+
+            if isPlaceholder(target, placeholder):
+              id = getUniqueName(path)
+              ids.push(id)
+              target.name = id.name
+              now comparingPlaceholders = true
+
+        object.name = ids[0].name
 
         let tail = path
         while tail.parentPath:
@@ -176,7 +198,7 @@ module.exports = ({ types: t }) ->
 
         tail.replaceWith(
           t.arrowFunctionExpression(
-            [id],
+            ids,
             t.blockStatement([
               t.returnStatement(tail.node)
             ])
