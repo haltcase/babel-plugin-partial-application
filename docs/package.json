@@ -1,0 +1,32 @@
+{
+  "name": "partial-application-playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "babel-standalone": "^6.24.0",
+    "highlight.js": "^9.11.0",
+    "lodash.debounce": "^4.0.8",
+    "prettier": "^1.2.2",
+    "pretty-format": "^19.0.0",
+    "split.js": "^1.2.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^6.4.1",
+    "babel-preset-babili": "0.0.12",
+    "babel-preset-env": "^1.4.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "babili-webpack-plugin": "0.0.11",
+    "html-loader": "^0.4.5",
+    "markdown-loader": "^2.0.0",
+    "marked": "^0.3.6",
+    "webpack": "^2.4.1"
+  }
+}
