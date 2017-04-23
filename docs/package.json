@@ -1,21 +1,46 @@
 {
   "name": "partial-application-playground",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Live coding playground for babel-plugin-partial-application",
+  "author": {
+    "name": "Bo Lingen",
+    "email": "thecitycide@gmail.com",
+    "url": "github.com/citycide"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/citycide/babel-plugin-partial-application.git"
+  },
+  "homepage": "https://github.com/citycide/babel-plugin-partial-application",
+  "bugs": "https://github.com/citycide/babel-plugin-partial-application/issues",
+  "engines": {
+    "node": ">=4"
+  },
+  "keywords": [
+    "babel-plugin",
+    "functional",
+    "partial",
+    "application",
+    "currying",
+    "curried",
+    "scala",
+    "kotlin",
+    "template",
+    "placeholder"
+  ],
   "scripts": {
     "build": "webpack",
     "watch": "webpack -w"
   },
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "babel-standalone": "^6.24.0",
     "highlight.js": "^9.11.0",
     "lodash.debounce": "^4.0.8",
     "prettier": "^1.2.2",
     "pretty-format": "^19.0.0",
-    "split.js": "^1.2.0"
+    "split.js": "^1.2.0",
+    "tether-shepherd": "^1.8.1"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

@@ -1,6 +1,7 @@
 /* global ace, _ */
 
 import split from 'split.js'
+import { Tour } from 'tether-shepherd'
 import debounce from 'lodash.debounce'
 import highlight from 'highlight.js/lib/highlight'
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -138,6 +139,87 @@ function loadEditors (state) {
 }
 
 const { editor, compiled, result } = loadEditors(getStorage('editorState'))
+
+if (!getStorage('tourComplete')) {
+  let isReadmeURL = getQueryProp('readme')
+  if (isReadmeURL) removeQueryProp('readme')
+
+  closeButton.click()
+
+  const tour = new Tour({
+    defaults: {
+      classes: 'shepherd-theme-square',
+      scrollTo: true,
+      showCancelLink: true
+    }
+  })
+
+  tour.addStep('readme-button', {
+    title: `docs are just a click away`,
+    text:
+      `These editors make it easy to try out the plugin. ` +
+      `If you need help or just a quick reference, ` +
+      `click the <i class="material-icons">help</i> button.<br/><br/>` +
+      `<i>you will only see this once</i>`
+    ,
+    attachTo: {
+      element: helpButton,
+      on: 'bottom'
+    },
+    buttons: [{
+      text: 'next',
+      action: () => {
+        tour.next()
+      }
+    }]
+  })
+
+  tour.addStep('github-reference', {
+    title: `easily head to the GitHub repo`,
+    text:
+      `The plugin is open source on GitHub! Check it out ` +
+      `if you would like to contribute or ` +
+      `<i class="material-icons" style="padding-right: 2px;">star</i>` +
+      `the project to throw some good vibes.`
+    ,
+    attachTo: {
+      element: helpButton,
+      on: 'bottom'
+    },
+    buttons: [{
+      text: 'next',
+      action: () => {
+        helpButton.click()
+        tour.next()
+      }
+    }]
+  })
+
+  tour.addStep('back-to-app-button', {
+    title: `back to the editor`,
+    text:
+      `When you want to return to the editor, click ` +
+      `<i class="material-icons">exit_to_app</i> to close the readme.`
+    ,
+    attachTo: {
+      element: closeButton,
+      on: 'bottom'
+    },
+    buttons: [{
+      text: 'done',
+      action: () => {
+        if (!isReadmeURL) closeButton.click()
+        tour.complete()
+      }
+    }]
+  })
+
+  tour.once('complete', () => {
+    setStorage('tourComplete', true)
+  })
+
+  tour.start()
+}
 
 const logLineReducer = (list, line, i, col) => {
   if (i === 0 && line.trim() === 'Arguments [') {

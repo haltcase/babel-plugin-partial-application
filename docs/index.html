@@ -6,10 +6,13 @@
   <title>babel-plugin-partial-application playground</title>
   <link href="./markdown.css" rel="stylesheet">
   <link href="./github.css" rel="stylesheet">
+  <link href="https://unpkg.com/tether-shepherd@1.8.1/dist/css/shepherd-theme-square.css" rel="stylesheet">
   <link href="https://unpkg.com/highlight.js@9.11.0/styles/atom-one-light.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style type="text/css" media="screen">
     body {
+      font-family: 'Segoe UI', 'San Francisco', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 400;
       overflow: hidden;
       margin: 0;
       padding: 0;
@@ -64,7 +67,7 @@
     #navbar .left .label,
     #help-modal .header .label {
       padding-left: 10px;
-      font-family: 'Segoe UI', 'San Francisco', sans-serif;
+      /* font-family: 'Segoe UI', 'San Francisco', sans-serif; */
       font-weight: bold;
       line-height: 33px;
     }
@@ -84,7 +87,7 @@
     .titlebar-left,
     .titlebar-right {
       background-color: #f6f6f6;
-      font-family: 'Segoe UI', 'San Francisco', sans-serif;
+      /* font-family: 'Segoe UI', 'San Francisco', sans-serif; */
       text-align: center;
       line-height: 33px;
       height: 35px;
@@ -153,6 +156,16 @@
            -moz-user-select: none;
             -ms-user-select: none;
                 user-select: none;
+    }
+
+    .shepherd-text .material-icons {
+      color: #333;
+      position: relative;
+      top: 3px;
+    }
+
+    .shepherd-button {
+      background-color: #4bbbea;
     }
   </style>
 </head>
