@@ -98,6 +98,25 @@ module.exports = ({ types: t }) ->
       childPath.node.name = id.name
   }
 
+  templateLiteralVisitor = {
+    Identifier (childPath): void ->
+      if !isPlaceholder(childPath.node, this.placeholder):
+        return
+
+      id = getUniqueName(childPath, 'exp')
+      childPath.node.name = id.name
+
+      if t.isArrowFunctionExpression(this.path):
+        this.path.node.params.push(id)
+        return
+
+      this.path.replaceWith(
+        makeWrapperFunction([id], this.path.node)
+      )
+
+      this.path.stop()
+  }
+
   partiallyApply (path, placeholder) ->
     { arguments: args, callee } = path.node
     remainingParams = []
@@ -239,5 +258,9 @@ module.exports = ({ types: t }) ->
 
         tail.traverse(binaryChildVisitor, { tail, placeholder })
         tail.stop()
+
+      TemplateLiteral (path, state) ->
+        placeholder = getPlaceholder(state)
+        path.traverse(templateLiteralVisitor, { path, placeholder })
     }
   }
