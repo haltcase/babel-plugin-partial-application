@@ -57,6 +57,14 @@ module.exports = ({ types: t }) ->
   getUniqueName (path, name = 'a') ->
     path.scope.generateUidIdentifier(name)
 
+  makeWrapperFunction (params, returnStatement) ->
+    t.arrowFunctionExpression(
+      params,
+      t.blockStatement([
+        t.returnStatement(returnStatement)
+      ])
+    )
+
   checkImports (path, placeholder) ->
     for elem specifier in path.node.specifiers:
       if specifier.local.name == placeholder:
@@ -121,19 +129,9 @@ module.exports = ({ types: t }) ->
       arg
     )
 
-    path.replaceWith(
-      t.arrowFunctionExpression(
-        remainingParams,
-        t.blockStatement([
-          t.returnStatement(
-            t.callExpression(
-              callee,
-              nextCallParams
-            )
-          )
-        ])
-      )
-    )
+    call = t.callExpression(callee, nextCallParams)
+    makeWrapperFunction(remainingParams, call)
+      ~path.replaceWith()
 
     path.traverse(appliedChildVisitor, { path, placeholder })
 
@@ -196,14 +194,8 @@ module.exports = ({ types: t }) ->
           if !hasChainedParent: break
           now tail = tail.parentPath
 
-        tail.replaceWith(
-          t.arrowFunctionExpression(
-            ids,
-            t.blockStatement([
-              t.returnStatement(tail.node)
-            ])
-          )
-        )
+        makeWrapperFunction(ids, tail.node)
+          ~tail.replaceWith()
 
         tail.stop()
 
@@ -221,19 +213,13 @@ module.exports = ({ types: t }) ->
         id = path.scope.generateUidIdentifier('a')
         args = parent.arguments.slice(0, -1)
 
-        parentPath.replaceWith(
-          t.arrowFunctionExpression(
-            [t.restElement(id)],
-            t.blockStatement([
-              t.returnStatement(
-                t.callExpression(
-                  parent.callee,
-                  [...args, t.spreadElement(id)]
-                )
-              )
-            ])
-          )
+        call = t.callExpression(
+          parent.callee,
+          [...args, t.spreadElement(id)]
         )
+
+        makeWrapperFunction([t.restElement(id)], call)
+          ~parentPath.replaceWith()
 
         parentPath.stop()
 
@@ -248,16 +234,8 @@ module.exports = ({ types: t }) ->
         while t.isBinaryExpression(tail.parent):
           now tail = tail.parentPath
 
-        tail.replaceWith(
-          t.arrowFunctionExpression(
-            [],
-            t.blockStatement([
-              t.returnStatement(
-                t.toExpression(tail.node)
-              )
-            ])
-          )
-        )
+        makeWrapperFunction([], t.toExpression(tail.node))
+          ~tail.replaceWith()
 
         tail.traverse(binaryChildVisitor, { tail, placeholder })
         tail.stop()
