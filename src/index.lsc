@@ -192,10 +192,10 @@ module.exports = ({ types: t }) ->
               now target = target.object or target.callee.object
 
             if isPlaceholder(target, placeholder):
+              now comparingPlaceholders = true
               id = getUniqueName(path)
               ids.push(id)
               target.name = id.name
-              now comparingPlaceholders = true
 
         object.name = ids[0].name
 
@@ -229,15 +229,10 @@ module.exports = ({ types: t }) ->
             'Placeholder spread is unsupported outside call expressions.'
           )
 
-        id = path.scope.generateUidIdentifier('a')
-        args = parent.arguments.slice(0, -1)
+        id = getUniqueName(path)
+        path.replaceWith(t.spreadElement(id))
 
-        call = t.callExpression(
-          parent.callee,
-          [...args, t.spreadElement(id)]
-        )
-
-        makeWrapperFunction([t.restElement(id)], call)
+        makeWrapperFunction([t.restElement(id)], parent)
           ~parentPath.replaceWith()
 
         parentPath.stop()
