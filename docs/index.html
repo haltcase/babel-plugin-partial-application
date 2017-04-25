@@ -214,7 +214,12 @@
 <div id="code-container">
   <div id="editor-wrapper" class="split split-horizontal">
     <div class="titlebar-left">editable JavaScript ...</div>
-    <pre id="editor">const people = [
+    <pre id="editor">const _ = require('babel-plugin-partial-application')
+// importing / requiring the plugin is optional
+
+const log = console.log(..._)
+
+const people = [
   { name: 'Jeff' },
   { name: 'Karen' },
   { name: 'Genevieve' }
@@ -223,32 +228,38 @@
 const names = people
   .map(_.name)
   .filter(_.includes('en'))
-  .reduce(_ + ', ' + _)
+  .reduce(`${_}, ${_}`)
 
-console.log(names)
+log(names)
 </pre>
   </div>
   <div id="output-wrapper" class="split split-horizontal">
     <div id="compiled-wrapper" class="split split-vertical">
       <div class="titlebar-right">... magically transformed</div>
-      <pre id="compiled">const people = [
+      <pre id="compiled">// importing / requiring the plugin is optional
+
+const log = (..._spr) => {
+  return console.log(..._spr)
+}
+
+const people = [
   { name: 'Jeff' },
   { name: 'Karen' },
   { name: 'Genevieve' }
 ]
 
 const names = people
-  .map(_a => {
-    return _a.name
+  .map(_obj => {
+    return _obj.name
   })
-  .filter(_a2 => {
-    return _a2.includes('en')
+  .filter(_obj2 => {
+    return _obj2.includes('en')
   })
-  .reduce((_b, _b2) => {
-    return _b + ', ' + _b2
+  .reduce((_exp, _exp2) => {
+    return `${_exp}, ${_exp2}`
   })
 
-console.log(names)
+log(names)
 </pre>
     </div>
     <div id="console-wrapper" class="split split-vertical">
