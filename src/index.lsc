@@ -1,3 +1,4 @@
+PACKAGE_NAME = 'babel-plugin-partial-application'
 DEFAULT_PLACEHOLDER = '_'
 ALTERNATE_PLACEHOLDER = '__'
 
@@ -13,9 +14,11 @@ makeIdentifierError (path, current) ->
   )
 
 module.exports = ({ types: t }) ->
+  let currentPlaceholder = DEFAULT_PLACEHOLDER
+
   getPlaceholder (state) ->
     let {
-      placeholder = DEFAULT_PLACEHOLDER,
+      placeholder = currentPlaceholder,
       useAlternatePlaceholder
     } = state.opts
 
@@ -31,6 +34,10 @@ module.exports = ({ types: t }) ->
 
     placeholder
 
+  setPlaceholder (token) ->
+    if typeof token == 'string':
+      now currentPlaceholder = token
+
   isPlaceholder (node, placeholder) ->
     t.isIdentifier(node, { name: placeholder })
 
@@ -41,6 +48,15 @@ module.exports = ({ types: t }) ->
   isPartialCaller (node, placeholder) ->
     t.isCallExpression(node) and
     hasPlaceholders(node.arguments, placeholder)
+
+  isPluginRequire ({ callee, arguments: args }) ->
+    isRequire =
+      t.isIdentifier(callee, { name: 'require' }) or (
+        t.isMemberExpression(callee) and
+        t.isIdentifier(callee.object, { name: 'require' })
+      )
+
+    isRequire and t.isStringLiteral(args[0], { value: PACKAGE_NAME })
 
   shouldHoist (node) ->
     !t.isLiteral(node) and [
@@ -66,12 +82,22 @@ module.exports = ({ types: t }) ->
     )
 
   checkImports (path, placeholder) ->
-    for elem specifier in path.node.specifiers:
+    { node: { specifiers, source } } = path
+    if source.value == PACKAGE_NAME and specifiers.length:
+      setPlaceholder(specifiers[0].local.name)
+      return path.remove()
+
+    for elem specifier in specifiers:
       if specifier.local.name == placeholder:
         throw makeIdentifierError(path, placeholder)
 
   checkDeclarations (path, placeholder) ->
     for elem declaration in path.node.declarations:
+      if isPluginRequire(declaration.init):
+        if t.isIdentifier(declaration.id):
+          setPlaceholder(declaration.id.name)
+          return path.remove()
+
       if declaration.id.name == placeholder:
         throw makeIdentifierError(path, placeholder)
 
