@@ -10,6 +10,8 @@
   - [lambda parameters](#lambda-parameters): `people.map(_.name)`
   - [object placeholders](#object-placeholders): `_.hasOwnProperty('dapper')`
   - [binary expressions](#binary-expressions): `_ === 'awesome'`, `_.getPower().level > 9000`
+  - [template literals](#template-literals): ``const greet = `Hello, ${_}!` ``
+  - [set a custom token](#set-a-custom-token): `import _ from 'babel-plugin-partial-application'`
 - [usage](#usage)
   - [babelrc](#babelrc)
   - [babel-cli](#babel-cli)
@@ -204,6 +206,68 @@ const heroes = [
 heroes.filter(_.getPower().level > 9000)
 ```
 
+### template literals
+
+You can use almost all the features above inside template literals:
+
+```js
+const greet = `Hello, ${_}!`
+
+greet('world')
+// -> Hello, world!
+
+const greet2 = `Hello, ${_.name}!`
+
+greet2({ name: 'Tom' })
+// -> Hello, Tom!
+```
+
+### set a custom token
+
+If you happen to need `_` as an identifier for whatever reason,
+there are two different ways to set a custom placeholder token.
+
+You can either use options in your Babel config as described
+[below](#usage) or simply import / require the plugin:
+
+```js
+import _ from 'babel-plugin-partial-application'
+
+// or, using require:
+const _ = require('babel-plugin-partial-application')
+```
+
+This import is removed from the compiled output - so you don't
+need a production dependency on the plugin. It won't actually
+import anything at runtime.
+
+Whatever identifier you set the import to is what will be used
+as the placeholder, so all of the following would work:
+
+```js
+import __ from 'babel-plugin-partial-application'
+
+const greet = `Hello, ${__}!`
+```
+
+```js
+import $ from 'babel-plugin-partial-application'
+
+const greet = `Hello, ${$}!`
+```
+
+```js
+import PLACEHOLDER from 'babel-plugin-partial-application'
+
+const greet = `Hello, ${PLACEHOLDER}!`
+```
+
+The benefit of this method over .babelrc configuration is that
+linters and type systems won't have a fit because `_` isn't
+defined. It's also more explicit, more easily understandable,
+and self-documenting. Anyone looking at your code will know
+that `_` is from `babel-plugin-partial-application`.
+
 ### curried-style functions
 
 A handy usage for this plugin is emulating "curried" style functions,
@@ -274,6 +338,9 @@ This is the default configuration:
 | :-----------------------: | :-------: | :-----: | ----------- |
 | `placeholder`             | `String`  |   `_`   | Identifier used to signal partial application in function calls. |
 | `useAlternatePlaceholder` | `Boolean` | `false` | Use `__` as the placeholder. Ignored if `placeholder` is set to a custom value. |
+
+You can also set a custom placeholder by importing or requiring the plugin.
+See ["set a custom token"](#set-a-custom-token) above for usage.
 
 ### Babel CLI
 
