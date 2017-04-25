@@ -1,3 +1,3 @@
-const hasOwn = (_a, _a2) => {
-  return {}.hasOwnProperty.call(_a, _a2);
+const hasOwn = (_arg, _arg2) => {
+  return {}.hasOwnProperty.call(_arg, _arg2);
 };

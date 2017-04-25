@@ -1,18 +1,18 @@
-_a => {
-  return _a.fn().bar().baz <= parseInt('10');
+_obj => {
+  return _obj.fn().bar().baz <= parseInt('10');
 };
 
-(_a2, _a3) => {
-  return _a2.fn().foo >= _a3.bar.foo.baz();
+(_obj2, _obj3) => {
+  return _obj2.fn().foo >= _obj3.bar.foo.baz();
 };
 
-const foo = _a4 => {
-  return _a4.method().value > 10;
+const foo = _obj4 => {
+  return _obj4.method().value > 10;
 };
 
-const bar = (_a5, _a6) => {
-  return _a5.method().value === _a6.method().value();
+const bar = (_obj5, _obj6) => {
+  return _obj5.method().value === _obj6.method().value();
 };
-const baz = (_a7, _a8) => {
-  return _a7.method().value() === _a8.method().value;
+const baz = (_obj7, _obj8) => {
+  return _obj7.method().value() === _obj8.method().value;
 };

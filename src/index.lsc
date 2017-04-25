@@ -81,7 +81,7 @@ module.exports = ({ types: t }) ->
 
       if !isPlaceholder(object, this.placeholder): return
 
-      id = getUniqueName(childPath)
+      id = getUniqueName(childPath, 'obj')
       this.path.node.params.unshift(id)
       childPath.node.object = id
 
@@ -93,7 +93,7 @@ module.exports = ({ types: t }) ->
       if !isPlaceholder(childPath.node, this.placeholder):
         return
 
-      id = getUniqueName(childPath, 'b')
+      id = getUniqueName(childPath, 'bin')
       this.tail.node.params.push(id)
       childPath.node.name = id.name
   }
@@ -123,12 +123,12 @@ module.exports = ({ types: t }) ->
 
     nextCallParams = args.map(arg =>
       if isPlaceholder(arg, placeholder):
-        name = getUniqueName(path)
+        name = getUniqueName(path, 'arg')
         remainingParams.push(name)
         return name
 
       if isSpreadPlaceholder(arg, placeholder):
-        name = getUniqueName(path)
+        name = getUniqueName(path, 'spr')
         remainingParams.push(t.restElement(name))
         return t.spreadElement(name)
 
@@ -180,7 +180,7 @@ module.exports = ({ types: t }) ->
           p => t.isBinaryExpression(p)
         )
 
-        ids = [getUniqueName(path)]
+        ids = [getUniqueName(path, 'obj')]
 
         if binaryParent:
           { right } = binaryParent.node
@@ -193,7 +193,7 @@ module.exports = ({ types: t }) ->
 
             if isPlaceholder(target, placeholder):
               now comparingPlaceholders = true
-              id = getUniqueName(path)
+              id = getUniqueName(path, 'obj')
               ids.push(id)
               target.name = id.name
 
@@ -229,7 +229,7 @@ module.exports = ({ types: t }) ->
             'Placeholder spread is unsupported outside call expressions.'
           )
 
-        id = getUniqueName(path)
+        id = getUniqueName(path, 'spr')
         path.replaceWith(t.spreadElement(id))
 
         makeWrapperFunction([t.restElement(id)], parent)

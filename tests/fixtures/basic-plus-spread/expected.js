@@ -1,7 +1,7 @@
-const maxWith = (_a, ..._a2) => {
-  return Math.max(_a, ..._a2);
+const maxWith = (_arg, ..._spr) => {
+  return Math.max(_arg, ..._spr);
 };
 
-const maxWithGap = (_a3, ..._a4) => {
-  return Math.max(_a3, 5, ..._a4);
+const maxWithGap = (_arg2, ..._spr2) => {
+  return Math.max(_arg2, 5, ..._spr2);
 };

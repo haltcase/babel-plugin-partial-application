@@ -1,6 +1,6 @@
-foo.filter(_a => {
-  return _a.level > 0;
+foo.filter(_obj => {
+  return _obj.level > 0;
 });
-foo.filter(_a2 => {
-  return _a2.getName().length > 10;
+foo.filter(_obj2 => {
+  return _obj2.getName().length > 10;
 });
