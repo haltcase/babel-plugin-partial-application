@@ -57,36 +57,36 @@ Transform this:
 
 ```js
 function sumOfThreeNumbers (x, y, z) {
-  return x + y + z;
+  return x + y + z
 }
 
-const oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _);
+const oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _)
 ```
 
 ... into this:
 
 ```js
 function sumOfThreeNumbers (x, y, z) {
-  return x + y + z;
+  return x + y + z
 }
 
-const oneAndTwoPlusOther = _a => {
-  return sumOfThreeNumbers(1, 2, _a);
-};
+const oneAndTwoPlusOther = _arg => {
+  return sumOfThreeNumbers(1, 2, _arg)
+}
 ```
 
 It also works for method calls, where this:
 
 ```js
-const hasOwn = {}.hasOwnProperty.call(_, _);
+const hasOwn = {}.hasOwnProperty.call(_, _)
 ```
 
 ... becomes:
 
 ```js
-const hasOwn = (_a4, _a5) => {
-  return {}.hasOwnProperty.call(_a4, _a5);
-};
+const hasOwn = (_arg, _arg2) => {
+  return {}.hasOwnProperty.call(_arg, _arg2)
+}
 ```
 
 ### spread placeholders
@@ -103,8 +103,8 @@ console.log(maxOf(1, 2, 3, 4, 5))
 This is compiled to:
 
 ```js
-const maxOf = (..._a) => {
-  return Math.max(..._a)
+const maxOf = (..._spr) => {
+  return Math.max(..._spr)
 }
 ```
 
@@ -130,8 +130,8 @@ console.log(people.map(_.name))
 ... compiles to:
 
 ```js
-console.log(people.map(_a => {
-  return _a.name
+console.log(people.map(_obj => {
+  return _obj.name
 }))
 ```
 
@@ -154,9 +154,9 @@ const hasOwn = _.hasOwnProperty(_)
 ... which compiles to:
 
 ```js
-const hasOwn = (_a2, _a) => {
-  return _a2.hasOwnProperty(_a)
-};
+const hasOwn = (_obj, _arg) => {
+  return _obj.hasOwnProperty(_arg)
+}
 ```
 
 The object that will replace the placeholder becomes the first argument to
@@ -181,8 +181,8 @@ array.map(_ === true)
 ... transforms into this:
 
 ```js
-array.map(_b => {
-  return _b === true
+array.map(_bin => {
+  return _bin === true
 })
 ```
 
@@ -288,9 +288,9 @@ const mapper = map(_, get(_, 'nested.key', 'default'))
 ```js
 import { map, get } from 'lodash'
 
-const mapper = _a => {
-  return map(_a, _a2 => {
-    return get(_a2, 'nested.key', 'default')
+const mapper = _arg => {
+  return map(_arg, _arg2 => {
+    return get(_arg2, 'nested.key', 'default')
   })
 }
 ```
@@ -356,7 +356,7 @@ See Babel's [CLI documentation][babel-cli] for more.
 require('babel-core').transform('code', {
   presets: [],
   plugins: ['partial-application']
-});
+})
 ```
 
 ## caveats & limitations
