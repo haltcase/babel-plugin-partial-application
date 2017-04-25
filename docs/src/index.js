@@ -85,8 +85,9 @@ const setModalState = (state) => {
 }
 
 const checkQuery = () => {
-  const hasProp = getQueryProp('readme')
-  setModalState(!!hasProp)
+  const hasHash = !!window.location.hash
+  const hasProp = !!getQueryProp('readme')
+  setModalState(hasHash || hasProp)
 }
 checkQuery()
 
