@@ -2,6 +2,8 @@
 
 > Partial application syntax for JavaScript, inspired by Scala's `_` & Kotlin's `it`.
 
+> **try it live** on the **[online playground](https://citycide.github.io/babel-plugin-partial-application/)**
+
 - [overview](#overview)
 - [installation](#installation)
 - [examples & features](#examples)
