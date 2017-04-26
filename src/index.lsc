@@ -38,6 +38,9 @@ module.exports = ({ types: t }) ->
     if typeof token == 'string':
       now currentPlaceholder = token
 
+  getUniqueName (path, name = 'a') ->
+    path.scope.generateUidIdentifier(name)
+
   isPlaceholder (node, placeholder) ->
     t.isIdentifier(node, { name: placeholder })
 
@@ -49,7 +52,10 @@ module.exports = ({ types: t }) ->
     t.isCallExpression(node) and
     hasPlaceholders(node.arguments, placeholder)
 
-  isPluginRequire ({ callee, arguments: args }) ->
+  isPluginRequire (node) ->
+    if !node: return
+    { callee, arguments: args } = node
+
     isRequire =
       t.isIdentifier(callee, { name: 'require' }) or (
         t.isMemberExpression(callee) and
@@ -59,8 +65,15 @@ module.exports = ({ types: t }) ->
     isRequire and t.isStringLiteral(args[0], { value: PACKAGE_NAME })
 
   shouldHoist (node) ->
+    if t.isCallExpression(node):
+      return !node.callee?.object?.wasPlaceholder
+
+    if t.isMemberExpression(node):
+      return !node.object.wasPlaceholder
+
     !t.isLiteral(node) and [
       'Identifier'
+      'SpreadElement'
       'FunctionExpression'
       'ArrowFunctionExpression'
     ].every(type => type != node.type)
@@ -69,9 +82,6 @@ module.exports = ({ types: t }) ->
     for elem node in nodes:
       if isPlaceholder(node, placeholder):
         return true
-
-  getUniqueName (path, name = 'a') ->
-    path.scope.generateUidIdentifier(name)
 
   makeWrapperFunction (params, returnStatement) ->
     t.arrowFunctionExpression(
@@ -102,16 +112,32 @@ module.exports = ({ types: t }) ->
         throw makeIdentifierError(path, placeholder)
 
   appliedChildVisitor = {
-    MemberExpression (childPath) ->
-      { node: { object } } = childPath
+    CallExpression (childPath): void ->
+      childPath.skip()
 
-      if !isPlaceholder(object, this.placeholder): return
+    Identifier (childPath): void ->
+      { node, parent } = childPath
 
-      id = getUniqueName(childPath, 'obj')
-      this.path.node.params.unshift(id)
-      childPath.node.object = id
+      if !isPlaceholder(node, this.placeholder): return
 
-      childPath.stop()
+      let name = 'arg'
+      if t.isMemberExpression(parent):
+        now name = 'obj'
+        parent.wasPlaceholder = true
+
+      id = getUniqueName(childPath, name)
+      this.fn.params.push(id)
+      node.name = id.name
+      node.wasPlaceholder = true
+
+    SpreadElement (childPath): void ->
+      { node: { argument } } = childPath
+
+      if !isPlaceholder(argument, this.placeholder): return
+
+      id = getUniqueName(childPath, 'spr')
+      this.fn.params.push(t.restElement(id))
+      childPath.replaceWith(t.spreadElement(id))
   }
 
   binaryChildVisitor = {
@@ -143,43 +169,6 @@ module.exports = ({ types: t }) ->
       this.path.stop()
   }
 
-  partiallyApply (path, placeholder) ->
-    { arguments: args, callee } = path.node
-    remainingParams = []
-
-    nextCallParams = args.map(arg =>
-      if isPlaceholder(arg, placeholder):
-        name = getUniqueName(path, 'arg')
-        remainingParams.push(name)
-        return name
-
-      if isSpreadPlaceholder(arg, placeholder):
-        name = getUniqueName(path, 'spr')
-        remainingParams.push(t.restElement(name))
-        return t.spreadElement(name)
-
-      if shouldHoist(arg):
-        if isPartialCaller(arg, placeholder):
-          return arg
-
-        id = getUniqueName(path, 'ref')
-        ref = t.variableDeclaration('const', [
-          t.variableDeclarator(id, arg)
-        ])
-
-        parent = path.getStatementParent()
-        parent.insertBefore(ref)
-        return id
-
-      arg
-    )
-
-    call = t.callExpression(callee, nextCallParams)
-    makeWrapperFunction(remainingParams, call)
-      ~path.replaceWith()
-
-    path.traverse(appliedChildVisitor, { path, placeholder })
-
   return {
     visitor: {
       ImportDeclaration (path, state) ->
@@ -193,7 +182,21 @@ module.exports = ({ types: t }) ->
         { arguments: args } = path.node
 
         if args.length and hasPlaceholders(args, placeholder):
-          partiallyApply(path, placeholder)
+          fn = makeWrapperFunction([], path.node)
+          path.traverse(appliedChildVisitor, { fn, placeholder })
+
+          for elem arg, idx i in args:
+            if shouldHoist(arg) and !isPartialCaller(arg, placeholder):
+              id = getUniqueName(path, 'ref')
+              ref = t.variableDeclaration('const', [
+                t.variableDeclarator(id, arg)
+              ])
+
+              parent = path.getStatementParent()
+              parent.insertBefore(ref)
+              args[i] = id
+
+          path.replaceWith(fn)
 
       MemberExpression (path, state) ->
         placeholder = getPlaceholder(state)
