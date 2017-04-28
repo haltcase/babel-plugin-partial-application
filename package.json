@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-partial-application",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Partial application syntax for JavaScript, inspired by Scala & Kotlin.",
   "author": {
     "name": "Bo Lingen",
