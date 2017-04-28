@@ -48,7 +48,6 @@
     "babel-preset-babili": "0.0.12",
     "babel-preset-env": "^1.4.0",
     "babel-preset-stage-0": "^6.24.1",
-    "babili-webpack-plugin": "0.0.11",
     "html-loader": "^0.4.5",
     "markdown-loader": "^2.0.0",
     "marked": "^0.3.6",
