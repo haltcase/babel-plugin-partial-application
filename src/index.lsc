@@ -9,7 +9,7 @@ makeIdentifierError (path, current) ->
      - set 'options.placeholder' to a different custom token
      - set 'options.useAlternatePlaceholder' for '__'
        ( a double underscore )\n
-    See https://github.com/citycide/babel-plugin-partial-application#caveats--limitations
+    See https://github.com/citycide/${PACKAGE_NAME}#caveats--limitations
     for more information.\n`
   )
 
