@@ -2,14 +2,14 @@ import { resolve } from 'path'
 import { Renderer } from 'marked'
 
 export default {
-  entry: './src/index.js',
+  entry: './src/index.lsc',
   output: {
     path: resolve(__dirname),
     filename: 'bundle.js'
   },
   module: {
     rules: [{
-      test: /\.js$/,
+      test: /\.(js|lsc)$/,
       exclude: /node_modules/,
       use: {
         loader: 'babel-loader',
@@ -23,7 +23,7 @@ export default {
             }],
             require('babel-preset-babili')
           ],
-          plugins: [resolve(__dirname, '..', 'index.js')]
+          plugins: ['lightscript', resolve(__dirname, '..', 'index.js')]
         }
       }
     }, {
