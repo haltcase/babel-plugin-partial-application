@@ -249,8 +249,6 @@ module.exports = ({ types: t }) ->
           for elem id in ids:
             tail.parent.params.push(id)
 
-        tail.stop()
-
       SpreadElement (path, state) ->
         placeholder = getPlaceholder(state)
         { parent, parentPath, node: { argument } } = path
@@ -270,6 +268,7 @@ module.exports = ({ types: t }) ->
             ~parentPath.replaceWith()
         else:
           parent.params.push(t.restElement(id))
+          path.node.argument = id
 
         parentPath.stop()
 
