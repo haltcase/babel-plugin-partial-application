@@ -257,16 +257,19 @@ module.exports = ({ types: t }) ->
 
         if !isPlaceholder(argument, placeholder): return
 
-        if !t.isCallExpression(parent):
+        if path.listKey != 'arguments':
           throw path.parentPath.buildCodeFrameError(
-            'Placeholder spread is unsupported outside call expressions.'
+            'Placeholder spread is only supported as a function argument.'
           )
 
         id = getUniqueName(path, 'spr')
-        path.replaceWith(t.spreadElement(id))
 
-        makeWrapperFunction([t.restElement(id)], parent)
-          ~parentPath.replaceWith()
+        if path.container:
+          path.replaceWith(t.spreadElement(id))
+          makeWrapperFunction([t.restElement(id)], parent)
+            ~parentPath.replaceWith()
+        else:
+          parent.params.push(t.restElement(id))
 
         parentPath.stop()
 
