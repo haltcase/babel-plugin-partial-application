@@ -83,11 +83,11 @@ module.exports = ({ types: t }) ->
       if isPlaceholder(node, placeholder):
         return true
 
-  makeWrapperFunction (params, returnStatement) ->
+  makeWrapperFunction (params, returnValue) ->
     t.arrowFunctionExpression(
       params,
       t.blockStatement([
-        t.returnStatement(returnStatement)
+        t.returnStatement(returnValue)
       ])
     )
 
