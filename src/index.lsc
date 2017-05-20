@@ -242,8 +242,12 @@ module.exports = ({ types: t }) ->
           if !hasChainedParent: break
           now tail = tail.parentPath
 
-        makeWrapperFunction(ids, tail.node)
-          ~tail.replaceWith()
+        if tail.container:
+          makeWrapperFunction(ids, tail.node)
+            ~tail.replaceWith()
+        else:
+          for elem id in ids:
+            tail.parent.params.push(id)
 
         tail.stop()
 
@@ -277,8 +281,11 @@ module.exports = ({ types: t }) ->
         while t.isBinaryExpression(tail.parent):
           now tail = tail.parentPath
 
-        makeWrapperFunction([], t.toExpression(tail.node))
-          ~tail.replaceWith()
+        if tail.container:
+          makeWrapperFunction([], t.toExpression(tail.node))
+            ~tail.replaceWith()
+        else:
+          now tail = tail.parentPath
 
         tail.traverse(binaryChildVisitor, { tail, placeholder })
         tail.stop()
