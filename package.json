@@ -40,11 +40,11 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "ava": "^0.18.2",
-    "babel-cli": "^6.24.0",
-    "babel-core": "^6.24.0",
-    "babel-plugin-lightscript": "^0.5.0",
-    "babel-preset-env": "^1.2.2",
+    "ava": "^0.19.1",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-plugin-lightscript": "^0.5.9",
+    "babel-preset-env": "^1.5.2",
     "babel-preset-flow": "^6.23.0",
     "lodash.get": "^4.4.2",
     "lodash.map": "^4.6.0"
