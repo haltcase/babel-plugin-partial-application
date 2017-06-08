@@ -119,13 +119,12 @@ module.exports = ({ types: t }) ->
         throw makeIdentifierError(path, placeholder)
 
   checkDeclarations (path, placeholder) ->
-    for elem declaration in path.node.declarations:
-      if isPluginRequire(declaration.init):
-        if t.isIdentifier(declaration.id):
-          setPlaceholder(declaration.id.name)
+    for elem { init, id } in path.node.declarations:
+      if isPluginRequire(init) and t.isIdentifier(id):
+          setPlaceholder(id.name)
           return path.remove()
 
-      if declaration.id.name == placeholder:
+      if id.name == placeholder:
         throw makeIdentifierError(path, placeholder)
 
   appliedChildVisitor = {
