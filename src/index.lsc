@@ -142,7 +142,12 @@ module.exports = ({ types: t }) ->
         parent.wasPlaceholder = true
 
       id = getUniqueName(childPath, name)
-      this.fn.params.push(id)
+      if node.defaultParameter:
+        t.assignmentPattern(id, node.defaultParameter)
+          ~this.fn.params.push()
+      else:
+        this.fn.params.push(id)
+
       node.name = id.name
       node.wasPlaceholder = true
 
@@ -178,15 +183,38 @@ module.exports = ({ types: t }) ->
         this.path.node.params.push(id)
         return
 
-      this.path.replaceWith(
-        makeWrapperFunction([id], this.path.node)
-      )
+      makeWrapperFunction([id], this.path.node)
+        ~this.path.replaceWith()
 
       this.path.stop()
   }
 
+  assignmentVisitor = {
+    AssignmentExpression (childPath) ->
+      { node: { left, right } } = childPath
+      if isPlaceholder(left, this.placeholder):
+        left.defaultParameter = right
+        childPath.replaceWith(left)
+        return
+
+      links = []
+      let link = left
+      while link.object:
+        links.push(link.property)
+        now link = link.object
+
+      if isPlaceholder(link, this.placeholder):
+        link._meta = { links, right }
+        childPath.replaceWith(left)
+  }
+
   return {
     visitor: {
+      Program (path, state) {
+        placeholder = getPlaceholder(state)
+        path.traverse(assignmentVisitor, { placeholder })
+      }
+
       ImportDeclaration (path, state) ->
         checkImports(path, getPlaceholder(state))
 
@@ -218,7 +246,37 @@ module.exports = ({ types: t }) ->
         placeholder = getPlaceholder(state)
         { node: { object } } = path
 
-        if !isPlaceholder(object, placeholder): return
+        if !isPlaceholder(object, placeholder):
+          return
+
+        last = object._meta?.links?[0]
+        param = object._meta?.right
+        let pattern
+        if last:
+          name = getUniqueName(path, 'arg')
+          now pattern = t.objectPattern([
+            t.objectProperty(
+              last,
+              t.assignmentExpression('=', name, param)
+            )
+          ])
+
+          if object._meta.links.length > 1:
+            for idx i, elem link in object._meta.links:
+              if i == 0: continue
+              now pattern = t.objectPattern([
+                t.objectProperty(link, pattern)
+              ])
+
+          top = findTopmostLink(path)
+          if top.parentPath.container:
+            makeWrapperFunction([pattern], top.parent)
+              ~top.parentPath.replaceWith()
+          else:
+            top.parent.params.push(pattern)
+
+          top.replaceWith(name)
+          return
 
         let comparingPlaceholders = false
         binaryParent = path.findParent(
