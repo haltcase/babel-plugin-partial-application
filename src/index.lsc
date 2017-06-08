@@ -91,6 +91,23 @@ module.exports = ({ types: t }) ->
       ])
     )
 
+  findTopmostLink (path) ->
+    let tail = path
+    while tail.parentPath:
+      parent = tail.parentPath
+      isCalleeTail =
+        parent.isCallExpression() and
+        parent.get('callee') == tail
+      hasChainedParent =
+        parent.isMemberExpression() or
+        parent.isBinaryExpression() or
+        isCalleeTail
+
+      if !hasChainedParent: break
+      now tail = tail.parentPath
+
+    tail
+
   checkImports (path, placeholder) ->
     { node: { specifiers, source } } = path
     if source.value == PACKAGE_NAME and specifiers.length:
@@ -228,20 +245,7 @@ module.exports = ({ types: t }) ->
 
         object.name = ids[0].name
 
-        let tail = path
-        while tail.parentPath:
-          parent = tail.parentPath
-          isCalleeTail =
-            parent.isCallExpression() and
-            parent.get('callee') == tail
-          hasChainedParent =
-            parent.isMemberExpression() or
-            parent.isBinaryExpression() or
-            isCalleeTail
-
-          if !hasChainedParent: break
-          now tail = tail.parentPath
-
+        tail = findTopmostLink(path)
         if tail.container:
           makeWrapperFunction(ids, tail.node)
             ~tail.replaceWith()
