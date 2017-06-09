@@ -176,6 +176,8 @@ module.exports = ({ types: t }) ->
       if !isPlaceholder(childPath.node, this.placeholder):
         return
 
+      if childPath.key == 'property': return
+
       id = getUniqueName(childPath, 'exp')
       childPath.node.name = id.name
 

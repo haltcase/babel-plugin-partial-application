@@ -15,3 +15,11 @@ const greetMethod = _exp4 => {
 const foo = (_exp5, _exp6) => {
   return `${_exp5} ${true ? '' : '-'} ${_exp6}`;
 };
+
+// only the top `_` should be affected
+const bar = _exp7 => {
+  return `${_exp7.foo._.bar._}`;
+};
+const baz = _exp8 => {
+  return `${_exp8.foo()._().bar._()}`;
+};
