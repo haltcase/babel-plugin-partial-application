@@ -34,7 +34,7 @@
     "watch": "webpack -w"
   },
   "dependencies": {
-    "babel-standalone": "^6.24.0",
+    "babel-standalone": "^6.25.0",
     "highlight.js": "^9.11.0",
     "lodash.debounce": "^4.0.8",
     "prettier": "^1.2.2",

@@ -13,12 +13,12 @@ import readme from '../../readme.md'
 getStorage (key) ->
   try:
     JSON.parse(window.localStorage.getItem(key))
-  catch e {}
+  catch e: {}
 
 setStorage (key, value) ->
   try:
     window.localStorage.setItem(key, JSON.stringify(value))
-  catch e {}
+  catch e: {}
 
 $ = document.querySelector.bind(document)
 
