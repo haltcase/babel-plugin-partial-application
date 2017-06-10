@@ -13,6 +13,11 @@ makeIdentifierError (path, current) ->
     for more information.\n`
   )
 
+makeDefaultArgError (path) ->
+  path.buildCodeFrameError(
+    'Default parameters are only supported in argument lists.'
+  )
+
 module.exports = ({ types: t }) ->
   let currentPlaceholder = DEFAULT_PLACEHOLDER
 
@@ -195,12 +200,10 @@ module.exports = ({ types: t }) ->
     AssignmentExpression (childPath) ->
       { node: { left, right }, listKey } = childPath
 
-      if listKey != 'arguments':
-        throw childPath.buildCodeFrameError(
-          'Default parameters are only supported in argument lists.'
-        )
-
       if isPlaceholder(left, this.placeholder):
+        if listKey != 'arguments':
+          throw makeDefaultArgError(childPath)
+
         left.defaultParameter = right
         childPath.replaceWith(left)
         return
@@ -212,6 +215,9 @@ module.exports = ({ types: t }) ->
         now link = link.object
 
       if isPlaceholder(link, this.placeholder):
+        if listKey != 'arguments':
+          throw makeDefaultArgError(childPath)
+
         link._meta = { links, right }
         childPath.replaceWith(left)
   }
