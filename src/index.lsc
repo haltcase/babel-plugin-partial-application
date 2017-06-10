@@ -193,7 +193,13 @@ module.exports = ({ types: t }) ->
 
   assignmentVisitor = {
     AssignmentExpression (childPath) ->
-      { node: { left, right } } = childPath
+      { node: { left, right }, listKey } = childPath
+
+      if listKey != 'arguments':
+        throw childPath.buildCodeFrameError(
+          'Default parameters are only supported in argument lists.'
+        )
+
       if isPlaceholder(left, this.placeholder):
         left.defaultParameter = right
         childPath.replaceWith(left)
