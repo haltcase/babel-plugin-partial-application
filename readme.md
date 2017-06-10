@@ -12,6 +12,7 @@
   - [lambda parameters](#lambda-parameters): `people.map(_.name)`
   - [object placeholders](#object-placeholders): `_.hasOwnProperty('dapper')`
   - [binary expressions](#binary-expressions): `_ === 'awesome'`, `_.getPower().level > 9000`
+  - [default parameters](#default-parameters): `const stringify = JSON.stringify(_, null, _ = 2)`
   - [template literals](#template-literals): ``const greet = `Hello, ${_}!` ``
   - [set a custom token](#set-a-custom-token): `import _ from 'babel-plugin-partial-application'`
 - [usage](#usage)
@@ -207,6 +208,56 @@ const heroes = [
 
 heroes.filter(_.getPower().level > 9000)
 ```
+
+### default parameters
+
+In places where you might use a placeholder or a lambda parameter, you can
+use assignment syntax to set a default parameter:
+
+```js
+const stringify = JSON.stringify(_, null, _ = 2)
+```
+
+This compiles to a standard JavaScript default parameter so the default
+would be used under the same circumstances, ie. when the argument is either
+`undefined` or absent.
+
+```js
+stringify({ foo: 'bar' })
+```
+
+```json
+{
+  "foo": "bar"
+}
+```
+
+```js
+strinfigy({ foo: 'bar' }, '>>>>')
+```
+
+```json
+{
+>>>>"foo": "bar"
+}
+```
+
+Default parameters are also possible with member expressions:
+
+```js
+const greet = name => console.log(`Hello, ${name}!`)
+
+const sayHelloToPerson = greet(_.name = 'world')
+
+sayHelloToPerson({ name: 'Arlene' })
+// -> Hello, Arlene!
+
+sayHelloToPerson({})
+// -> Hello, world!
+```
+
+Note that no safeguards are added - so in this case, `sayHelloToPerson()`
+and `sayHelloToPerson(null)` would cause an error.
 
 ### template literals
 

@@ -220,14 +220,16 @@
 const log = console.log(..._)
 
 const people = [
-  { name: 'Jeff' },
+  { name: 'Harold' },
   { name: 'Karen' },
-  { name: 'Genevieve' }
+  { name: 'Jennifer' },
+  { name: 'Arlene' }
 ]
 
 const names = people
   .map(_.name)
   .filter(_.includes('en'))
+  .sort(_.length < _.length)
   .reduce(`${_}, ${_}`)
 
 log(names)
@@ -243,9 +245,10 @@ const log = (..._spr) => {
 }
 
 const people = [
-  { name: 'Jeff' },
+  { name: 'Harold' },
   { name: 'Karen' },
-  { name: 'Genevieve' }
+  { name: 'Jennifer' },
+  { name: 'Arlene' }
 ]
 
 const names = people
@@ -255,6 +258,9 @@ const names = people
   .filter(_obj2 => {
     return _obj2.includes('en')
   })
+  .sort((_obj3, _obj4) => {
+    return _obj3.length < _obj4.length
+  })
   .reduce((_exp, _exp2) => {
     return `${_exp}, ${_exp2}`
   })
@@ -263,7 +269,7 @@ log(names)
 </pre>
     </div>
     <div id="console-wrapper" class="split split-vertical">
-      <pre id="console">"Karen, Genevieve"</pre>
+      <pre id="console">"Jennifer, Arlene, Karen"</pre>
     </div>
   </div>
 </div>
