@@ -51,11 +51,11 @@ module.exports = ({ types: t }) ->
 
   isSpreadPlaceholder (node, placeholder) ->
     t.isSpreadElement(node) and
-    isPlaceholder(node.argument, placeholder)
+    node.argument~isPlaceholder(placeholder)
 
   isPartialCaller (node, placeholder) ->
     t.isCallExpression(node) and
-    hasPlaceholders(node.arguments, placeholder)
+    node.arguments~hasPlaceholders(placeholder)
 
   isPluginRequire (node) ->
     if !node: return
@@ -85,7 +85,7 @@ module.exports = ({ types: t }) ->
 
   hasPlaceholders (nodes, placeholder) ->
     for elem node in nodes:
-      if isPlaceholder(node, placeholder):
+      if node~isPlaceholder(placeholder):
         return true
 
   makeWrapperFunction (params, returnValue) ->
@@ -125,12 +125,12 @@ module.exports = ({ types: t }) ->
 
   checkDeclarations (path, placeholder) ->
     for elem { init, id } in path.node.declarations:
-      if isPluginRequire(init) and t.isIdentifier(id):
+      if init~isPluginRequire() and t.isIdentifier(id):
           setPlaceholder(id.name)
           return path.remove()
 
       if id.name == placeholder:
-        throw makeIdentifierError(path, placeholder)
+        throw path~makeIdentifierError(placeholder)
 
   appliedChildVisitor = {
     CallExpression (childPath): void ->
@@ -146,7 +146,7 @@ module.exports = ({ types: t }) ->
         now name = 'obj'
         parent.wasPlaceholder = true
 
-      id = getUniqueName(childPath, name)
+      id = childPath~getUniqueName(name)
       if node.defaultParameter:
         t.assignmentPattern(id, node.defaultParameter)
           ~this.fn.params.push()
@@ -159,31 +159,34 @@ module.exports = ({ types: t }) ->
     SpreadElement (childPath): void ->
       { node: { argument } } = childPath
 
-      if !isPlaceholder(argument, this.placeholder): return
+      if !argument~isPlaceholder(this.placeholder): return
 
-      id = getUniqueName(childPath, 'spr')
+      id = childPath~getUniqueName('spr')
       this.fn.params.push(t.restElement(id))
       childPath.replaceWith(t.spreadElement(id))
   }
 
   binaryChildVisitor = {
     Identifier (childPath): void ->
-      if !isPlaceholder(childPath.node, this.placeholder):
-        return
 
-      id = getUniqueName(childPath, 'bin')
+      if (
+        !childPath.node~isPlaceholder(this.placeholder) or
+        childPath.key == 'property'
+      ): return
+
+      id = childPath~getUniqueName('bin')
       this.tail.node.params.push(id)
       childPath.node.name = id.name
   }
 
   templateLiteralVisitor = {
     Identifier (childPath): void ->
-      if !isPlaceholder(childPath.node, this.placeholder):
+      if !childPath.node~isPlaceholder(this.placeholder):
         return
 
       if childPath.key == 'property': return
 
-      id = getUniqueName(childPath, 'exp')
+      id = childPath~getUniqueName('exp')
       childPath.node.name = id.name
 
       if t.isArrowFunctionExpression(this.path):
@@ -200,7 +203,7 @@ module.exports = ({ types: t }) ->
     AssignmentExpression (childPath) ->
       { node: { left, right }, listKey } = childPath
 
-      if isPlaceholder(left, this.placeholder):
+      if left~isPlaceholder(this.placeholder):
         if listKey != 'arguments':
           throw makeDefaultArgError(childPath)
 
@@ -214,7 +217,7 @@ module.exports = ({ types: t }) ->
         links.push(link.property)
         now link = link.object
 
-      if isPlaceholder(link, this.placeholder):
+      if link~isPlaceholder(this.placeholder):
         if listKey != 'arguments':
           throw makeDefaultArgError(childPath)
 
@@ -225,18 +228,18 @@ module.exports = ({ types: t }) ->
   return {
     visitor: {
       Program (path, state) {
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         path.traverse(assignmentVisitor, { placeholder })
       }
 
       ImportDeclaration (path, state) ->
-        checkImports(path, getPlaceholder(state))
+        path~checkImports(state~getPlaceholder())
 
       VariableDeclaration (path, state) ->
-        checkDeclarations(path, getPlaceholder(state))
+        path~checkDeclarations(state~getPlaceholder())
 
       CallExpression (path, state) ->
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         { arguments: args } = path.node
 
         if args.length and hasPlaceholders(args, placeholder):
@@ -245,7 +248,7 @@ module.exports = ({ types: t }) ->
 
           for elem arg, idx i in args:
             if shouldHoist(arg) and !isPartialCaller(arg, placeholder):
-              id = getUniqueName(path, 'ref')
+              id = path~getUniqueName('ref')
               ref = t.variableDeclaration('const', [
                 t.variableDeclarator(id, arg)
               ])
@@ -257,17 +260,17 @@ module.exports = ({ types: t }) ->
           path.replaceWith(fn)
 
       MemberExpression (path, state) ->
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         { node: { object } } = path
 
-        if !isPlaceholder(object, placeholder):
+        if !object~isPlaceholder(placeholder):
           return
 
         last = object._meta?.links?[0]
         param = object._meta?.right
         let pattern
         if last:
-          name = getUniqueName(path, 'arg')
+          name = path~getUniqueName('arg')
           now pattern = t.objectPattern([
             t.objectProperty(
               last,
@@ -282,7 +285,7 @@ module.exports = ({ types: t }) ->
                 t.objectProperty(link, pattern)
               ])
 
-          top = findTopmostLink(path)
+          top = path~findTopmostLink()
           if top.parentPath.container:
             makeWrapperFunction([pattern], top.parent)
               ~top.parentPath.replaceWith()
@@ -297,26 +300,26 @@ module.exports = ({ types: t }) ->
           p => t.isBinaryExpression(p)
         )
 
-        ids = [getUniqueName(path, 'obj')]
+        ids = [path~getUniqueName('obj')]
 
         if binaryParent:
           { right } = binaryParent.node
-          if isPlaceholder(right, placeholder):
+          if right~isPlaceholder(placeholder):
             now comparingPlaceholders = true
           else:
             let target = right?.object or right?.callee?.object
             while target?.object or target?.callee:
               now target = target.object or target.callee.object
 
-            if isPlaceholder(target, placeholder):
+            if target~isPlaceholder(placeholder):
               now comparingPlaceholders = true
-              id = getUniqueName(path, 'obj')
+              id = path~getUniqueName('obj')
               ids.push(id)
               target.name = id.name
 
         object.name = ids[0].name
 
-        tail = findTopmostLink(path)
+        tail = path~findTopmostLink()
         if tail.container:
           makeWrapperFunction(ids, tail.node)
             ~tail.replaceWith()
@@ -325,17 +328,17 @@ module.exports = ({ types: t }) ->
             tail.parent.params.push(id)
 
       SpreadElement (path, state) ->
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         { parent, parentPath, node: { argument } } = path
 
-        if !isPlaceholder(argument, placeholder): return
+        if !argument~isPlaceholder(placeholder): return
 
         if path.listKey != 'arguments':
           throw path.parentPath.buildCodeFrameError(
             'Placeholder spread is only supported as a function argument.'
           )
 
-        id = getUniqueName(path, 'spr')
+        id = path~getUniqueName('spr')
 
         if path.container:
           path.replaceWith(t.spreadElement(id))
@@ -348,7 +351,7 @@ module.exports = ({ types: t }) ->
         parentPath.stop()
 
       BinaryExpression (path, state) ->
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         { node: { left, right } } = path
         nodes = [left, right].filter(v => isPlaceholder(v, placeholder))
 
@@ -368,7 +371,7 @@ module.exports = ({ types: t }) ->
         tail.stop()
 
       TemplateLiteral (path, state) ->
-        placeholder = getPlaceholder(state)
+        placeholder = state~getPlaceholder()
         path.traverse(templateLiteralVisitor, { path, placeholder })
     }
   }
