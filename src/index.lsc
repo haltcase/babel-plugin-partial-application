@@ -19,13 +19,18 @@ makeDefaultArgError (path) ->
   )
 
 module.exports = ({ types: t }) ->
-  let currentPlaceholder = DEFAULT_PLACEHOLDER
+  hash = new Map()
 
   getPlaceholder (state) ->
-    let {
-      placeholder = currentPlaceholder,
-      useAlternatePlaceholder
-    } = state.opts
+    {
+      file: { opts: { filename } },
+      opts: { useAlternatePlaceholder }
+    } = state
+
+    let placeholder =
+      hash.get(filename) or
+      state.opts.placeholder or
+      DEFAULT_PLACEHOLDER
 
     if placeholder == DEFAULT_PLACEHOLDER and useAlternatePlaceholder:
       now placeholder = ALTERNATE_PLACEHOLDER
@@ -37,11 +42,12 @@ module.exports = ({ types: t }) ->
         `and got ${kind}`
       )
 
+    hash.set(filename, placeholder)
     placeholder
 
-  setPlaceholder (token) ->
+  setPlaceholder (state, token) ->
     if typeof token == 'string':
-      now currentPlaceholder = token
+      hash.set(state.file.opts.filename, token)
 
   getUniqueName (path, name = 'a') ->
     path.scope.generateUidIdentifier(name)
@@ -113,21 +119,23 @@ module.exports = ({ types: t }) ->
 
     tail
 
-  checkImports (path, placeholder) ->
+  checkImports (path, state) ->
+    placeholder = state~getPlaceholder()
     { node: { specifiers, source } } = path
     if source.value == PACKAGE_NAME and specifiers.length:
-      setPlaceholder(specifiers[0].local.name)
+      state~setPlaceholder(specifiers[0].local.name)
       return path.remove()
 
     for elem specifier in specifiers:
       if specifier.local.name == placeholder:
         throw makeIdentifierError(path, placeholder)
 
-  checkDeclarations (path, placeholder) ->
+  checkDeclarations (path, state) ->
+    placeholder = state~getPlaceholder()
     for elem { init, id } in path.node.declarations:
       if init~isPluginRequire() and t.isIdentifier(id):
-          setPlaceholder(id.name)
-          return path.remove()
+        state~setPlaceholder(id.name)
+        return path.remove()
 
       if id.name == placeholder:
         throw path~makeIdentifierError(placeholder)
@@ -233,10 +241,10 @@ module.exports = ({ types: t }) ->
       }
 
       ImportDeclaration (path, state) ->
-        path~checkImports(state~getPlaceholder())
+        path~checkImports(state)
 
       VariableDeclaration (path, state) ->
-        path~checkDeclarations(state~getPlaceholder())
+        path~checkDeclarations(state)
 
       CallExpression (path, state) ->
         placeholder = state~getPlaceholder()
