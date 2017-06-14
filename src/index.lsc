@@ -1,6 +1,7 @@
 PACKAGE_NAME = 'babel-plugin-partial-application'
 DEFAULT_PLACEHOLDER = '_'
 ALTERNATE_PLACEHOLDER = '__'
+POSITIONALS = ['0', '1', '2', '3', '4', '5', '6' , '7', '8', '9']
 
 makeIdentifierError (path, current) ->
   path.buildCodeFrameError(
@@ -75,7 +76,10 @@ module.exports = ({ types: t }) ->
 
     isRequire and t.isStringLiteral(args[0], { value: PACKAGE_NAME })
 
-  shouldHoist (node) ->
+  shouldHoist (node, placeholder) ->
+    if t.isTaggedTemplateExpression(node):
+      return !node~isPositionalPlaceholder(placeholder)
+
     if t.isCallExpression(node):
       return !node.callee?.object?.wasPlaceholder
 
@@ -95,12 +99,17 @@ module.exports = ({ types: t }) ->
         return true
 
   makeWrapperFunction (params, returnValue) ->
+    props = {
+      positionals: { value: {} },
+      isWrapper: { value: true }
+    }
+
     t.arrowFunctionExpression(
       params,
       t.blockStatement([
         t.returnStatement(returnValue)
       ])
-    )
+    )~Object.defineProperties(props)
 
   findTopmostLink (path) ->
     let tail = path
@@ -118,6 +127,17 @@ module.exports = ({ types: t }) ->
       now tail = tail.parentPath
 
     tail
+
+  findDeepestLink (node, { predicate, fn } = {}) ->
+    fallback (link) -> link?.object or link?.callee?.object
+    now predicate = predicate or fallback
+    now fn = fn or predicate
+
+    let link = node
+    while predicate(link):
+      now link = fn(link)
+
+    link
 
   checkImports (path, state) ->
     placeholder = state~getPlaceholder()
@@ -140,6 +160,17 @@ module.exports = ({ types: t }) ->
       if id.name == placeholder:
         throw path~makeIdentifierError(placeholder)
 
+  isPositionalPlaceholder({ tag, quasi }, placeholder) ->
+    tag~isPlaceholder(placeholder) and
+    POSITIONALS.indexOf(quasi.quasis[0]?.value?.raw) > -1
+
+  parsePosition (node, fallback = 99) ->
+    result = Number(node.position)
+    Number.isNaN(result) ? fallback : result
+
+  sortByPlaceholderPosition (a, b) ->
+    parsePosition(a) > parsePosition(b)
+
   appliedChildVisitor = {
     CallExpression (childPath): void ->
       childPath.skip()
@@ -149,7 +180,8 @@ module.exports = ({ types: t }) ->
 
       if (
         childPath.key == 'property' or
-        !node~isPlaceholder(this.placeholder)
+        !node~isPlaceholder(this.placeholder) or
+        parent~isPositionalPlaceholder(this.placeholder)
       ): return
 
       let name = 'arg'
@@ -178,8 +210,24 @@ module.exports = ({ types: t }) ->
   }
 
   binaryChildVisitor = {
-    Identifier (childPath): void ->
+    TaggedTemplateExpression (childPath): void ->
+      if !childPath.node~isPositionalPlaceholder(this.placeholder):
+        return
 
+      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      current = this.tail.node.positionals[position]
+      id = current or childPath~getUniqueName('pos')
+      id.position = position
+
+      if !current:
+        this.tail.node.params.push(id)
+        this.tail.node.positionals[position] = id
+
+      this.tail.node.params.sort(sortByPlaceholderPosition)
+      childPath.replaceWith(id)
+      childPath.skip()
+
+    Identifier (childPath): void ->
       if (
         !childPath.node~isPlaceholder(this.placeholder) or
         childPath.key == 'property'
@@ -258,7 +306,8 @@ module.exports = ({ types: t }) ->
           path.traverse(appliedChildVisitor, { fn, placeholder })
 
           for elem arg, idx i in args:
-            if arg~shouldHoist() and !arg~isPartialCaller(placeholder):
+            hoist = arg~shouldHoist(placeholder)
+            if hoist and !arg~isPartialCaller(placeholder):
               id = path~getUniqueName('ref')
               ref = t.variableDeclaration('const', [
                 t.variableDeclarator(id, arg)
@@ -349,13 +398,25 @@ module.exports = ({ types: t }) ->
             'Placeholder spread is only supported as a function argument.'
           )
 
-        id = path~getUniqueName('spr')
+        wrapper = path.findParent(p =>
+          t.isArrowFunctionExpression(p) and p.node.isWrapper
+        )
 
-        if path.container:
+        makeSpreadIdentifier () -> path~getUniqueName('spr')
+
+        if wrapper:
+          if !path.container: return
+
+          id = makeSpreadIdentifier()
+          wrapper.node.params.push(t.restElement(id))
+          path.replaceWith(t.spreadElement(id))
+        else if path.container:
+          id = makeSpreadIdentifier()
           path.replaceWith(t.spreadElement(id))
           makeWrapperFunction([t.restElement(id)], parent)
             ~parentPath.replaceWith()
         else:
+          id = makeSpreadIdentifier()
           parent.params.push(t.restElement(id))
           path.node.argument = id
 
@@ -364,7 +425,11 @@ module.exports = ({ types: t }) ->
       BinaryExpression (path, state) ->
         placeholder = state~getPlaceholder()
         { node: { left, right } } = path
-        nodes = [left, right].filter(v => isPlaceholder(v, placeholder))
+        nodes = [left, right].filter(v =>
+          v~isPlaceholder(placeholder) or
+          v~isPositionalPlaceholder(placeholder) or
+          v~findDeepestLink()~isPositionalPlaceholder(placeholder)
+        )
 
         if !nodes.length: return
 
@@ -384,5 +449,34 @@ module.exports = ({ types: t }) ->
       TemplateLiteral (path, state) ->
         placeholder = state~getPlaceholder()
         path.traverse(templateLiteralVisitor, { path, placeholder })
+
+      TaggedTemplateExpression (path, state) ->
+        { node, parentPath } = path
+        placeholder = state~getPlaceholder()
+        if !node~isPositionalPlaceholder(placeholder): return
+
+        wasTransformed = t.isReturnStatement(parentPath.parent)
+
+        let fn, current
+        if wasTransformed:
+          now fn = path.findParent(p => t.isArrowFunctionExpression(p))
+          now current = fn.node.positionals[position]
+
+        position = Number(node.quasi.quasis[0].value.raw)
+        id = current or path~getUniqueName('pos')
+        id.position = position
+
+        if !wasTransformed:
+          let target = path~findTopmostLink()
+          if target == path: now target = parentPath
+
+          wrapper = makeWrapperFunction([id], target.node)
+          wrapper.positionals[position] = id
+          target.replaceWith(wrapper)
+        else:
+          if !current: fn.node.params.push(id)
+          fn.node.params.sort(sortByPlaceholderPosition)
+
+        path.replaceWith(id)
     }
   }
