@@ -491,7 +491,12 @@ module.exports = ({ types: t }) ->
 
           wrapper = makeWrapperFunction([id], target.node)
           wrapper.positionals[position] = id
-          target.replaceWith(wrapper)
+
+          if target.container:
+            target.replaceWith(wrapper)
+          else:
+            target.parent.params.push(id)
+            target.parent.params.sort(sortByPlaceholderPosition)
         else:
           if !current: fn.node.params.push(id)
           fn.node.params.sort(sortByPlaceholderPosition)
