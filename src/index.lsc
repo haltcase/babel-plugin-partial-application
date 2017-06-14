@@ -95,8 +95,10 @@ module.exports = ({ types: t }) ->
 
   hasPlaceholders (nodes, placeholder) ->
     for elem node in nodes:
-      if node~isPlaceholder(placeholder):
-        return true
+      if (
+        node~isPlaceholder(placeholder) or
+        node~isPositionalPlaceholder(placeholder)
+      ): return true
 
   makeWrapperFunction (params, returnValue) ->
     props = {
@@ -198,6 +200,23 @@ module.exports = ({ types: t }) ->
 
       node.name = id.name
       node.wasPlaceholder = true
+
+    TaggedTemplateExpression (childPath): void ->
+      if !childPath.node~isPositionalPlaceholder(this.placeholder):
+        return
+
+      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      current = this.fn.positionals[position]
+      id = current or childPath~getUniqueName('pos')
+      id.position = position
+
+      if !current:
+        this.fn.params.push(id)
+        this.fn.positionals[position] = id
+
+      this.fn.params.sort(sortByPlaceholderPosition)
+      childPath.replaceWith(id)
+      childPath.skip()
 
     SpreadElement (childPath): void ->
       { node: { argument } } = childPath
