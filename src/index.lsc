@@ -147,7 +147,10 @@ module.exports = ({ types: t }) ->
     Identifier (childPath): void ->
       { node, parent } = childPath
 
-      if !isPlaceholder(node, this.placeholder): return
+      if (
+        childPath.key == 'property' or
+        !node~isPlaceholder(this.placeholder)
+      ): return
 
       let name = 'arg'
       if t.isMemberExpression(parent):
