@@ -357,7 +357,7 @@ module.exports = ({ types: t }) ->
             ~parentPath.replaceWith()
         else:
           parent.params.push(t.restElement(id))
-          path.node.argument = id
+          path.replaceWith(t.spreadElement(id))
 
         parentPath.stop()
 
