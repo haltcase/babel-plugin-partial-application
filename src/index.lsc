@@ -258,7 +258,7 @@ module.exports = ({ types: t }) ->
           path.traverse(appliedChildVisitor, { fn, placeholder })
 
           for elem arg, idx i in args:
-            if shouldHoist(arg) and !isPartialCaller(arg, placeholder):
+            if arg~shouldHoist() and !arg~isPartialCaller(placeholder):
               id = path~getUniqueName('ref')
               ref = t.variableDeclaration('const', [
                 t.variableDeclarator(id, arg)
