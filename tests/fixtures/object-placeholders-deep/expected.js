@@ -9,3 +9,7 @@ const b = _obj2 => {
 const c = _obj3 => {
   return _obj3.nested.method('with', 'args', a);
 };
+
+const d = _obj4 => {
+  return _obj4.unaffected.nested.placeholder.identifier._;
+};
