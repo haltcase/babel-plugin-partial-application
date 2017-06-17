@@ -474,6 +474,14 @@ module.exports = ({ types: t }) ->
         placeholder = state~getPlaceholder()
         if !node~isPositionalPlaceholder(placeholder): return
 
+        if (
+          t.isVariableDeclarator(parentPath) or
+          t.isExpressionStatement(parentPath)
+        ):
+          throw path.buildCodeFrameError(
+            'Positional placeholders must be part of some expression.'
+          )
+
         wasTransformed = t.isReturnStatement(parentPath.parent)
 
         let fn, current
