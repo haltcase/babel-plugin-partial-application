@@ -71,8 +71,10 @@ readdir(fixturesDir).then(testFiles -/>
 
           return t.fail(`Unexpected failure in '${filePath}' :: ${thrown}`)
 
-        expected <- getExpected(expectedPath)
-        if !expected: <- maybeWriteFile(expectedPath, code)
+        let expected <- getExpected(expectedPath)
+        if !expected:
+          <- maybeWriteFile(expectedPath, code)
+          now expected = code
 
         t.is(
           code~trim()~normalizeLinebreaks(),

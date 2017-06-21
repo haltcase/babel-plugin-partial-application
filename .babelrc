@@ -5,5 +5,8 @@
     }],
     "flow"
   ],
-  "plugins": ["lightscript"]
+  "plugins": [
+    "lightscript",
+    ["transform-object-rest-spread", { "useBuiltIns": true }]
+  ]
 }
