@@ -47,12 +47,16 @@
     "babel-preset-env": "^1.5.2",
     "babel-preset-flow": "^6.23.0",
     "lodash.get": "^4.4.2",
-    "lodash.map": "^4.6.0"
+    "lodash.map": "^4.6.0",
+    "pify": "^3.0.0"
   },
   "ava": {
     "files": [
       "tests/*.js"
     ],
-    "babel": "inherit"
+    "babel": "inherit",
+    "require": [
+      "babel-polyfill"
+    ]
   }
 }

@@ -5,3 +5,5 @@ const getNameLengthAsString = _`1`.name.length.toString()
 const positionalWithSpread = fn(_`1`, ..._)
 
 const multiplePlaceholders = fn(_, _, _`1`, _.name._, ..._)
+
+const template = `${_`2`} - ${_`1`}`

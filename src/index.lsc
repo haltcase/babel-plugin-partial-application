@@ -258,6 +258,33 @@ module.exports = ({ types: t }) ->
   }
 
   templateLiteralVisitor = {
+    TaggedTemplateExpression (childPath): void ->
+      if !childPath.node~isPositionalPlaceholder(this.placeholder):
+        return
+
+      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      let wrapper = childPath.findParent(p =>
+        t.isArrowFunctionExpression(p) and p.node.isWrapper
+      )
+
+      if !wrapper:
+        fn = makeWrapperFunction([], this.path.node)
+        this.path.replaceWith(fn)
+        // this is pretty hacky...
+        now wrapper = { node: fn }
+
+      current = wrapper.node.positionals[position]
+      id = current or childPath~getUniqueName('pos')
+      id.position = position
+
+      if !current:
+        wrapper.node.params.push(id)
+        wrapper.node.positionals[position] = id
+
+      wrapper.node.params.sort(sortByPlaceholderPosition)
+      childPath.replaceWith(id)
+      childPath.skip()
+
     Identifier (childPath): void ->
       if !childPath.node~isPlaceholder(this.placeholder):
         return
