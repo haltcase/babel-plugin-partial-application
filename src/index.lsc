@@ -305,10 +305,9 @@ module.exports = ({ types: t }) ->
 
   return {
     visitor: {
-      Program (path, state) {
+      Program (path, state) ->
         placeholder = state~getPlaceholder()
         path.traverse(assignmentVisitor, { placeholder })
-      }
 
       ImportDeclaration (path, state) ->
         path~checkImports(state)
@@ -320,7 +319,7 @@ module.exports = ({ types: t }) ->
         placeholder = state~getPlaceholder()
         { arguments: args } = path.node
 
-        if args.length and hasPlaceholders(args, placeholder):
+        if args.length and args~hasPlaceholders(placeholder):
           fn = makeWrapperFunction([], path.node)
           path.traverse(appliedChildVisitor, { fn, placeholder })
 
