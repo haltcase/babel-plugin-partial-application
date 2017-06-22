@@ -9,8 +9,9 @@
 - [examples & features](#examples)
   - [basic placeholders](#basic-placeholders): `add(1, _)`
   - [spread placeholders](#spread-placeholders): `Math.max(..._)`
-  - [lambda parameters](#lambda-parameters): `people.map(_.name)`
   - [object placeholders](#object-placeholders): `_.hasOwnProperty('dapper')`
+  - [lambda parameters](#lambda-parameters): `people.map(_.name)`
+  - [positional placeholders](#positional-placeholders): ``const isSameThing = _`1` === _`1` ``
   - [binary expressions](#binary-expressions): `_ === 'awesome'`, `_.getPower().level > 9000`
   - [default parameters](#default-parameters): `const stringify = JSON.stringify(_, null, _ = 2)`
   - [template literals](#template-literals): ``const greet = `Hello, ${_}!` ``
@@ -114,37 +115,10 @@ const maxOf = (..._spr) => {
 > If your target environment doesn't support rest / spread,
 > you'll have to transpile it separately as usual.
 
-### lambda parameters
-
-Easy shorthand for accessing properties or calling methods on the
-applied argument - useful in higher order functions like `Array#map()`:
-
-```js
-const people = [
-  { name: 'Jeff' },
-  { name: 'Karen' },
-  { name: 'Genevieve' }
-]
-
-console.log(people.map(_.name))
-// -> ['Jeff', 'Karen', 'Genevieve']
-```
-
-... compiles to:
-
-```js
-console.log(people.map(_obj => {
-  return _obj.name
-}))
-```
-
 ### object placeholders
 
-> also called "lambda standalones"... only by me though
-
 The placeholder can stand in for an object on which you'll access properties
-or call methods. This is very similar to [lambda parameters](#lambda-parameters)
-but can be used outside function calls.
+or call methods.
 
 As an example, we could re-implement the `hasOwn()` function from the
 [basic placeholders section](#basic-placeholders) like this (although
@@ -170,6 +144,67 @@ const object = { flammable: true }
 
 hasOwn(object, 'flammable')
 // -> true
+```
+
+### lambda parameters
+
+When used in an argument list, an [object placeholder](#object-placeholder)
+basically becomes what Scala et al. call a _lambda parameter_ - an easy
+shorthand for accessing properties or calling methods on the applied argument.
+It's useful in higher order functions like `Array#map()`:
+
+```js
+const people = [
+  { name: 'Jeff' },
+  { name: 'Karen' },
+  { name: 'Genevieve' }
+]
+
+console.log(people.map(_.name))
+// -> ['Jeff', 'Karen', 'Genevieve']
+```
+
+... compiles to:
+
+```js
+console.log(people.map(_obj => {
+  return _obj.name
+}))
+```
+
+### positional placeholders
+
+Sometimes called _swizzle_ or _rearg_, you can partially apply
+arguments in a different order than the function normally accepts,
+or use a single argument multiple times.
+
+Let's say you want to reorder the arguments of `lodash.get()`, which
+normally has a signature of `object, path, defaultValue`, to
+`path, defaultValue, object`:
+
+```js
+// forget that lodash/fp even exists for a second :)
+import { get } from 'lodash'
+
+// reorder the arguments so the data is accepted last
+const getFunctional = get(_`3`, _`1`, _`2`)
+
+getFunctional('color', 'blue', { color: 'green' })
+// -> 'green'
+```
+
+You can also use positional placeholders to reuse a single argument,
+for example to create a function checking if something is equal to
+itself ( `NaN` never is ):
+
+```js
+const isSameThing = _`1` === _`1`
+
+isSameThing('yes!')
+// -> true
+
+isSameThing(NaN)
+// -> false
 ```
 
 ### binary expressions
