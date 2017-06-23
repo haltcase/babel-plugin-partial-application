@@ -7,19 +7,14 @@ import { join } from 'path'
 import { transformFile } from 'babel-core'
 
 transform = pify(transformFile)
-{ readFile, writeFile, readdir } = pify(fs)
+{ readFile, writeFile } = pify(fs)
 
 trim = str => str.replace(/^\s+|\s+$/, '')
-normalizeLinebreaks = str => str.replace(new RegExp('\r\n', 'g'), '\n')
+normalizeLinebreaks = str => str.replace(/\r\n/g, '\n')
 
 maybeWriteFile (toPath, data) ->
   if !('TRAVIS' in process.env) and !('CI' in process.env):
-    writeFile(toPath, data)
-
-getErrorMessage (error) ->
-  error.message
-    .split('.js: ', 2)[1]
-    .split('\n', 1)[0]
+    writeFile(toPath, data).catch(e => {})
 
 getOptionsFile (atPath) ->
   try:
@@ -32,30 +27,65 @@ getExpected (atPath) ->
   readFile(atPath, 'utf8')
     .catch(e => if e.code != 'ENOENT': throw e)
 
-handleFailure (t, filePath, thrown, optionsPath, options) -/>
+parseError (error) ->
+  error.message
+    .split('.js: ', 2)[1]
+    .split('\n', 1)[0]
+
+handleFailure (filePath, error, options) ->
+  thrown = error~parseError()
   if options.throws and options.throws != thrown:
-    return t.fail(
-      `Unexpected failure in '${filePath}' ::\n` +
-      `  Expected : ${options.throws}\n` +
-      `  Received : ${thrown}`
-    )
+    return {
+      thrown,
+      type: 'fail'
+      message:
+        `Unexpected failure in '${filePath}' ::\n` +
+        `  Expected : ${options.throws}\n` +
+        `  Received : ${thrown}`
+    }
 
-  data = JSON.stringify({ ...options, throws: thrown }, null, 2)
-  <- maybeWriteFile(optionsPath, data)
-
-  t.pass(`'${filePath}' failed as expected. :: ${thrown}`)
+  return {
+    thrown,
+    type: 'pass'
+    message: `'${filePath}' failed as expected. :: ${thrown}`
+  }
 
 fixturesDir = join(__dirname, 'fixtures')
 
-readdir(fixturesDir).then(testFiles -/>
-  <- [
-    for elem filePath in testFiles:
-      test(filePath, t =/>
-        testPath = join(fixturesDir, filePath)
-        optionsPath = join(testPath, 'options.json')
-        actualPath = join(testPath, 'actual.js')
-        expectedPath = join(testPath, 'expected.js')
-        options = getOptionsFile(optionsPath)
+createTests (testFiles) ->
+  Promise.all(testFiles.map(filePath =/>
+    testPath = join(fixturesDir, filePath)
+    optionsPath = join(testPath, 'options.json')
+    actualPath = join(testPath, 'actual.js')
+    expectedPath = join(testPath, 'expected.js')
+    options = getOptionsFile(optionsPath)
+
+    if filePath.startsWith('fail'):
+      return {
+        name: filePath
+        runner: t =/>
+          t.plan(2)
+
+          error <- t.throws(
+            transform(actualPath, {
+              babelrc: false
+              plugins: [require('..')]
+            })
+          )
+
+          { type, message, thrown } = handleFailure(filePath, error, options)
+
+          if type == 'fail' and !options.throws:
+            data = JSON.stringify({ ...options, thrown }, null, 2)
+            <- maybeWriteFile(optionsPath, data)
+
+          t[type](message)
+      }
+
+    return {
+      name: filePath
+      runner: t =/>
+        t.plan(1)
 
         let code = ''
 
@@ -65,10 +95,7 @@ readdir(fixturesDir).then(testFiles -/>
             plugins: [require('..')]
           })
         catch e:
-          thrown = getErrorMessage(e)
-          if filePath.startsWith('fail'):
-            return handleFailure(t, filePath, thrown, optionsPath, options)
-
+          thrown = parseError(e)
           return t.fail(`Unexpected failure in '${filePath}' :: ${thrown}`)
 
         let expected <- getExpected(expectedPath)
@@ -80,6 +107,12 @@ readdir(fixturesDir).then(testFiles -/>
           code~trim()~normalizeLinebreaks(),
           expected~trim()~normalizeLinebreaks()
         )
-      )
-  ]
-)
+    }
+  ))
+
+fixturesDir
+  ~fs.readdirSync()
+  ~createTests()
+  .then(cases =>
+    cases.map(({ name, runner }) => test(name, runner))
+  )
