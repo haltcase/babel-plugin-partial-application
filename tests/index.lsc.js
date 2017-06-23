@@ -53,7 +53,7 @@ handleFailure (filePath, error, options) ->
 fixturesDir = join(__dirname, 'fixtures')
 
 createTests (testFiles) ->
-  Promise.all(testFiles.map(filePath =/>
+  testFiles.map(filePath =>
     testPath = join(fixturesDir, filePath)
     optionsPath = join(testPath, 'options.json')
     actualPath = join(testPath, 'actual.js')
@@ -108,11 +108,9 @@ createTests (testFiles) ->
           expected~trim()~normalizeLinebreaks()
         )
     }
-  ))
+  )
 
 fixturesDir
   ~fs.readdirSync()
   ~createTests()
-  .then(cases =>
-    cases.map(({ name, runner }) => test(name, runner))
-  )
+  .map(({ name, runner }) => test(name, runner))
