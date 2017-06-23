@@ -26,6 +26,7 @@ helpButton = $('.right .material-icons.help')
 helpModal = $('#help-modal')
 helpModalBody = $('#help-modal .body')
 closeButton = $('#help-modal .close')
+topButton = $('#help-modal .top-button-wrapper')
 
 helpModalBody.innerHTML = readme
 highlight.registerLanguage('javascript', javascript)
@@ -79,9 +80,18 @@ setURL (url) ->
 checkQuery () ->
   setModalState(!!getQueryProp('readme'))
 
+checkScroll () ->
+  if helpModalBody.scrollTop >= 1000:
+    topButton.style.bottom = '1rem'
+  else:
+    topButton.style.bottom = '-3.5rem'
+
 checkQuery()
+checkScroll()
 
 window.addEventListener('popstate', checkQuery)
+helpModalBody.addEventListener('scroll', debounce(checkScroll, 200))
+topButton.addEventListener('click', () => helpModalBody.scrollTop = 0)
 
 helpButton.addEventListener('click', () => setModalState(true))
 closeButton.addEventListener('click', () => setModalState(false))

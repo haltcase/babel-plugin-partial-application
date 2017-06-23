@@ -196,6 +196,31 @@
       opacity: 1;
     }
 
+    #help-modal .top-button-wrapper {
+      position: fixed;
+      height: 3.5rem;
+      width: 3.5rem;
+      right: 2rem;
+      bottom: -3.5rem;
+      -webkit-transition: bottom .15s ease-in-out;
+         -moz-transition: bottom .15s ease-in-out;
+              transition: bottom .15s ease-in-out;
+    }
+
+    #help-modal .top-button {
+      background-color: #ea7a4b;
+      cursor: pointer;
+      color: #000;
+      height: 100%;
+      width: 100%;
+      border-radius: 8rem;
+      border-style: none;
+    }
+
+    #help-modal .top-button:focus {
+      outline: 0;
+    }
+
     .noselect {
       -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -246,6 +271,11 @@
   </div>
   <div class="body markdown github">
     <!-- readme content is added here -->
+  </div>
+  <div class="top-button-wrapper">
+    <button type="button" class="top-button" title="Go to top">
+      <i class="material-icons">arrow_upward</i>
+    </button>
   </div>
 </div>
 
