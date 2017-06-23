@@ -34,10 +34,10 @@
     "watch": "webpack -w"
   },
   "dependencies": {
+    "@oigroup/prettier-babylon": "^1.4.5",
     "babel-standalone": "^6.25.0",
     "highlight.js": "^9.11.0",
     "lodash.debounce": "^4.0.8",
-    "prettier": "^1.2.2",
     "pretty-format": "^19.0.0",
     "split.js": "^1.2.0",
     "tether-shepherd": "^1.8.1"

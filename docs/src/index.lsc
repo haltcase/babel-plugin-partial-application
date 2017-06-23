@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce'
 import highlight from 'highlight.js/lib/highlight'
 import javascript from 'highlight.js/lib/languages/javascript'
 import prettyFormat from 'pretty-format'
-import { format } from 'prettier'
+import { format } from '@oigroup/prettier-babylon'
 import { transform } from 'babel-standalone'
 
 import plugin from '../..'
@@ -31,10 +31,12 @@ helpModalBody.innerHTML = readme
 highlight.registerLanguage('javascript', javascript)
 highlight.initHighlightingOnLoad()
 
+codeBlocks = document.querySelectorAll('code.lang-js')
+
 getQueryProp (name) ->
   regex = new RegExp(`[?&]${name}=([^&]*)`)
   hasMatch = regex.exec(window.location.search)
-  hasMatch and decodeURIComponent(match[1].replace(/\+/g, ' '))
+  hasMatch and decodeURIComponent(hasMatch[1].replace(/\+/g, ' '))
 
 removeQueryProp (parameter) ->
   url = window.location.href
@@ -58,23 +60,24 @@ setModalState (state) ->
   if state:
     helpModal.style.visibility = 'visible'
     helpModal.classList.add('visible')
+    if !getQueryProp('readme'):
+      setURL(window.location.href + '?readme=true')
   else:
-    url = removeQueryProp('readme')
-    if window.history.pushState:
-      window.history.pushState('', '', url)
-    else:
-      window.location.href = url
-
+    removeQueryProp('readme')~setURL()
     helpModal.classList.remove('visible')
 
     setTimeout(() => {
       helpModal.style.visibility = 'hidden'
     }, 250)
 
+setURL (url) ->
+  if window.history.pushState:
+    window.history.pushState('', '', url)
+  else:
+    window.location.href = url
+
 checkQuery () ->
-  hasHash = !!window.location.hash
-  hasProp = !!getQueryProp('readme')
-  setModalState(hasHash or hasProp)
+  setModalState(!!getQueryProp('readme'))
 
 checkQuery()
 
@@ -82,6 +85,35 @@ window.addEventListener('popstate', checkQuery)
 
 helpButton.addEventListener('click', () => setModalState(true))
 closeButton.addEventListener('click', () => setModalState(false))
+
+loadRunButtons (editor, compiled, result) ->
+  helpModal.addEventListener('click', ({ target }) =>
+    if target.className != 'send-to-editor':
+      if target.parentElement.className == 'send-to-editor':
+        now target = target.parentElement
+      else:
+        return
+
+    result.setValue('')
+    target.parentElement.textContent
+      .split('\n')
+      .slice(0, -3)
+      .join('\n')
+      ~editor.setValue()
+
+    editor.clearSelection()
+    setModalState(false)
+  )
+
+  for elem block in codeBlocks:
+    button = document.createElement('button')
+    button.type = 'button'
+    button.innerHTML = `
+      <i class="material-icons">mode_edit</i>
+      <span class="send-to-editor-label">send to editor</span>
+    `
+    button.className = 'send-to-editor'
+    block.appendChild(button)
 
 split(['#editor-wrapper', '#output-wrapper'])
 split(['#compiled-wrapper', '#console-wrapper'], {
@@ -97,13 +129,12 @@ loadEditors (state) ->
   ]
 
   // set common options for all editors
-  [editor, compiled, result].forEach(target =>
+  for elem target in [editor, compiled, result]:
     target.setTheme('ace/theme/tomorrow')
     target.session.setMode('ace/mode/javascript')
     target.setHighlightActiveLine(false)
     target.setHighlightGutterLine(false)
     target.$blockScrolling = Infinity
-  )
 
   // set individual editor options
   compiled.setReadOnly(true)
@@ -125,6 +156,8 @@ loadEditors (state) ->
   return { editor, compiled, result }
 
 { editor, compiled, result } = loadEditors(getStorage('editorState'))
+
+loadRunButtons(editor, compiled, result)
 
 if !getStorage('tourComplete'):
   isReadmeURL = getQueryProp('readme')
@@ -180,7 +213,9 @@ if !getStorage('tourComplete'):
   tour.addStep('back-to-app-button', {
     title: `back to the editor`
     text:
-      `When you want to return to the editor, click ` +
+      'With the readme open, click a `send to editor` button ' +
+      'to easily try any example code.<br><br>' +
+      `If you want to return to the editor, click ` +
       `<i class="material-icons">exit_to_app</i> to close the readme.`
     attachTo: {
       element: closeButton
@@ -210,22 +245,26 @@ logLineReducer = (list, line, i, col) =>
   `${list}${add ? ' ' : ''}${add}`.trim()
 
 tryEval = debounce(input => {
+  result.setValue('')
+  console.clear()
+
   try:
     capturer = Object.create(console)
 
-    ['error', 'log', 'info', 'debug'].forEach(key =>
+    let output = ''
+    for elem key in ['error', 'log', 'info', 'debug']:
       capturer[key] = () ->
         Function.prototype.apply.call(console[key], console, arguments)
-        let output = ''
 
         if arguments.length:
           str = prettyFormat(arguments)
-          now output = str.split('\n').reduce(logLineReducer, '')
-
-        if output: result.setValue(output)
-    )
+          addition = str.split('\n').reduce(logLineReducer, '')
+          if output: now output += '\n' + addition
+          else: now output += addition
 
     Function('console', input)(capturer)
+    if output: result.setValue(output)
+    else: result.setValue('')
   catch e:
     console.error(e)
     result.setValue(e.message)
@@ -242,7 +281,7 @@ persist = debounce(state => {
       result: result.getValue()
     }
   )
-}, 500)
+}, 1000)
 
 editor.getSession().on('change', debounce(handleCodeChange, 200))
 
@@ -262,16 +301,16 @@ handleCodeChange () ->
 
   if !initial: return
 
-  formatted = format(initial, {
-    printWidth: 50
-    useTabs: false
-    tabWidth: 2
-    singleQuote: true
-    semi: false
-  })
+  initial
+    ~format({
+      printWidth: 50
+      useTabs: false
+      tabWidth: 2
+      singleQuote: true
+      semi: false
+    })
+    ~compiled.setValue()
 
-  compiled.setValue(formatted)
   compiled.clearSelection()
-
   tryEval(initial)
   persist()
