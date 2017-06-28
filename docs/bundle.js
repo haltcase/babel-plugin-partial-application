@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -267,6 +267,10 @@ process.off = noop;
 process.removeListener = noop;
 process.removeAllListeners = noop;
 process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
@@ -284,7 +288,7 @@ process.umask = function() { return 0; };
 /***/ (function(module, exports, __webpack_require__) {
 
 /* MIT license */
-var cssKeywords = __webpack_require__(19);
+var cssKeywords = __webpack_require__(20);
 
 // NOTE: conversions should only return primitive values (i.e. arrays, or
 //       values that give correct `typeof` results).
@@ -1155,8 +1159,8 @@ convert.rgb.gray = function (rgb) {
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var require$$0 = _interopDefault(__webpack_require__(15));
-var path = _interopDefault(__webpack_require__(20));
+var require$$0 = _interopDefault(__webpack_require__(16));
+var path = _interopDefault(__webpack_require__(21));
 
 function assertDoc(val) {
   if (
@@ -14784,7 +14788,7 @@ module.exports = index;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _typeof='function'==typeof Symbol&&'symbol'==typeof Symbol.iterator?function(c){return typeof c}:function(c){return c&&'function'==typeof Symbol&&c.constructor===Symbol&&c!==Symbol.prototype?'symbol':typeof c},PACKAGE_NAME='babel-plugin-partial-application',DEFAULT_PLACEHOLDER='_',ALTERNATE_PLACEHOLDER='__',POSITIONALS=['0','1','2','3','4','5','6','7','8','9'];function makeIdentifierError(c,d){return c.buildCodeFrameError('Cannot use placeholder as an identifier.\n\n     If you need to use \''+d+'\' as a variable name:\n     - set \'options.placeholder\' to a different custom token\n     - set \'options.useAlternatePlaceholder\' for \'__\'\n       ( a double underscore )\n\n    See https://github.com/citycide/'+PACKAGE_NAME+'#caveats--limitations\n    for more information.\n')}function makeDefaultArgError(c){return c.buildCodeFrameError('Default parameters are only supported in argument lists.')}module.exports=function(c){function d(D){var E=D.file.opts.filename,F=D.opts.useAlternatePlaceholder,G=y.get(E)||D.opts.placeholder||DEFAULT_PLACEHOLDER;G===DEFAULT_PLACEHOLDER&&F&&(G=ALTERNATE_PLACEHOLDER);var H='undefined'==typeof G?'undefined':_typeof(G);if('string'!==H)throw new TypeError('Expected a string for `options.placeholder` and got '+H);return y.set(E,G),G}function e(D,E){if('string'==typeof E)return y.set(D.file.opts.filename,E)}function f(D){var E=1<arguments.length&&arguments[1]!==void 0?arguments[1]:'a';return D.scope.generateUidIdentifier(E)}function g(D,E){return x.isIdentifier(D,{name:E})}function i(D,E){return x.isCallExpression(D)&&l(D.arguments,E)}function j(D){if(D){var E=D.callee,F=D.arguments,G=x.isIdentifier(E,{name:'require'})||x.isMemberExpression(E)&&x.isIdentifier(E.object,{name:'require'});return G&&x.isStringLiteral(F[0],{value:PACKAGE_NAME})}}function k(D,E){if(x.isTaggedTemplateExpression(D))return!s(D,E);if(x.isCallExpression(D)){var F;return null==(null==(F=D.callee)?null:F.object)||!F.object.wasPlaceholder}return x.isMemberExpression(D)?!D.object.wasPlaceholder:!x.isLiteral(D)&&['Identifier','SpreadElement','FunctionExpression','ArrowFunctionExpression'].every(function(G){return G!==D.type})}function l(D,E){for(var H,F=0,G=D.length;F<G;F++)if(H=D[F],g(H,E)||s(H,E))return!0}function m(D,E){return Object.defineProperties(x.arrowFunctionExpression(D,x.blockStatement([x.returnStatement(E)])),{positionals:{value:{}},isWrapper:{value:!0}})}function n(D){for(var E=D;E.parentPath;){var F=E.parentPath,G=F.isCallExpression()&&F.get('callee')===E,H=F.isMemberExpression()||F.isBinaryExpression()||G;if(!H)break;E=E.parentPath}return E}function o(D){var F=1<arguments.length&&arguments[1]!==void 0?arguments[1]:{},G=F.predicate,H=F.fn;G=G||function(J){return(null==J?null:J.object)||(null==(null==J?null:J.callee)?null:J.callee.object)},H=H||G;for(var I=D;G(I);)I=H(I);return I}function q(D,E){var F=d(E),G=D.node,H=G.specifiers,I=G.source;if(I.value===PACKAGE_NAME&&H.length)return e(E,H[0].local.name),D.remove();for(var L,J=0,K=H.length;J<K;J++)if(L=H[J],L.local.name===F)throw makeIdentifierError(D,F)}function r(D,E){for(var F=d(E),G=D.node.declarations,H=0,I=G.length;H<I;H++){var J=G[H],K=J.init,L=J.id;if(j(K)&&x.isIdentifier(L))return e(E,L.name),D.remove();if(L.name===F)throw makeIdentifierError(D,F)}}function s(D,E){var F=D.tag,G=D.quasi,H;return g(F,E)&&-1<POSITIONALS.indexOf(null==(null==(H=G.quasis[0])?null:H.value)?null:H.value.raw)}function u(D){var E=1<arguments.length&&arguments[1]!==void 0?arguments[1]:99,F=+D.position;return Number.isNaN(F)?E:F}function w(D,E){return u(D)>u(E)}var x=c.types,y=new Map,z={CallExpression:function CallExpression(D){D.skip()},Identifier:function Identifier(D){var E=D.node,F=D.parent;if('property'!==D.key&&g(E,this.placeholder)&&!s(F,this.placeholder)){var G='arg';x.isMemberExpression(F)&&(G='obj',F.wasPlaceholder=!0);var H=f(D,G);E.defaultParameter?this.fn.params.push(x.assignmentPattern(H,E.defaultParameter)):this.fn.params.push(H),E.name=H.name,E.wasPlaceholder=!0}},TaggedTemplateExpression:function TaggedTemplateExpression(D){if(s(D.node,this.placeholder)){var E=+D.node.quasi.quasis[0].value.raw,F=this.fn.positionals[E],G=F||f(D,'pos');G.position=E,F||(this.fn.params.push(G),this.fn.positionals[E]=G),this.fn.params.sort(w),D.replaceWith(G),D.skip()}},SpreadElement:function SpreadElement(D){var E=D.node.argument;if(g(E,this.placeholder)){var F=f(D,'spr');this.fn.params.push(x.restElement(F)),D.replaceWith(x.spreadElement(F))}}},A={TaggedTemplateExpression:function TaggedTemplateExpression(D){if(s(D.node,this.placeholder)){var E=+D.node.quasi.quasis[0].value.raw,F=this.tail.node.positionals[E],G=F||f(D,'pos');G.position=E,F||(this.tail.node.params.push(G),this.tail.node.positionals[E]=G),this.tail.node.params.sort(w),D.replaceWith(G),D.skip()}},Identifier:function Identifier(D){if(g(D.node,this.placeholder)&&'property'!==D.key){var E=f(D,'bin');this.tail.node.params.push(E),D.node.name=E.name}}},B={TaggedTemplateExpression:function TaggedTemplateExpression(D){if(s(D.node,this.placeholder)){var E=+D.node.quasi.quasis[0].value.raw,F=D.findParent(function(J){return x.isArrowFunctionExpression(J)&&J.node.isWrapper});if(!F){var G=m([],this.path.node);this.path.replaceWith(G),F={node:G}}var H=F.node.positionals[E],I=H||f(D,'pos');I.position=E,H||(F.node.params.push(I),F.node.positionals[E]=I),F.node.params.sort(w),D.replaceWith(I),D.skip()}},Identifier:function Identifier(D){if(g(D.node,this.placeholder)&&'property'!==D.key){var E=f(D,'exp');return D.node.name=E.name,x.isArrowFunctionExpression(this.path)?void this.path.node.params.push(E):void(this.path.replaceWith(m([E],this.path.node)),this.path.stop())}}},C={AssignmentExpression:function AssignmentExpression(D){var E=D.node,F=E.left,G=E.right,H=D.listKey;if(g(F,this.placeholder)){if('arguments'!==H)throw makeDefaultArgError(D);return F.defaultParameter=G,void D.replaceWith(F)}for(var I=[],J=F;J.object;)I.push(J.property),J=J.object;if(g(J,this.placeholder)){if('arguments'!==H)throw makeDefaultArgError(D);return J._meta={links:I,right:G},D.replaceWith(F)}}};return{visitor:{Program:function Program(D,E){var F=d(E);return D.traverse(C,{placeholder:F})},ImportDeclaration:function ImportDeclaration(D,E){return q(D,E)},VariableDeclaration:function VariableDeclaration(D,E){return r(D,E)},CallExpression:function CallExpression(D,E){var F=d(E),G=D.node.arguments;if(G.length&&l(G,F)){var H=m([],D.node);D.traverse(z,{fn:H,placeholder:F});for(var I=0,J=G.length;I<J;I++){var K=G[I],L=k(K,F);if(L&&!i(K,F)){var M=f(D,'ref'),N=x.variableDeclaration('const',[x.variableDeclarator(M,K)]),O=D.getStatementParent();O.insertBefore(N),G[I]=M}}return D.replaceWith(H)}},MemberExpression:function MemberExpression(D,E){var F,G,H=d(E),I=D.node.object;if(g(I,H)){var L,J=null==(null==(F=I._meta)?null:F.links)?null:F.links[0],K=null==(G=I._meta)?null:G.right;if(J){var M=f(D,'arg');if(L=x.objectPattern([x.objectProperty(J,x.assignmentExpression('=',M,K))]),1<I._meta.links.length)for(var Q,N=I._meta.links,O=0,P=N.length;O<P;O++)Q=N[O],0===O||(L=x.objectPattern([x.objectProperty(Q,L)]));var R=n(D);return R.parentPath.container?R.parentPath.replaceWith(m([L],R.parent)):R.parent.params.push(L),void R.replaceWith(M)}var T=D.findParent(function(aa){return x.isBinaryExpression(aa)}),U=[f(D,'obj')];if(T){var V=T.node.right;if(g(V,H));else{for(var W=(null==V?null:V.object)||(null==(null==V?null:V.callee)?null:V.callee.object);(null==W?null:W.object)||(null==W?null:W.callee);)W=W.object||W.callee.object;if(g(W,H)){var X=f(D,'obj');U.push(X),W.name=X.name}}}I.name=U[0].name;var Y=n(D);if(Y.container)return Y.replaceWith(m(U,Y.node));for(var _,Z=0,$=U.length;Z<$;Z++)_=U[Z],Y.parent.params.push(_)}},SpreadElement:function SpreadElement(D,E){function F(){return f(D,'spr')}var G=d(E),H=D.parent,I=D.parentPath,J=D.node.argument;if(g(J,G)){if('arguments'!==D.listKey)throw D.parentPath.buildCodeFrameError('Placeholder spread is only supported as a function argument.');var K=D.findParent(function(O){return x.isArrowFunctionExpression(O)&&O.node.isWrapper});if(K){if(!D.container)return;var L=F();K.node.params.push(x.restElement(L)),D.replaceWith(x.spreadElement(L))}else if(D.container){var M=F();D.replaceWith(x.spreadElement(M)),I.replaceWith(m([x.restElement(M)],H))}else{var N=F();H.params.push(x.restElement(N)),D.node.argument=N}return I.stop()}},BinaryExpression:function BinaryExpression(D,E){var F=d(E),G=D.node,H=G.left,I=G.right,J=[H,I].filter(function(L){return g(L,F)||s(L,F)||s(o(L),F)});if(J.length){for(var K=D;x.isBinaryExpression(K.parent);)K=K.parentPath;return K.container?K.replaceWith(m([],x.toExpression(K.node))):K=K.parentPath,K.traverse(A,{tail:K,placeholder:F}),K.stop()}},TemplateLiteral:function TemplateLiteral(D,E){var F=d(E);return D.traverse(B,{path:D,placeholder:F})},TaggedTemplateExpression:function TaggedTemplateExpression(D,E){var F=D.node,G=D.parentPath,H=d(E);if(s(F,H)){if(x.isVariableDeclarator(G)||x.isExpressionStatement(G))throw D.buildCodeFrameError('Positional placeholders must be part of some expression.');var J,K,I=x.isReturnStatement(G.parent);I&&(J=D.findParent(function(P){return x.isArrowFunctionExpression(P)}),K=J.node.positionals[L]);var L=+F.quasi.quasis[0].value.raw,M=K||f(D,'pos');if(M.position=L,!I){var N=n(D);N===D&&(N=G);var O=m([M],N.node);O.positionals[L]=M,N.container?N.replaceWith(O):(N.parent.params.push(M),N.parent.params.sort(w))}else K||J.node.params.push(M),J.node.params.sort(w);return D.replaceWith(M)}}}}};
+var _typeof='function'==typeof Symbol&&'symbol'==typeof Symbol.iterator?function(c){return typeof c}:function(c){return c&&'function'==typeof Symbol&&c.constructor===Symbol&&c!==Symbol.prototype?'symbol':typeof c},PACKAGE_NAME='babel-plugin-partial-application',DEFAULT_PLACEHOLDER='_',ALTERNATE_PLACEHOLDER='__',POSITIONALS=['0','1','2','3','4','5','6','7','8','9'];function makeIdentifierError(c,d){return c.buildCodeFrameError('Cannot use placeholder as an identifier.\n\n     If you need to use \''+d+'\' as a variable name:\n     - import or require the plugin to a new token\n       ( `import it from \''+PACKAGE_NAME+'\'` )\n     - set \'options.placeholder\' to a different custom token\n     - set \'options.useAlternatePlaceholder\' for \'__\'\n       ( a double underscore )\n\n    See https://github.com/citycide/'+PACKAGE_NAME+'#caveats--limitations\n    for more information.\n')}function makeDefaultArgError(c){return c.buildCodeFrameError('Default parameters are only supported in argument lists.')}module.exports=function(c){function d(G){var H=G.file.opts.filename,I=G.opts.useAlternatePlaceholder,J=B.get(H)||G.opts.placeholder||DEFAULT_PLACEHOLDER;J===DEFAULT_PLACEHOLDER&&I&&(J=ALTERNATE_PLACEHOLDER);var K='undefined'==typeof J?'undefined':_typeof(J);if('string'!==K)throw new TypeError('Expected a string for `options.placeholder` and got '+K);return B.set(H,J),J}function e(G,H){if('string'==typeof H)return B.set(G.file.opts.filename,H)}function f(G){var H=1<arguments.length&&arguments[1]!==void 0?arguments[1]:'a';return G.scope.generateUidIdentifier(H)}function g(G){return(null==G?null:G.node)||G}function h(G,H){return A.isIdentifier(g(G),{name:H})}function j(G,H){var I,J=g(G),K=J.tag,L=J.quasi;return h(K,H)&&-1<POSITIONALS.indexOf(null==(null==(I=L.quasis[0])?null:I.value)?null:I.value.raw)}function k(G,H){for(var I=0,J=G.length;I<J;I++){var K=G[I],L=g(K);if(h(L,H)||j(L,H))return!0}return!1}function l(G,H){var I=g(G);return A.isCallExpression(I)&&k(I.arguments,H)}function m(G){var H=G.callee,I=G.arguments,J=A.isIdentifier(H,{name:'require'})||A.isMemberExpression(H)&&A.isIdentifier(H.object,{name:'require'});return J&&A.isStringLiteral(I[0],{value:PACKAGE_NAME})}function n(G){if(G.isMemberExpression())return G.get('object');return G.isCallExpression()?G.get('callee.object'):void 0}function o(G,H){var I=g(G);if(A.isTaggedTemplateExpression(I))return!j(I,H);if(A.isCallExpression(I)){var J;return null==(null==(J=I.callee)?null:J.object)||!J.object.wasPlaceholder}return A.isMemberExpression(I)?!I.object.wasPlaceholder:!A.isLiteral(I)&&['Identifier','SpreadElement','FunctionExpression','ArrowFunctionExpression'].every(function(K){return K!==I.type})}function q(G,H){return Object.defineProperties(A.arrowFunctionExpression(G,A.blockStatement([A.returnStatement(H)])),{positionals:{value:{}},isWrapper:{value:!0}})}function r(G){for(var H=G;H.parentPath;){var I=H.parentPath,J=I.isCallExpression()&&I.get('callee')===H,K=I.isMemberExpression()||I.isBinaryExpression()||J;if(!K)break;H=H.parentPath}return H}function s(G){var H=1<arguments.length&&arguments[1]!==void 0?arguments[1]:{},I=H.predicate,J=H.fn;I=I||n,J=J||I;for(var K=G;I(K);)K=J(K);return K}function u(G,H){var I=d(H),J=G.node,K=J.specifiers,L=J.source;if(L.value===PACKAGE_NAME&&K.length)return e(H,K[0].local.name),G.remove();for(var O,M=0,N=K.length;M<N;M++)if(O=K[M],O.local.name===I)throw makeIdentifierError(G,I)}function w(G,H){for(var I=d(H),J=G.node.declarations,K=0,L=J.length;K<L;K++){var M=J[K],N=M.init,O=M.id;if(N&&m(N)&&A.isIdentifier(O))return e(H,O.name),G.remove();if(O.name===I)throw makeIdentifierError(G,I)}}function x(G){return+G.node.quasi.quasis[0].value.raw}function y(G){var H=1<arguments.length&&arguments[1]!==void 0?arguments[1]:99,I=+G.position;return Number.isNaN(I)?H:I}function z(G,H){return y(G)>y(H)}var A=c.types,B=new Map,C={CallExpression:function CallExpression(G){G.skip()},Identifier:function Identifier(G){var H=G.parent,I=G.node.defaultParameter;if('property'!==G.key&&h(G,this.placeholder)&&!j(H,this.placeholder)){var J='arg';A.isMemberExpression(H)&&(J='obj',H.wasPlaceholder=!0);var K=f(G,J);K.wasPlaceholder=!0,I?this.fn.params.push(A.assignmentPattern(K,I)):this.fn.params.push(K),G.replaceWith(K)}},TaggedTemplateExpression:function TaggedTemplateExpression(G){if(j(G.node,this.placeholder)){var H=x(G),I=this.fn.positionals[H],J=I||f(G,'pos');J.position=H,I||(this.fn.params.push(J),this.fn.positionals[H]=J),this.fn.params.sort(z),G.replaceWith(J),G.skip()}},SpreadElement:function SpreadElement(G){var H=G.node.argument;if(h(H,this.placeholder)){var I=f(G,'spr');this.fn.params.push(A.restElement(I)),G.replaceWith(A.spreadElement(I))}}},D={TaggedTemplateExpression:function TaggedTemplateExpression(G){if(j(G.node,this.placeholder)){var H=x(G),I=this.tail.node.positionals[H],J=I||f(G,'pos');J.position=H,I||(this.tail.node.params.push(J),this.tail.node.positionals[H]=J),this.tail.node.params.sort(z),G.replaceWith(J),G.skip()}},Identifier:function Identifier(G){if(h(G.node,this.placeholder)&&'property'!==G.key){var H=f(G,'bin');this.tail.node.params.push(H),G.replaceWith(H)}}},E={TaggedTemplateExpression:function TaggedTemplateExpression(G){if(j(G.node,this.placeholder)){var H=x(G),I=G.findParent(function(M){return A.isArrowFunctionExpression(M)&&M.node.isWrapper});if(!I){var J=q([],this.path.node);this.path.replaceWith(J),I={node:J}}var K=I.node.positionals[H],L=K||f(G,'pos');L.position=H,K||(I.node.params.push(L),I.node.positionals[H]=L),I.node.params.sort(z),G.replaceWith(L),G.skip()}},Identifier:function Identifier(G){if(h(G.node,this.placeholder)&&'property'!==G.key){var H=f(G,'exp');return G.replaceWith(H),A.isArrowFunctionExpression(this.path)?void this.path.node.params.push(H):void(this.path.replaceWith(q([H],this.path.node)),this.path.stop())}}},F={AssignmentExpression:function AssignmentExpression(G){var H=G.node,I=H.left,J=H.right,K=G.listKey;if(h(I,this.placeholder)){if('arguments'!==K)throw makeDefaultArgError(G);return I.defaultParameter=J,void G.replaceWith(I)}for(var L=[],M=I;M.object;)L.push(M.property),M=M.object;if(h(M,this.placeholder)){if('arguments'!==K)throw makeDefaultArgError(G);return M._meta={links:L,right:J},G.replaceWith(I)}}};return{visitor:{Program:function Program(G,H){var I=d(H);return G.traverse(F,{placeholder:I})},ImportDeclaration:function ImportDeclaration(G,H){return u(G,H)},VariableDeclaration:function VariableDeclaration(G,H){return w(G,H)},CallExpression:function CallExpression(G,H){var I=d(H),J=G.get('arguments');if(J.length&&k(J,I)){var K=q([],G.node);G.traverse(C,{fn:K,placeholder:I});for(var L=0,M=J.length;L<M;L++){var N=J[L],O=o(N.node,I);if(O&&!l(N.node,I)){var P=f(G,'ref'),Q=A.variableDeclaration('const',[A.variableDeclarator(P,N.node)]),R=G.getStatementParent();R.insertBefore(Q),N.replaceWith(P)}}return G.replaceWith(K)}},MemberExpression:function MemberExpression(G,H){var I,J,K=d(H),L=G.get('object'),M=L.node;if(h(M,K)){var P,N=null==(null==(I=M._meta)?null:I.links)?null:I.links[0],O=null==(J=M._meta)?null:J.right;if(N){var Q=f(G,'arg');if(P=A.objectPattern([A.objectProperty(N,A.assignmentExpression('=',Q,O))]),1<M._meta.links.length)for(var U,R=M._meta.links,S=0,T=R.length;S<T;S++)U=R[S],0===S||(P=A.objectPattern([A.objectProperty(U,P)]));var V=r(G);return V.parentPath.container?V.parentPath.replaceWith(q([P],V.parent)):V.parent.params.push(P),void V.replaceWith(Q)}var W=G.findParent(function(da){return A.isBinaryExpression(da)}),X=[f(G,'obj')];if(W){var Y=W.get('right');if(!h(Y.node,K)){var Z=s(Y);if(null==Z?null:h(Z.node,K)){var $=f(G,'obj');X.push($),Z.replaceWith($)}}}L.replaceWith(X[0]);var _=r(G);if(_.container)return _.replaceWith(q(X,_.node));for(var ca,aa=0,ba=X.length;aa<ba;aa++)ca=X[aa],_.parent.params.push(ca)}},SpreadElement:function SpreadElement(G,H){function I(){return f(G,'spr')}var J=d(H),K=G.parent,L=G.parentPath,M=G.get('argument');if(h(M,J)){if('arguments'!==G.listKey)throw G.parentPath.buildCodeFrameError('Placeholder spread is only supported as a function argument.');var N=G.findParent(function(R){return A.isArrowFunctionExpression(R)&&R.node.isWrapper});if(N){if(!G.container)return;var O=I();N.node.params.push(A.restElement(O)),G.replaceWith(A.spreadElement(O))}else if(G.container){var P=I();G.replaceWith(A.spreadElement(P)),L.replaceWith(q([A.restElement(P)],K))}else{var Q=I();K.params.push(A.restElement(Q)),M.replaceWith(Q)}return L.stop()}},BinaryExpression:function BinaryExpression(G,H){var I=d(H),J=[G.get('left'),G.get('right')].filter(function(L){return h(L,I)||j(L,I)||j(s(L),I)});if(J.length){for(var K=G;K.parentPath.isBinaryExpression();)K=K.parentPath;return K.container?K.replaceWith(q([],A.toExpression(K.node))):K=K.parentPath,K.traverse(D,{tail:K,placeholder:I}),K.stop()}},TemplateLiteral:function TemplateLiteral(G,H){var I=d(H);return G.traverse(E,{path:G,placeholder:I})},TaggedTemplateExpression:function TaggedTemplateExpression(G,H){var I=G.parentPath,J=d(H);if(j(G,J)){if(I.isVariableDeclarator()||I.isExpressionStatement())throw G.buildCodeFrameError('Positional placeholders must be part of some expression.');var L,M,K=A.isReturnStatement(I.parent);K&&(L=G.findParent(function(R){return A.isArrowFunctionExpression(R)}),M=L.node.positionals[N]);var N=x(G),O=M||f(G,'pos');if(O.position=N,!K){var P=r(G);P===G&&(P=I);var Q=q([O],P.node);Q.positionals[N]=O,P.container?P.replaceWith(Q):(P.parent.params.push(O),P.parent.params.sort(z))}else M||L.node.params.push(O),L.node.params.sort(z);return G.replaceWith(O)}}}}};
 
 /***/ }),
 /* 5 */
@@ -78638,7 +78642,7 @@ module.exports = function(hljs) {
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = "<h1 id=\"babel-plugin-partial-application-middot-version-https-img-shields-io-npm-v-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-www-npmjs-com-package-babel-plugin-partial-application-license-https-img-shields-io-npm-l-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-www-npmjs-com-package-babel-plugin-partial-application-travis-ci-https-img-shields-io-travis-citycide-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-travis-ci-org-citycide-babel-plugin-partial-application-lightscript-https-img-shields-io-badge-written-20in-lightscript-00a99d-svg-style-flat-square-http-www-lightscript-org-\">babel-plugin-partial-application &middot; <a href=\"https://www.npmjs.com/package/babel-plugin-partial-application\"><img src=\"https://img.shields.io/npm/v/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"Version\"></a> <a href=\"https://www.npmjs.com/package/babel-plugin-partial-application\"><img src=\"https://img.shields.io/npm/l/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"License\"></a> <a href=\"https://travis-ci.org/citycide/babel-plugin-partial-application\"><img src=\"https://img.shields.io/travis/citycide/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"Travis CI\"></a> <a href=\"http://www.lightscript.org\"><img src=\"https://img.shields.io/badge/written%20in-lightscript-00a99d.svg?style=flat-square\" alt=\"LightScript\"></a></h1>\n<blockquote>\n<p>Partial application syntax for JavaScript, inspired by Scala&#39;s <code>_</code> &amp; Kotlin&#39;s <code>it</code>.</p>\n<p><strong>try it live</strong> on the <strong><a href=\"https://citycide.github.io/babel-plugin-partial-application/\">online playground</a></strong></p>\n</blockquote>\n<ul>\n<li><a href=\"#overview\">overview</a></li>\n<li><a href=\"#installation\">installation</a></li>\n<li><a href=\"#examples\">examples &amp; features</a><ul>\n<li><a href=\"#basic-placeholders\">basic placeholders</a>: <code>add(1, _)</code></li>\n<li><a href=\"#spread-placeholders\">spread placeholders</a>: <code>Math.max(..._)</code></li>\n<li><a href=\"#object-placeholders\">object placeholders</a>: <code>_.hasOwnProperty(&#39;dapper&#39;)</code></li>\n<li><a href=\"#lambda-parameters\">lambda parameters</a>: <code>people.map(_.name)</code></li>\n<li><a href=\"#positional-placeholders\">positional placeholders</a>: <code>const isSameThing = _`1` === _`1` </code></li>\n<li><a href=\"#binary-expressions\">binary expressions</a>: <code>_ === &#39;awesome&#39;</code>, <code>_.getPower().level &gt; 9000</code></li>\n<li><a href=\"#default-parameters\">default parameters</a>: <code>const stringify = JSON.stringify(_, null, _ = 2)</code></li>\n<li><a href=\"#template-literals\">template literals</a>: <code>const greet = `Hello, ${_}!` </code></li>\n<li><a href=\"#set-a-custom-token\">set a custom token</a>: <code>import _ from &#39;babel-plugin-partial-application&#39;</code></li>\n</ul>\n</li>\n<li><a href=\"#usage\">usage</a><ul>\n<li><a href=\"#babelrc\">babelrc</a></li>\n<li><a href=\"#babel-cli\">babel-cli</a></li>\n<li><a href=\"#babel-api\">babel-api</a></li>\n</ul>\n</li>\n<li><a href=\"#caveats--limitations\">caveats &amp; limitations</a></li>\n<li><a href=\"#comparison-to-libraries\">comparison to libraries</a></li>\n<li><a href=\"#see-also\">see also</a></li>\n<li><a href=\"#contributing\">contributing</a></li>\n<li><a href=\"#license\">license</a></li>\n</ul>\n<hr>\n<h2 id=\"overview\">overview</h2>\n<p>Use the <code>_</code> symbol ( or a custom identifier of your choosing ) as a placeholder\nto signal that a function call is partially applied, or that you&#39;ll provide the\nobject of a method call at a later time.</p>\n<p>So basically - the original code isn&#39;t actually called yet, but will return a new\nfunction receiving the arguments you signified as placeholders.</p>\n<p>You can provide one or several placeholders mixed in with the rest of the usual\narguments. Think of the values that aren&#39;t placeholders as being &quot;bound&quot;. Check\nout the <a href=\"#examples\">examples</a> section to see all the different ways this is useful.</p>\n<h2 id=\"installation\">installation</h2>\n<pre><code class=\"lang-console\">npm i --save-dev babel-plugin-partial-application\n</code></pre>\n<p>Make sure you also have Babel installed:</p>\n<pre><code class=\"lang-console\">npm i --save-dev babel-cli\n</code></pre>\n<h2 id=\"examples\">examples</h2>\n<h3 id=\"basic-placeholders\">basic placeholders</h3>\n<p>Transform this:</p>\n<pre><code class=\"lang-js\">function sumOfThreeNumbers (x, y, z) {\n  return x + y + z\n}\n\nconst oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _)\n</code></pre>\n<p>... into this:</p>\n<pre><code class=\"lang-js\">function sumOfThreeNumbers (x, y, z) {\n  return x + y + z\n}\n\nconst oneAndTwoPlusOther = _arg =&gt; {\n  return sumOfThreeNumbers(1, 2, _arg)\n}\n</code></pre>\n<p>It also works for method calls, where this:</p>\n<pre><code class=\"lang-js\">const hasOwn = {}.hasOwnProperty.call(_, _)\n</code></pre>\n<p>... becomes:</p>\n<pre><code class=\"lang-js\">const hasOwn = (_arg, _arg2) =&gt; {\n  return {}.hasOwnProperty.call(_arg, _arg2)\n}\n</code></pre>\n<h3 id=\"spread-placeholders\">spread placeholders</h3>\n<p>You can also use spread to represent multiple arguments:</p>\n<pre><code class=\"lang-js\">const maxOf = Math.max(..._)\n\nconsole.log(maxOf(1, 2, 3, 4, 5))\n// -&gt; 5\n</code></pre>\n<p>This is compiled to:</p>\n<pre><code class=\"lang-js\">const maxOf = (..._spr) =&gt; {\n  return Math.max(..._spr)\n}\n</code></pre>\n<blockquote>\n<p>If your target environment doesn&#39;t support rest / spread,\nyou&#39;ll have to transpile it separately as usual.</p>\n</blockquote>\n<h3 id=\"object-placeholders\">object placeholders</h3>\n<p>The placeholder can stand in for an object on which you&#39;ll access properties\nor call methods.</p>\n<p>As an example, we could re-implement the <code>hasOwn()</code> function from the\n<a href=\"#basic-placeholders\">basic placeholders section</a> like this (although\nwithout <code>.call()</code> this time):</p>\n<pre><code class=\"lang-js\">const hasOwn = _.hasOwnProperty(_)\n</code></pre>\n<p>... which compiles to:</p>\n<pre><code class=\"lang-js\">const hasOwn = (_obj, _arg) =&gt; {\n  return _obj.hasOwnProperty(_arg)\n}\n</code></pre>\n<p>The object that will replace the placeholder becomes the first argument to\nthe resulting function, so you&#39;d use it like this:</p>\n<pre><code class=\"lang-js\">const object = { flammable: true }\n\nhasOwn(object, &#39;flammable&#39;)\n// -&gt; true\n</code></pre>\n<h3 id=\"lambda-parameters\">lambda parameters</h3>\n<p>When used in an argument list, an <a href=\"#object-placeholder\">object placeholder</a>\nbasically becomes what Scala et al. call a <em>lambda parameter</em> - an easy\nshorthand for accessing properties or calling methods on the applied argument.\nIt&#39;s useful in higher order functions like <code>Array#map()</code>:</p>\n<pre><code class=\"lang-js\">const people = [\n  { name: &#39;Jeff&#39; },\n  { name: &#39;Karen&#39; },\n  { name: &#39;Genevieve&#39; }\n]\n\nconsole.log(people.map(_.name))\n// -&gt; [&#39;Jeff&#39;, &#39;Karen&#39;, &#39;Genevieve&#39;]\n</code></pre>\n<p>... compiles to:</p>\n<pre><code class=\"lang-js\">console.log(people.map(_obj =&gt; {\n  return _obj.name\n}))\n</code></pre>\n<h3 id=\"positional-placeholders\">positional placeholders</h3>\n<p>Sometimes called <em>swizzle</em> or <em>rearg</em>, you can partially apply\narguments in a different order than the function normally accepts,\nor use a single argument multiple times.</p>\n<p>Let&#39;s say you want to reorder the arguments of <code>lodash.get()</code>, which\nnormally has a signature of <code>object, path, defaultValue</code>, to\n<code>path, defaultValue, object</code>:</p>\n<pre><code class=\"lang-js\">// forget that lodash/fp even exists for a second :)\nimport { get } from &#39;lodash&#39;\n\n// reorder the arguments so the data is accepted last\nconst getFunctional = get(_`3`, _`1`, _`2`)\n\ngetFunctional(&#39;color&#39;, &#39;blue&#39;, { color: &#39;green&#39; })\n// -&gt; &#39;green&#39;\n</code></pre>\n<p>You can also use positional placeholders to reuse a single argument,\nfor example to create a function checking if something is equal to\nitself ( <code>NaN</code> never is ):</p>\n<pre><code class=\"lang-js\">const isSameThing = _`1` === _`1`\n\nisSameThing(&#39;yes!&#39;)\n// -&gt; true\n\nisSameThing(NaN)\n// -&gt; false\n</code></pre>\n<h3 id=\"binary-expressions\">binary expressions</h3>\n<p>You can use placeholders within logical comparisons ( <code>===</code> ) or\naddition, subtraction, string concatenation, etc. So this:</p>\n<pre><code class=\"lang-js\">array.map(_ === true)\n</code></pre>\n<p>... transforms into this:</p>\n<pre><code class=\"lang-js\">array.map(_bin =&gt; {\n  return _bin === true\n})\n</code></pre>\n<p>And for a classic example, let&#39;s say you have an Array of numbers\nand want the total sum of them all:</p>\n<pre><code class=\"lang-js\">const array = [1, 2, 3, 4, 5]\narray.reduce(_ + _)\n// -&gt; 15\n</code></pre>\n<p>You can combine this with object placeholders and lambda parameters:</p>\n<pre><code class=\"lang-js\">const heroes = [\n  { getPower () { return { level: 9001 } } }\n  { getPower () { return { level: 4500 } } }\n]\n\nheroes.filter(_.getPower().level &gt; 9000)\n</code></pre>\n<h3 id=\"default-parameters\">default parameters</h3>\n<p>In places where you might use a placeholder or a lambda parameter, you can\nuse assignment syntax to set a default parameter:</p>\n<pre><code class=\"lang-js\">const stringify = JSON.stringify(_, null, _ = 2)\n</code></pre>\n<p>This compiles to a standard JavaScript default parameter so the default\nwould be used under the same circumstances, ie. when the argument is either\n<code>undefined</code> or absent.</p>\n<pre><code class=\"lang-js\">stringify({ foo: &#39;bar&#39; })\n</code></pre>\n<pre><code class=\"lang-json\">{\n  &quot;foo&quot;: &quot;bar&quot;\n}\n</code></pre>\n<pre><code class=\"lang-js\">strinfigy({ foo: &#39;bar&#39; }, &#39;&gt;&gt;&gt;&gt;&#39;)\n</code></pre>\n<pre><code class=\"lang-json\">{\n&gt;&gt;&gt;&gt;&quot;foo&quot;: &quot;bar&quot;\n}\n</code></pre>\n<p>Default parameters are also possible with member expressions:</p>\n<pre><code class=\"lang-js\">const greet = name =&gt; console.log(`Hello, ${name}!`)\n\nconst sayHelloToPerson = greet(_.name = &#39;world&#39;)\n\nsayHelloToPerson({ name: &#39;Arlene&#39; })\n// -&gt; Hello, Arlene!\n\nsayHelloToPerson({})\n// -&gt; Hello, world!\n</code></pre>\n<p>Note that no safeguards are added - so in this case, <code>sayHelloToPerson()</code>\nand <code>sayHelloToPerson(null)</code> would cause an error.</p>\n<h3 id=\"template-literals\">template literals</h3>\n<p>You can use almost all the features above inside template literals:</p>\n<pre><code class=\"lang-js\">const greet = `Hello, ${_}!`\n\ngreet(&#39;world&#39;)\n// -&gt; Hello, world!\n\nconst greet2 = `Hello, ${_.name}!`\n\ngreet2({ name: &#39;Tom&#39; })\n// -&gt; Hello, Tom!\n</code></pre>\n<h3 id=\"set-a-custom-token\">set a custom token</h3>\n<p>If you happen to need <code>_</code> as an identifier for whatever reason,\nthere are two different ways to set a custom placeholder token.</p>\n<p>You can either use options in your Babel config as described\n<a href=\"#usage\">below</a> or simply import / require the plugin:</p>\n<pre><code class=\"lang-js\">import _ from &#39;babel-plugin-partial-application&#39;\n\n// or, using require:\nconst _ = require(&#39;babel-plugin-partial-application&#39;)\n</code></pre>\n<p>This import is removed from the compiled output - so you don&#39;t\nneed a production dependency on the plugin. It won&#39;t actually\nimport anything at runtime.</p>\n<p>Whatever identifier you set the import to is what will be used\nas the placeholder, so all of the following would work:</p>\n<pre><code class=\"lang-js\">import __ from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${__}!`\n</code></pre>\n<pre><code class=\"lang-js\">import $ from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${$}!`\n</code></pre>\n<pre><code class=\"lang-js\">import PLACEHOLDER from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${PLACEHOLDER}!`\n</code></pre>\n<p>The benefit of this method over .babelrc configuration is that\nlinters and type systems won&#39;t have a fit because <code>_</code> isn&#39;t\ndefined. It&#39;s also more explicit, more easily understandable,\nand self-documenting. Anyone looking at your code will know\nthat <code>_</code> is from <code>babel-plugin-partial-application</code>.</p>\n<h3 id=\"curried-style-functions\">curried-style functions</h3>\n<p>A handy usage for this plugin is emulating &quot;curried&quot; style functions,\nwhere a function returns another function that receives the data before\nfinally returning the result.</p>\n<p>While partial application <a href=\"http://www.2ality.com/2011/09/currying-vs-part-eval.html\">is a different thing</a>, it can accomplish\nthe same goals in a lot of situations. For example, this:</p>\n<pre><code class=\"lang-js\">import { map, get } from &#39;lodash&#39;\n\nconst mapper = map(_, get(_, &#39;nested.key&#39;, &#39;default&#39;))\n</code></pre>\n<p>... would compile to this:</p>\n<pre><code class=\"lang-js\">import { map, get } from &#39;lodash&#39;\n\nconst mapper = _arg =&gt; {\n  return map(_arg, _arg2 =&gt; {\n    return get(_arg2, &#39;nested.key&#39;, &#39;default&#39;)\n  })\n}\n</code></pre>\n<p>... to be used something like this:</p>\n<pre><code class=\"lang-js\">const array = [\n  { nested: { key: &#39;value&#39; } },\n  { nested: { something: &#39;&#39; } },\n  { nested: { key: &#39;things&#39; } }\n]\n\nconst newArray = mapper(array))\n// -&gt; [&#39;value&#39;, &#39;default&#39;, &#39;things&#39;]\n</code></pre>\n<h2 id=\"usage\">usage</h2>\n<h3 id=\"-babelrc\">.babelrc</h3>\n<pre><code class=\"lang-json\">{\n  &quot;presets&quot;: [],\n  &quot;plugins&quot;: [&quot;partial-application&quot;]\n}\n</code></pre>\n<p>Optionally configure the plugin by using an Array of <code>[pluginName, optionsObject]</code>.\nThis is the default configuration:</p>\n<pre><code class=\"lang-json\">{\n  &quot;presets&quot;: [],\n  &quot;plugins&quot;: [\n    [&quot;partial-application&quot;, {\n      &quot;placeholder&quot;: &quot;_&quot;,\n      &quot;useAlternatePlaceholder&quot;: false\n    }]\n  ]\n}\n</code></pre>\n<table>\n<thead>\n<tr>\n<th style=\"text-align:center\">property</th>\n<th style=\"text-align:center\">type</th>\n<th style=\"text-align:center\">default</th>\n<th>description</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align:center\"><code>placeholder</code></td>\n<td style=\"text-align:center\"><code>String</code></td>\n<td style=\"text-align:center\"><code>_</code></td>\n<td>Identifier used to signal partial application in function calls.</td>\n</tr>\n<tr>\n<td style=\"text-align:center\"><code>useAlternatePlaceholder</code></td>\n<td style=\"text-align:center\"><code>Boolean</code></td>\n<td style=\"text-align:center\"><code>false</code></td>\n<td>Use <code>__</code> as the placeholder. Ignored if <code>placeholder</code> is set to a custom value.</td>\n</tr>\n</tbody>\n</table>\n<p>You can also set a custom placeholder by importing or requiring the plugin.\nSee <a href=\"#set-a-custom-token\">&quot;set a custom token&quot;</a> above for usage.</p>\n<h3 id=\"babel-cli\">Babel CLI</h3>\n<pre><code class=\"lang-console\">babel --plugins partial-application src.js\n</code></pre>\n<p>See Babel&#39;s <a href=\"http://babeljs.io/docs/usage/cli/\">CLI documentation</a> for more.</p>\n<h3 id=\"babel-api\">Babel API</h3>\n<pre><code class=\"lang-js\">require(&#39;babel-core&#39;).transform(&#39;code&#39;, {\n  presets: [],\n  plugins: [&#39;partial-application&#39;]\n})\n</code></pre>\n<h2 id=\"caveats-limitations\">caveats &amp; limitations</h2>\n<blockquote>\n<p><code>_</code> is a common variable name ( eg. for <a href=\"https://github.com/lodash/lodash\">lodash</a> )</p>\n</blockquote>\n<p>This is the most obvious potential pitfall when using this plugin. <code>_</code> is commonly\nused as the identifier for things like lodash&#39;s collection of utilities.</p>\n<p>This would be perfectly valid normally, but by default would cause an error\nwhen using this plugin:</p>\n<pre><code class=\"lang-js\">import _ from &#39;lodash&#39;\n\n// -&gt; SyntaxError: src.js: Cannot use placeholder as an identifier.\n</code></pre>\n<p>The reason this plugin uses <code>_</code> by default then is not to make your life harder.\nThere are a few reasons this is not seen as problematic.</p>\n<ol>\n<li><p><code>_</code> is a common symbol for partial application</p>\n<p>The Scala language uses the underscore as a placeholder for partially\napplied functions, and tons of JavaScript libraries have used it as\nwell - so it&#39;s become recognizable.</p>\n</li>\n<li><p>Monolithic builds of packages like lodash are on the way out</p>\n<p>lodash v5 will be getting rid of the monolithic build in favor\nof explicitly imported or &#39;cherry-picked&#39; utilities. So it will\nbecome less common to see the entirety of lodash imported,\nespecially with ES module tree-shaking on the horizon.</p>\n<p>On top of that, <a href=\"https://github.com/lodash/babel-plugin-lodash\">babel-plugin-lodash</a> still works\neffectively when you just import what you need like so:</p>\n<pre><code class=\"lang-js\">import { add } from &#39;lodash&#39;\n</code></pre>\n</li>\n<li><p>The plugin allows for custom placeholder symbols</p>\n<p>If you do happen to need <code>_</code> as an identifier, you&#39;re able to change\nthe placeholder to any string value you want. Right now this plugin\ndoesn&#39;t place limitations on that, although obvious keywords won&#39;t\nmake the cut beyond the plugin.</p>\n<p>You could use <code>$</code>, <code>it</code>, or even <code>PLACEHOLDER</code> - though I think you&#39;ll\nunderstand why the <code>_</code> is an appealing choice over the alternatives.</p>\n</li>\n<li><p>Partial application with <code>_</code> is damn cool</p>\n</li>\n</ol>\n<h2 id=\"comparison-to-libraries\">comparison to libraries</h2>\n<p>Lodash, Underscore, Ramda, and other libraries have provided partial application\nwith a helper function something like <code>_.partial(fn, _)</code> which wraps the provided\nfunction, and basically just takes advantage of the fact that <code>{} !== {}</code> to recognize\nthat the monolithic <code>_</code>, <code>_.partial.placeholder</code>, or Ramda&#39;s <code>R.__</code> is a specific\nobject deemed a placeholder.</p>\n<p>This Babel plugin gives you the same features at the syntax level. Or even better, like\n<a href=\"#lambda-parameters\">lambda parameters</a> and <a href=\"#object-placeholders\">object placeholders</a>,\neat your heart out lodash :wink:. And it all comes with no runtime overhead. If you don&#39;t\nuse placeholders your functions are unaffected. If you do, they&#39;re compiled away and turn\ninto regular functions that don&#39;t have to check arguments to see if a placeholder was provided.</p>\n<h2 id=\"see-also\">see also</h2>\n<ul>\n<li><a href=\"http://www.lightscript.org\">LightScript</a> - the compile-to-JS language this plugin is written in, leveraging <a href=\"https://babeljs.io\">Babel</a></li>\n<li><a href=\"https://github.com/lodash/lodash/wiki/FP-Guide\">lodash/fp</a> - functional adaptation of the great Lodash utility library</li>\n<li><a href=\"http://ramdajs.com/\">Ramda</a> - highly functional programming-oriented utility library</li>\n<li><a href=\"https://github.com/xtuc/babel-plugin-transform-scala-lambda\">babel-plugin-transform-scala-lambda</a> - a similar plugin for more limited Scala-like lambda syntax</li>\n</ul>\n<h2 id=\"contributing\">contributing</h2>\n<p>Pull requests and any <a href=\"https://github.com/citycide/babel-plugin-partial-application/issues\">issues</a>\nfound are always welcome.</p>\n<ol>\n<li>Fork the project, and preferably create a branch named something like <code>feat-make-better</code></li>\n<li>Modify as needed, <code>src/index.lsc</code> being the source file</li>\n<li>Make sure all tests continue to pass, and it never hurts to have more tests</li>\n<li>Push &amp; pull request! :tada:</li>\n</ol>\n<h2 id=\"license\">license</h2>\n<p>MIT © <a href=\"https://github.com/citycide\">Bo Lingen / citycide</a></p>\n";
+module.exports = "<h1 id=\"babel-plugin-partial-application-middot-version-https-img-shields-io-npm-v-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-www-npmjs-com-package-babel-plugin-partial-application-license-https-img-shields-io-npm-l-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-www-npmjs-com-package-babel-plugin-partial-application-travis-ci-https-img-shields-io-travis-citycide-babel-plugin-partial-application-svg-style-flat-square-maxage-3600-https-travis-ci-org-citycide-babel-plugin-partial-application-lightscript-https-img-shields-io-badge-written-20in-lightscript-00a99d-svg-style-flat-square-http-www-lightscript-org-\">babel-plugin-partial-application &middot; <a href=\"https://www.npmjs.com/package/babel-plugin-partial-application\"><img src=\"https://img.shields.io/npm/v/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"Version\"></a> <a href=\"https://www.npmjs.com/package/babel-plugin-partial-application\"><img src=\"https://img.shields.io/npm/l/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"License\"></a> <a href=\"https://travis-ci.org/citycide/babel-plugin-partial-application\"><img src=\"https://img.shields.io/travis/citycide/babel-plugin-partial-application.svg?style=flat-square&amp;maxAge=3600\" alt=\"Travis CI\"></a> <a href=\"http://www.lightscript.org\"><img src=\"https://img.shields.io/badge/written%20in-lightscript-00a99d.svg?style=flat-square\" alt=\"LightScript\"></a></h1>\n<blockquote>\n<p>Partial application syntax for JavaScript, inspired by Scala&#39;s <code>_</code> &amp; Kotlin&#39;s <code>it</code>.</p>\n<p><strong>try it live</strong> on the <strong><a href=\"https://citycide.github.io/babel-plugin-partial-application/\">online playground</a></strong></p>\n</blockquote>\n<ul>\n<li><a href=\"#overview\">overview</a></li>\n<li><a href=\"#installation\">installation</a></li>\n<li><a href=\"#examples\">examples &amp; features</a><ul>\n<li><a href=\"#basic-placeholders\">basic placeholders</a>: <code>add(1, _)</code></li>\n<li><a href=\"#spread-placeholders\">spread placeholders</a>: <code>Math.max(..._)</code></li>\n<li><a href=\"#object-placeholders\">object placeholders</a>: <code>_.hasOwnProperty(&#39;dapper&#39;)</code></li>\n<li><a href=\"#lambda-parameters\">lambda parameters</a>: <code>people.map(_.name)</code></li>\n<li><a href=\"#positional-placeholders\">positional placeholders</a>: <code>const isSameThing = _`1` === _`1` </code></li>\n<li><a href=\"#binary-expressions\">binary expressions</a>: <code>_ === &#39;awesome&#39;</code>, <code>_.getPower().level &gt; 9000</code></li>\n<li><a href=\"#default-parameters\">default parameters</a>: <code>const stringify = JSON.stringify(_, null, _ = 2)</code></li>\n<li><a href=\"#template-literals\">template literals</a>: <code>const greet = `Hello, ${_}!` </code></li>\n<li><a href=\"#set-a-custom-token\">set a custom token</a>: <code>import _ from &#39;babel-plugin-partial-application&#39;</code></li>\n</ul>\n</li>\n<li><a href=\"#usage\">usage</a><ul>\n<li><a href=\"#babelrc\">babelrc</a></li>\n<li><a href=\"#babel-cli\">babel-cli</a></li>\n<li><a href=\"#babel-api\">babel-api</a></li>\n</ul>\n</li>\n<li><a href=\"#caveats--limitations\">caveats &amp; limitations</a></li>\n<li><a href=\"#comparison-to-libraries\">comparison to libraries</a></li>\n<li><a href=\"#see-also\">see also</a></li>\n<li><a href=\"#contributing\">contributing</a></li>\n<li><a href=\"#license\">license</a></li>\n</ul>\n<hr>\n<h2 id=\"overview\">overview</h2>\n<p>Use the <code>_</code> symbol ( or a custom identifier of your choosing ) as a placeholder\nto signal that a function call is partially applied, or that you&#39;ll provide the\nobject of a method call at a later time.</p>\n<p>So basically - the original code isn&#39;t actually called yet, but will return a new\nfunction receiving the arguments you signified as placeholders.</p>\n<p>You can provide one or several placeholders mixed in with the rest of the usual\narguments. Think of the values that aren&#39;t placeholders as being &quot;bound&quot;. Check\nout the <a href=\"#examples\">examples</a> section to see all the different ways this is useful.</p>\n<h2 id=\"installation\">installation</h2>\n<pre><code class=\"lang-console\">npm i --save-dev babel-plugin-partial-application\n</code></pre>\n<p>Make sure you also have Babel installed:</p>\n<pre><code class=\"lang-console\">npm i --save-dev babel-cli\n</code></pre>\n<h2 id=\"examples\">examples</h2>\n<h3 id=\"basic-placeholders\">basic placeholders</h3>\n<p>Transform this:</p>\n<pre><code class=\"lang-js\">function sumOfThreeNumbers (x, y, z) {\n  return x + y + z\n}\n\nconst oneAndTwoPlusOther = sumOfThreeNumbers(1, 2, _)\n</code></pre>\n<p>... into this:</p>\n<pre><code class=\"lang-js\">function sumOfThreeNumbers (x, y, z) {\n  return x + y + z\n}\n\nconst oneAndTwoPlusOther = _arg =&gt; {\n  return sumOfThreeNumbers(1, 2, _arg)\n}\n</code></pre>\n<p>It also works for method calls, where this:</p>\n<pre><code class=\"lang-js\">const hasOwn = {}.hasOwnProperty.call(_, _)\n</code></pre>\n<p>... becomes:</p>\n<pre><code class=\"lang-js\">const hasOwn = (_arg, _arg2) =&gt; {\n  return {}.hasOwnProperty.call(_arg, _arg2)\n}\n</code></pre>\n<h3 id=\"spread-placeholders\">spread placeholders</h3>\n<p>You can also use spread to represent multiple arguments:</p>\n<pre><code class=\"lang-js\">const maxOf = Math.max(..._)\n\nconsole.log(maxOf(1, 2, 3, 4, 5))\n// -&gt; 5\n</code></pre>\n<p>This is compiled to:</p>\n<pre><code class=\"lang-js\">const maxOf = (..._spr) =&gt; {\n  return Math.max(..._spr)\n}\n</code></pre>\n<blockquote>\n<p>If your target environment doesn&#39;t support rest / spread,\nyou&#39;ll have to transpile it separately as usual.</p>\n</blockquote>\n<h3 id=\"object-placeholders\">object placeholders</h3>\n<p>The placeholder can stand in for an object on which you&#39;ll access properties\nor call methods.</p>\n<p>As an example, we could re-implement the <code>hasOwn()</code> function from the\n<a href=\"#basic-placeholders\">basic placeholders section</a> like this (although\nwithout <code>.call()</code> this time):</p>\n<pre><code class=\"lang-js\">const hasOwn = _.hasOwnProperty(_)\n</code></pre>\n<p>... which compiles to:</p>\n<pre><code class=\"lang-js\">const hasOwn = (_obj, _arg) =&gt; {\n  return _obj.hasOwnProperty(_arg)\n}\n</code></pre>\n<p>The object that will replace the placeholder becomes the first argument to\nthe resulting function, so you&#39;d use it like this:</p>\n<pre><code class=\"lang-js\">const object = { flammable: true }\n\nhasOwn(object, &#39;flammable&#39;)\n// -&gt; true\n</code></pre>\n<h3 id=\"lambda-parameters\">lambda parameters</h3>\n<p>When used in an argument list, an <a href=\"#object-placeholder\">object placeholder</a>\nbasically becomes what Scala et al. call a <em>lambda parameter</em> - an easy\nshorthand for accessing properties or calling methods on the applied argument.\nIt&#39;s useful in higher order functions like <code>Array#map()</code>:</p>\n<pre><code class=\"lang-js\">const people = [\n  { name: &#39;Jeff&#39; },\n  { name: &#39;Karen&#39; },\n  { name: &#39;Genevieve&#39; }\n]\n\nconsole.log(people.map(_.name))\n// -&gt; [&#39;Jeff&#39;, &#39;Karen&#39;, &#39;Genevieve&#39;]\n</code></pre>\n<p>... compiles to:</p>\n<pre><code class=\"lang-js\">console.log(people.map(_obj =&gt; {\n  return _obj.name\n}))\n</code></pre>\n<h3 id=\"positional-placeholders\">positional placeholders</h3>\n<p>Sometimes called <em>swizzle</em> or <em>rearg</em>, you can partially apply\narguments in a different order than the function normally accepts,\nor use a single argument multiple times.</p>\n<p>Let&#39;s say you want to reorder the arguments of <code>lodash.get()</code>, which\nnormally has a signature of <code>object, path, defaultValue</code>, to\n<code>path, defaultValue, object</code>:</p>\n<pre><code class=\"lang-js\">// forget that lodash/fp even exists for a second :)\nimport { get } from &#39;lodash&#39;\n\n// reorder the arguments so the data is accepted last\nconst getFunctional = get(_`3`, _`1`, _`2`)\n\ngetFunctional(&#39;color&#39;, &#39;blue&#39;, { color: &#39;green&#39; })\n// -&gt; &#39;green&#39;\n</code></pre>\n<p>You can also use positional placeholders to reuse a single argument,\nfor example to create a function checking if something is equal to\nitself ( <code>NaN</code> never is ):</p>\n<pre><code class=\"lang-js\">const isSameThing = _`1` === _`1`\n\nisSameThing(&#39;yes!&#39;)\n// -&gt; true\n\nisSameThing(NaN)\n// -&gt; false\n</code></pre>\n<h3 id=\"binary-expressions\">binary expressions</h3>\n<p>You can use placeholders within logical comparisons ( <code>===</code> ) or\naddition, subtraction, string concatenation, etc. So this:</p>\n<pre><code class=\"lang-js\">array.map(_ === true)\n</code></pre>\n<p>... transforms into this:</p>\n<pre><code class=\"lang-js\">array.map(_bin =&gt; {\n  return _bin === true\n})\n</code></pre>\n<p>And for a classic example, let&#39;s say you have an Array of numbers\nand want the total sum of them all:</p>\n<pre><code class=\"lang-js\">const array = [1, 2, 3, 4, 5]\narray.reduce(_ + _)\n// -&gt; 15\n</code></pre>\n<p>You can combine this with object placeholders and lambda parameters:</p>\n<pre><code class=\"lang-js\">const heroes = [\n  { getPower () { return { level: 9001 } } }\n  { getPower () { return { level: 4500 } } }\n]\n\nheroes.filter(_.getPower().level &gt; 9000)\n</code></pre>\n<h3 id=\"default-parameters\">default parameters</h3>\n<p>In places where you might use a placeholder or a lambda parameter, you can\nuse assignment syntax to set a default parameter:</p>\n<pre><code class=\"lang-js\">const stringify = JSON.stringify(_, null, _ = 2)\n</code></pre>\n<p>This compiles to a standard JavaScript default parameter so the default\nwould be used under the same circumstances, ie. when the argument is either\n<code>undefined</code> or absent.</p>\n<pre><code class=\"lang-js\">stringify({ foo: &#39;bar&#39; })\n</code></pre>\n<pre><code class=\"lang-json\">{\n  &quot;foo&quot;: &quot;bar&quot;\n}\n</code></pre>\n<pre><code class=\"lang-js\">strinfigy({ foo: &#39;bar&#39; }, &#39;&gt;&gt;&gt;&gt;&#39;)\n</code></pre>\n<pre><code class=\"lang-json\">{\n&gt;&gt;&gt;&gt;&quot;foo&quot;: &quot;bar&quot;\n}\n</code></pre>\n<p>Default parameters are also possible with member expressions:</p>\n<pre><code class=\"lang-js\">const greet = name =&gt; console.log(`Hello, ${name}!`)\n\nconst sayHelloToPerson = greet(_.name = &#39;world&#39;)\n\nsayHelloToPerson({ name: &#39;Arlene&#39; })\n// -&gt; Hello, Arlene!\n\nsayHelloToPerson({})\n// -&gt; Hello, world!\n</code></pre>\n<p>Note that no safeguards are added - so in this case, <code>sayHelloToPerson()</code>\nand <code>sayHelloToPerson(null)</code> would cause an error.</p>\n<h3 id=\"template-literals\">template literals</h3>\n<p>You can use almost all the features above inside template literals:</p>\n<pre><code class=\"lang-js\">const greet = `Hello, ${_}!`\n\ngreet(&#39;world&#39;)\n// -&gt; Hello, world!\n\nconst greet2 = `Hello, ${_.name}!`\n\ngreet2({ name: &#39;Tom&#39; })\n// -&gt; Hello, Tom!\n</code></pre>\n<h3 id=\"set-a-custom-token\">set a custom token</h3>\n<p>If you happen to need <code>_</code> as an identifier for whatever reason,\nthere are two different ways to set a custom placeholder token.</p>\n<p>You can either use options in your Babel config as described\n<a href=\"#usage\">below</a> or simply import / require the plugin:</p>\n<pre><code class=\"lang-js\">import _ from &#39;babel-plugin-partial-application&#39;\n\n// or, using require:\nconst _ = require(&#39;babel-plugin-partial-application&#39;)\n</code></pre>\n<p>This import is removed from the compiled output - so you don&#39;t\nneed a production dependency on the plugin. It won&#39;t actually\nimport anything at runtime.</p>\n<p>Whatever identifier you set the import to is what will be used\nas the placeholder, so all of the following would work:</p>\n<pre><code class=\"lang-js\">import __ from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${__}!`\n</code></pre>\n<pre><code class=\"lang-js\">import $ from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${$}!`\n</code></pre>\n<pre><code class=\"lang-js\">import PLACEHOLDER from &#39;babel-plugin-partial-application&#39;\n\nconst greet = `Hello, ${PLACEHOLDER}!`\n</code></pre>\n<p>The benefit of this method over .babelrc configuration is that\nlinters and type systems won&#39;t have a fit because <code>_</code> isn&#39;t\ndefined. It&#39;s also more explicit, more easily understandable,\nand self-documenting. Anyone looking at your code will know\nthat <code>_</code> is from <code>babel-plugin-partial-application</code>.</p>\n<h3 id=\"curried-style-functions\">curried-style functions</h3>\n<p>A handy usage for this plugin is emulating &quot;curried&quot; style functions,\nwhere a function returns another function that receives the data before\nfinally returning the result.</p>\n<p>While partial application <a href=\"http://www.2ality.com/2011/09/currying-vs-part-eval.html\">is a different thing</a>, it can accomplish\nthe same goals in a lot of situations. For example, this:</p>\n<pre><code class=\"lang-js\">import { map, get } from &#39;lodash&#39;\n\nconst mapper = map(_, get(_, &#39;nested.key&#39;, &#39;default&#39;))\n</code></pre>\n<p>... would compile to this:</p>\n<pre><code class=\"lang-js\">import { map, get } from &#39;lodash&#39;\n\nconst mapper = _arg =&gt; {\n  return map(_arg, _arg2 =&gt; {\n    return get(_arg2, &#39;nested.key&#39;, &#39;default&#39;)\n  })\n}\n</code></pre>\n<p>... to be used something like this:</p>\n<pre><code class=\"lang-js\">const array = [\n  { nested: { key: &#39;value&#39; } },\n  { nested: { something: &#39;&#39; } },\n  { nested: { key: &#39;things&#39; } }\n]\n\nconst newArray = mapper(array)\n// -&gt; [&#39;value&#39;, &#39;default&#39;, &#39;things&#39;]\n</code></pre>\n<h2 id=\"usage\">usage</h2>\n<h3 id=\"-babelrc\">.babelrc</h3>\n<pre><code class=\"lang-json\">{\n  &quot;presets&quot;: [],\n  &quot;plugins&quot;: [&quot;partial-application&quot;]\n}\n</code></pre>\n<p>Optionally configure the plugin by using an Array of <code>[pluginName, optionsObject]</code>.\nThis is the default configuration:</p>\n<pre><code class=\"lang-json\">{\n  &quot;presets&quot;: [],\n  &quot;plugins&quot;: [\n    [&quot;partial-application&quot;, {\n      &quot;placeholder&quot;: &quot;_&quot;,\n      &quot;useAlternatePlaceholder&quot;: false\n    }]\n  ]\n}\n</code></pre>\n<table>\n<thead>\n<tr>\n<th style=\"text-align:center\">property</th>\n<th style=\"text-align:center\">type</th>\n<th style=\"text-align:center\">default</th>\n<th>description</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align:center\"><code>placeholder</code></td>\n<td style=\"text-align:center\"><code>String</code></td>\n<td style=\"text-align:center\"><code>_</code></td>\n<td>Identifier used to signal partial application in function calls.</td>\n</tr>\n<tr>\n<td style=\"text-align:center\"><code>useAlternatePlaceholder</code></td>\n<td style=\"text-align:center\"><code>Boolean</code></td>\n<td style=\"text-align:center\"><code>false</code></td>\n<td>Use <code>__</code> as the placeholder. Ignored if <code>placeholder</code> is set to a custom value.</td>\n</tr>\n</tbody>\n</table>\n<p>You can also set a custom placeholder by importing or requiring the plugin.\nSee <a href=\"#set-a-custom-token\">&quot;set a custom token&quot;</a> above for usage.</p>\n<h3 id=\"babel-cli\">Babel CLI</h3>\n<pre><code class=\"lang-console\">babel --plugins partial-application src.js\n</code></pre>\n<p>See Babel&#39;s <a href=\"http://babeljs.io/docs/usage/cli/\">CLI documentation</a> for more.</p>\n<h3 id=\"babel-api\">Babel API</h3>\n<pre><code class=\"lang-js\">require(&#39;babel-core&#39;).transform(&#39;code&#39;, {\n  presets: [],\n  plugins: [&#39;partial-application&#39;]\n})\n</code></pre>\n<h2 id=\"caveats-limitations\">caveats &amp; limitations</h2>\n<blockquote>\n<p><code>_</code> is a common variable name ( eg. for <a href=\"https://github.com/lodash/lodash\">lodash</a> )</p>\n</blockquote>\n<p>This is the most obvious potential pitfall when using this plugin. <code>_</code> is commonly\nused as the identifier for things like lodash&#39;s collection of utilities.</p>\n<p>This would be perfectly valid normally, but by default would cause an error\nwhen using this plugin:</p>\n<pre><code class=\"lang-js\">import _ from &#39;lodash&#39;\n\n// -&gt; src.js: Cannot use placeholder as an identifier.\n</code></pre>\n<p>There are a few reasons this is not seen as problematic.</p>\n<ol>\n<li><p><code>_</code> is a common symbol for partial application</p>\n<p>The Scala language uses the underscore as a placeholder for partially\napplied functions, and tons of JavaScript libraries have used it as\nwell - so it&#39;s become recognizable.</p>\n</li>\n<li><p>Monolithic builds of packages like lodash are on the way out</p>\n<p>lodash v5 will be getting rid of the monolithic build in favor\nof explicitly imported or &#39;cherry-picked&#39; utilities. So it will\nbecome less common to see the entirety of lodash imported,\nespecially with ES module tree-shaking on the horizon.</p>\n<p>On top of that, <a href=\"https://github.com/lodash/babel-plugin-lodash\">babel-plugin-lodash</a> still works\neffectively when you just import what you need like so:</p>\n<pre><code class=\"lang-js\">import { add } from &#39;lodash&#39;\n</code></pre>\n</li>\n<li><p>The plugin allows for custom placeholder symbols</p>\n<p>If you do happen to need <code>_</code> as an identifier, you&#39;re able to change\nthe placeholder to any string value you want. Right now this plugin\ndoesn&#39;t place limitations on that, although obvious keywords won&#39;t\nmake the cut beyond the plugin.</p>\n<p>You could use <code>$</code>, <code>it</code>, or even <code>PLACEHOLDER</code> - though I think you&#39;ll\nunderstand why the <code>_</code> is an appealing choice over the alternatives.</p>\n</li>\n<li><p>Partial application with <code>_</code> is damn cool</p>\n</li>\n</ol>\n<h2 id=\"comparison-to-libraries\">comparison to libraries</h2>\n<p>Lodash, Underscore, Ramda, and other libraries have provided partial application\nwith a helper function something like <code>_.partial(fn, _)</code> which wraps the provided\nfunction, and basically just takes advantage of the fact that <code>{} !== {}</code> to recognize\nthat the monolithic <code>_</code>, <code>_.partial.placeholder</code>, or Ramda&#39;s <code>R.__</code> is a specific\nobject deemed a placeholder.</p>\n<p>This Babel plugin gives you the same features at the syntax level. Or even better, like\n<a href=\"#lambda-parameters\">lambda parameters</a> and <a href=\"#object-placeholders\">object placeholders</a>,\neat your heart out lodash :wink:. And it all comes with no runtime overhead. If you don&#39;t\nuse placeholders your functions are unaffected. If you do, they&#39;re compiled away and turn\ninto regular functions that don&#39;t have to check arguments to see if a placeholder was provided.</p>\n<h2 id=\"see-also\">see also</h2>\n<ul>\n<li><a href=\"http://www.lightscript.org\">LightScript</a> - the compile-to-JS language this plugin is written in, leveraging <a href=\"https://babeljs.io\">Babel</a></li>\n<li><a href=\"https://github.com/lodash/lodash/wiki/FP-Guide\">lodash/fp</a> - functional adaptation of the great Lodash utility library</li>\n<li><a href=\"http://ramdajs.com/\">Ramda</a> - highly functional programming-oriented utility library</li>\n<li><a href=\"https://github.com/xtuc/babel-plugin-transform-scala-lambda\">babel-plugin-transform-scala-lambda</a> - a similar plugin for more limited Scala-like lambda syntax</li>\n</ul>\n<h2 id=\"contributing\">contributing</h2>\n<p>Pull requests and any <a href=\"https://github.com/citycide/babel-plugin-partial-application/issues\">issues</a>\nfound are always welcome.</p>\n<ol>\n<li>Fork the project, and preferably create a branch named something like <code>feat-make-better</code></li>\n<li>Modify as needed, <code>src/index.lsc</code> being the source file</li>\n<li>Make sure all tests continue to pass, and it never hurts to have more tests</li>\n<li>Push &amp; pull request! :tada:</li>\n</ol>\n<h2 id=\"license\">license</h2>\n<p>MIT © <a href=\"https://github.com/citycide\">Bo Lingen / citycide</a></p>\n";
 
 /***/ }),
 /* 9 */
@@ -79040,7 +79044,7 @@ module.exports = debounce;
 
 
 
-const style = __webpack_require__(21);
+const style = __webpack_require__(15);
 
 const toString = Object.prototype.toString;
 const toISOString = Date.prototype.toISOString;
@@ -79461,423 +79465,383 @@ module.exports = prettyFormat;
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+/*! Split.js - v1.3.5 */
+
+(function (global, factory) {
+	 true ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.Split = factory());
+}(this, (function () { 'use strict';
+
 // The programming goals of Split.js are to deliver readable, understandable and
 // maintainable code, while at the same time manually optimizing for tiny minified file size,
 // browser compatibility without additional requirements, graceful fallback (IE8 is supported)
 // and very few assumptions about the user's page layout.
-//
-// Make sure all browsers handle this JS library correctly with ES5.
-// More information here: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
+var global = window;
+var document = global.document;
 
-
-// A wrapper function that does a couple things:
-//
-// 1. Doesn't pollute the global namespace. This is important for a library.
-// 2. Allows us to mount the library in different module systems, as well as
-//    directly in the browser.
-(function() {
-
-// Save the global `this` for use later. In this case, since the library only
-// runs in the browser, it will refer to `window`. Also, figure out if we're in IE8
-// or not. IE8 will still render correctly, but will be static instead of draggable.
-//
 // Save a couple long function names that are used frequently.
 // This optimization saves around 400 bytes.
+var addEventListener = 'addEventListener';
+var removeEventListener = 'removeEventListener';
+var getBoundingClientRect = 'getBoundingClientRect';
+var NOOP = function () { return false; };
+
+// Figure out if we're in IE8 or not. IE8 will still render correctly,
+// but will be static instead of draggable.
+var isIE8 = global.attachEvent && !global[addEventListener];
+
+// This library only needs two helper functions:
 //
-// Set a float fudging global, used when dividing and setting sizes to long floats.
-// There's a chance that sometimes the sum of the floats would end up being slightly
-// larger than 100%, breaking the layout. The float fudging value is subtracted from
-// the percentage size.
-var global = this
-  , isIE8 = global.attachEvent && !global[addEventListener]
-  , document = global.document
-  , addEventListener = 'addEventListener'
-  , removeEventListener = 'removeEventListener'
-  , getBoundingClientRect = 'getBoundingClientRect'
-  , FLOAT_FUDGING = 0.5
+// The first determines which prefixes of CSS calc we need.
+// We only need to do this once on startup, when this anonymous function is called.
+//
+// Tests -webkit, -moz and -o prefixes. Modified from StackOverflow:
+// http://stackoverflow.com/questions/16625140/js-feature-detection-to-detect-the-usage-of-webkit-calc-over-calc/16625167#16625167
+var calc = (['', '-webkit-', '-moz-', '-o-'].filter(function (prefix) {
+    var el = document.createElement('div');
+    el.style.cssText = "width:" + prefix + "calc(9px)";
 
-  // This library only needs two helper functions:
-  //
-  // The first determines which prefixes of CSS calc we need.
-  // We only need to do this once on startup, when this anonymous function is called.
-  // 
-  // Tests -webkit, -moz and -o prefixes. Modified from StackOverflow:
-  // http://stackoverflow.com/questions/16625140/js-feature-detection-to-detect-the-usage-of-webkit-calc-over-calc/16625167#16625167
-  , calc = (function () {
-        var el
-          , prefixes = ["", "-webkit-", "-moz-", "-o-"]
+    return (!!el.style.length)
+}).shift()) + "calc";
 
-        for (var i = 0; i < prefixes.length; i++) {
-            el = document.createElement('div')
-            el.style.cssText = "width:" + prefixes[i] + "calc(9px)"
-
-            if (el.style.length) {
-                return prefixes[i] + "calc"
-            }
-        }
-    })()
-
-  // The second helper function allows elements and string selectors to be used
-  // interchangeably. In either case an element is returned. This allows us to
-  // do `Split(elem1, elem2)` as well as `Split('#id1', '#id2')`.
-  , elementOrSelector = function (el) {
-        if (typeof el === 'string' || el instanceof String) {
-            return document.querySelector(el)
-        } else {
-            return el
-        }
+// The second helper function allows elements and string selectors to be used
+// interchangeably. In either case an element is returned. This allows us to
+// do `Split([elem1, elem2])` as well as `Split(['#id1', '#id2'])`.
+var elementOrSelector = function (el) {
+    if (typeof el === 'string' || el instanceof String) {
+        return document.querySelector(el)
     }
 
-  // The main function to initialize a split. Split.js thinks about each pair
-  // of elements as an independant pair. Dragging the gutter between two elements
-  // only changes the dimensions of elements in that pair. This is key to understanding
-  // how the following functions operate, since each function is bound to a pair.
-  // 
-  // A pair object is shaped like this:
-  // 
-  // {
-  //     a: DOM element,
-  //     b: DOM element,
-  //     aMin: Number,
-  //     bMin: Number,
-  //     dragging: Boolean,
-  //     parent: DOM element,
-  //     isFirst: Boolean,
-  //     isLast: Boolean,
-  //     direction: 'horizontal' | 'vertical'
-  // }
-  //
-  // The basic sequence:
-  // 
-  // 1. Set defaults to something sane. `options` doesn't have to be passed at all.
-  // 2. Initialize a bunch of strings based on the direction we're splitting.
-  //    A lot of the behavior in the rest of the library is paramatized down to
-  //    rely on CSS strings and classes.
-  // 3. Define the dragging helper functions, and a few helpers to go with them.
-  // 4. Loop through the elements while pairing them off. Every pair gets an
-  //    `pair` object, a gutter, and special isFirst/isLast properties.
-  // 5. Actually size the pair elements, insert gutters and attach event listeners.
-  , Split = function (ids, options) {
-    var dimension
-      , i
-      , clientDimension
-      , clientAxis
-      , position
-      , gutterClass
-      , paddingA
-      , paddingB
-      , pairs = []
+    return el
+};
 
-    // 1. Set defaults to something sane. `options` doesn't have to be passed at all,
-    // so create an options object if none exists. Pixel values 10, 100 and 30 are
-    // arbitrary but feel natural.
-    options = typeof options !== 'undefined' ?  options : {}
+// The main function to initialize a split. Split.js thinks about each pair
+// of elements as an independant pair. Dragging the gutter between two elements
+// only changes the dimensions of elements in that pair. This is key to understanding
+// how the following functions operate, since each function is bound to a pair.
+//
+// A pair object is shaped like this:
+//
+// {
+//     a: DOM element,
+//     b: DOM element,
+//     aMin: Number,
+//     bMin: Number,
+//     dragging: Boolean,
+//     parent: DOM element,
+//     isFirst: Boolean,
+//     isLast: Boolean,
+//     direction: 'horizontal' | 'vertical'
+// }
+//
+// The basic sequence:
+//
+// 1. Set defaults to something sane. `options` doesn't have to be passed at all.
+// 2. Initialize a bunch of strings based on the direction we're splitting.
+//    A lot of the behavior in the rest of the library is paramatized down to
+//    rely on CSS strings and classes.
+// 3. Define the dragging helper functions, and a few helpers to go with them.
+// 4. Loop through the elements while pairing them off. Every pair gets an
+//    `pair` object, a gutter, and special isFirst/isLast properties.
+// 5. Actually size the pair elements, insert gutters and attach event listeners.
+var Split = function (ids, options) {
+    if ( options === void 0 ) options = {};
 
-    if (typeof options.gutterSize === 'undefined') options.gutterSize = 10
-    if (typeof options.minSize === 'undefined') options.minSize = 100
-    if (typeof options.snapOffset === 'undefined') options.snapOffset = 30
-    if (typeof options.direction === 'undefined') options.direction = 'horizontal'
-    if (typeof options.elementStyle === 'undefined') options.elementStyle = function (dimension, size, gutterSize) {
-        var style = {}
+    var dimension;
+    var clientDimension;
+    var clientAxis;
+    var position;
+    var paddingA;
+    var paddingB;
+    var elements;
+
+    // All DOM elements in the split should have a common parent. We can grab
+    // the first elements parent and hope users read the docs because the
+    // behavior will be whacky otherwise.
+    var parent = elementOrSelector(ids[0]).parentNode;
+    var parentFlexDirection = global.getComputedStyle(parent).flexDirection;
+
+    // Set default options.sizes to equal percentages of the parent element.
+    var sizes = options.sizes || ids.map(function () { return 100 / ids.length; });
+
+    // Standardize minSize to an array if it isn't already. This allows minSize
+    // to be passed as a number.
+    var minSize = options.minSize !== undefined ? options.minSize : 100;
+    var minSizes = Array.isArray(minSize) ? minSize : ids.map(function () { return minSize; });
+    var gutterSize = options.gutterSize !== undefined ? options.gutterSize : 10;
+    var snapOffset = options.snapOffset !== undefined ? options.snapOffset : 30;
+    var direction = options.direction || 'horizontal';
+    var cursor = options.cursor || (direction === 'horizontal' ? 'ew-resize' : 'ns-resize');
+    var gutter = options.gutter || (function (i, gutterDirection) {
+        var gut = document.createElement('div');
+        gut.className = "gutter gutter-" + gutterDirection;
+        return gut
+    });
+    var elementStyle = options.elementStyle || (function (dim, size, gutSize) {
+        var style = {};
 
         if (typeof size !== 'string' && !(size instanceof String)) {
             if (!isIE8) {
-                style[dimension] = calc + '(' + size + '% - ' + gutterSize + 'px)'
+                style[dim] = calc + "(" + size + "% - " + gutSize + "px)";
             } else {
-                style[dimension] = size + '%'
+                style[dim] = size + "%";
             }
         } else {
-            style[dimension] = size
+            style[dim] = size;
         }
 
         return style
-    }
-    if (typeof options.gutterStyle === 'undefined') options.gutterStyle = function (dimension, gutterSize) {
-        var style = {}
-
-        style[dimension] = gutterSize + 'px'
-
-        return style
-    }
+    });
+    var gutterStyle = options.gutterStyle || (function (dim, gutSize) { return (( obj = {}, obj[dim] = (gutSize + "px"), obj ))
+        var obj; });
 
     // 2. Initialize a bunch of strings based on the direction we're splitting.
     // A lot of the behavior in the rest of the library is paramatized down to
     // rely on CSS strings and classes.
-    if (options.direction == 'horizontal') {
-        dimension = 'width'
-        clientDimension = 'clientWidth'
-        clientAxis = 'clientX'
-        position = 'left'
-        gutterClass = 'gutter gutter-horizontal'
-        paddingA = 'paddingLeft'
-        paddingB = 'paddingRight'
-        if (!options.cursor) options.cursor = 'ew-resize'
-    } else if (options.direction == 'vertical') {
-        dimension = 'height'
-        clientDimension = 'clientHeight'
-        clientAxis = 'clientY'
-        position = 'top'
-        gutterClass = 'gutter gutter-vertical'
-        paddingA = 'paddingTop'
-        paddingB = 'paddingBottom'
-        if (!options.cursor) options.cursor = 'ns-resize'
+    if (direction === 'horizontal') {
+        dimension = 'width';
+        clientDimension = 'clientWidth';
+        clientAxis = 'clientX';
+        position = 'left';
+        paddingA = 'paddingLeft';
+        paddingB = 'paddingRight';
+    } else if (direction === 'vertical') {
+        dimension = 'height';
+        clientDimension = 'clientHeight';
+        clientAxis = 'clientY';
+        position = 'top';
+        paddingA = 'paddingTop';
+        paddingB = 'paddingBottom';
     }
 
     // 3. Define the dragging helper functions, and a few helpers to go with them.
     // Each helper is bound to a pair object that contains it's metadata. This
     // also makes it easy to store references to listeners that that will be
     // added and removed.
-    // 
+    //
     // Even though there are no other functions contained in them, aliasing
     // this to self saves 50 bytes or so since it's used so frequently.
     //
     // The pair object saves metadata like dragging state, position and
     // event listener references.
+
+    function setElementSize (el, size, gutSize) {
+        // Split.js allows setting sizes via numbers (ideally), or if you must,
+        // by string, like '300px'. This is less than ideal, because it breaks
+        // the fluid layout that `calc(% - px)` provides. You're on your own if you do that,
+        // make sure you calculate the gutter size by hand.
+        var style = elementStyle(dimension, size, gutSize);
+
+        // eslint-disable-next-line no-param-reassign
+        Object.keys(style).forEach(function (prop) { return (el.style[prop] = style[prop]); });
+    }
+
+    function setGutterSize (gutterElement, gutSize) {
+        var style = gutterStyle(dimension, gutSize);
+
+        // eslint-disable-next-line no-param-reassign
+        Object.keys(style).forEach(function (prop) { return (gutterElement.style[prop] = style[prop]); });
+    }
+
+    // Actually adjust the size of elements `a` and `b` to `offset` while dragging.
+    // calc is used to allow calc(percentage + gutterpx) on the whole split instance,
+    // which allows the viewport to be resized without additional logic.
+    // Element a's size is the same as offset. b's size is total size - a size.
+    // Both sizes are calculated from the initial parent percentage,
+    // then the gutter size is subtracted.
+    function adjust (offset) {
+        var a = elements[this.a];
+        var b = elements[this.b];
+        var percentage = a.size + b.size;
+
+        a.size = (offset / this.size) * percentage;
+        b.size = (percentage - ((offset / this.size) * percentage));
+
+        setElementSize(a.element, a.size, this.aGutterSize);
+        setElementSize(b.element, b.size, this.bGutterSize);
+    }
+
+    // drag, where all the magic happens. The logic is really quite simple:
     //
+    // 1. Ignore if the pair is not dragging.
+    // 2. Get the offset of the event.
+    // 3. Snap offset to min if within snappable range (within min + snapOffset).
+    // 4. Actually adjust each element in the pair to offset.
+    //
+    // ---------------------------------------------------------------------
+    // |    | <- a.minSize               ||              b.minSize -> |    |
+    // |    |  | <- this.snapOffset      ||     this.snapOffset -> |  |    |
+    // |    |  |                         ||                        |  |    |
+    // |    |  |                         ||                        |  |    |
+    // ---------------------------------------------------------------------
+    // | <- this.start                                        this.size -> |
+    function drag (e) {
+        var offset;
+
+        if (!this.dragging) { return }
+
+        // Get the offset of the event from the first side of the
+        // pair `this.start`. Supports touch events, but not multitouch, so only the first
+        // finger `touches[0]` is counted.
+        if ('touches' in e) {
+            offset = e.touches[0][clientAxis] - this.start;
+        } else {
+            offset = e[clientAxis] - this.start;
+        }
+
+        // If within snapOffset of min or max, set offset to min or max.
+        // snapOffset buffers a.minSize and b.minSize, so logic is opposite for both.
+        // Include the appropriate gutter sizes to prevent overflows.
+        if (offset <= elements[this.a].minSize + snapOffset + this.aGutterSize) {
+            offset = elements[this.a].minSize + this.aGutterSize;
+        } else if (offset >= this.size - (elements[this.b].minSize + snapOffset + this.bGutterSize)) {
+            offset = this.size - (elements[this.b].minSize + this.bGutterSize);
+        }
+
+        // Actually adjust the size.
+        adjust.call(this, offset);
+
+        // Call the drag callback continously. Don't do anything too intensive
+        // in this callback.
+        if (options.onDrag) {
+            options.onDrag();
+        }
+    }
+
+    // Cache some important sizes when drag starts, so we don't have to do that
+    // continously:
+    //
+    // `size`: The total size of the pair. First + second + first gutter + second gutter.
+    // `start`: The leading side of the first element.
+    //
+    // ------------------------------------------------
+    // |      aGutterSize -> |||                      |
+    // |                     |||                      |
+    // |                     |||                      |
+    // |                     ||| <- bGutterSize       |
+    // ------------------------------------------------
+    // | <- start                             size -> |
+    function calculateSizes () {
+        // Figure out the parent size minus padding.
+        var a = elements[this.a].element;
+        var b = elements[this.b].element;
+
+        this.size = a[getBoundingClientRect]()[dimension] + b[getBoundingClientRect]()[dimension] + this.aGutterSize + this.bGutterSize;
+        this.start = a[getBoundingClientRect]()[position];
+    }
+
+    // stopDragging is very similar to startDragging in reverse.
+    function stopDragging () {
+        var self = this;
+        var a = elements[self.a].element;
+        var b = elements[self.b].element;
+
+        if (self.dragging && options.onDragEnd) {
+            options.onDragEnd();
+        }
+
+        self.dragging = false;
+
+        // Remove the stored event listeners. This is why we store them.
+        global[removeEventListener]('mouseup', self.stop);
+        global[removeEventListener]('touchend', self.stop);
+        global[removeEventListener]('touchcancel', self.stop);
+
+        self.parent[removeEventListener]('mousemove', self.move);
+        self.parent[removeEventListener]('touchmove', self.move);
+
+        // Delete them once they are removed. I think this makes a difference
+        // in memory usage with a lot of splits on one page. But I don't know for sure.
+        delete self.stop;
+        delete self.move;
+
+        a[removeEventListener]('selectstart', NOOP);
+        a[removeEventListener]('dragstart', NOOP);
+        b[removeEventListener]('selectstart', NOOP);
+        b[removeEventListener]('dragstart', NOOP);
+
+        a.style.userSelect = '';
+        a.style.webkitUserSelect = '';
+        a.style.MozUserSelect = '';
+        a.style.pointerEvents = '';
+
+        b.style.userSelect = '';
+        b.style.webkitUserSelect = '';
+        b.style.MozUserSelect = '';
+        b.style.pointerEvents = '';
+
+        self.gutter.style.cursor = '';
+        self.parent.style.cursor = '';
+    }
+
     // startDragging calls `calculateSizes` to store the inital size in the pair object.
     // It also adds event listeners for mouse/touch events,
     // and prevents selection while dragging so avoid the selecting text.
-    var startDragging = function (e) {
-            // Alias frequently used variables to save space. 200 bytes.
-            var self = this
-              , a = self.a
-              , b = self.b
+    function startDragging (e) {
+        // Alias frequently used variables to save space. 200 bytes.
+        var self = this;
+        var a = elements[self.a].element;
+        var b = elements[self.b].element;
 
-            // Call the onDragStart callback.
-            if (!self.dragging && options.onDragStart) {
-                options.onDragStart()
-            }
-
-            // Don't actually drag the element. We emulate that in the drag function.
-            e.preventDefault()
-
-            // Set the dragging property of the pair object.
-            self.dragging = true
-
-            // Create two event listeners bound to the same pair object and store
-            // them in the pair object.
-            self.move = drag.bind(self)
-            self.stop = stopDragging.bind(self)
-
-            // All the binding. `window` gets the stop events in case we drag out of the elements.
-            global[addEventListener]('mouseup', self.stop)
-            global[addEventListener]('touchend', self.stop)
-            global[addEventListener]('touchcancel', self.stop)
-
-            self.parent[addEventListener]('mousemove', self.move)
-            self.parent[addEventListener]('touchmove', self.move)
-
-            // Disable selection. Disable!
-            a[addEventListener]('selectstart', noop)
-            a[addEventListener]('dragstart', noop)
-            b[addEventListener]('selectstart', noop)
-            b[addEventListener]('dragstart', noop)
-
-            a.style.userSelect = 'none'
-            a.style.webkitUserSelect = 'none'
-            a.style.MozUserSelect = 'none'
-            a.style.pointerEvents = 'none'
-
-            b.style.userSelect = 'none'
-            b.style.webkitUserSelect = 'none'
-            b.style.MozUserSelect = 'none'
-            b.style.pointerEvents = 'none'
-
-            // Set the cursor, both on the gutter and the parent element.
-            // Doing only a, b and gutter causes flickering.
-            self.gutter.style.cursor = options.cursor
-            self.parent.style.cursor = options.cursor
-
-            // Cache the initial sizes of the pair.
-            calculateSizes.call(self)
+        // Call the onDragStart callback.
+        if (!self.dragging && options.onDragStart) {
+            options.onDragStart();
         }
 
-      // stopDragging is very similar to startDragging in reverse.
-      , stopDragging = function () {
-            var self = this
-              , a = self.a
-              , b = self.b
+        // Don't actually drag the element. We emulate that in the drag function.
+        e.preventDefault();
 
-            if (self.dragging && options.onDragEnd) {
-                options.onDragEnd()
-            }
+        // Set the dragging property of the pair object.
+        self.dragging = true;
 
-            self.dragging = false
+        // Create two event listeners bound to the same pair object and store
+        // them in the pair object.
+        self.move = drag.bind(self);
+        self.stop = stopDragging.bind(self);
 
-            // Remove the stored event listeners. This is why we store them.
-            global[removeEventListener]('mouseup', self.stop)
-            global[removeEventListener]('touchend', self.stop)
-            global[removeEventListener]('touchcancel', self.stop)
+        // All the binding. `window` gets the stop events in case we drag out of the elements.
+        global[addEventListener]('mouseup', self.stop);
+        global[addEventListener]('touchend', self.stop);
+        global[addEventListener]('touchcancel', self.stop);
 
-            self.parent[removeEventListener]('mousemove', self.move)
-            self.parent[removeEventListener]('touchmove', self.move)
+        self.parent[addEventListener]('mousemove', self.move);
+        self.parent[addEventListener]('touchmove', self.move);
 
-            // Delete them once they are removed. I think this makes a difference
-            // in memory usage with a lot of splits on one page. But I don't know for sure.
-            delete self.stop
-            delete self.move
+        // Disable selection. Disable!
+        a[addEventListener]('selectstart', NOOP);
+        a[addEventListener]('dragstart', NOOP);
+        b[addEventListener]('selectstart', NOOP);
+        b[addEventListener]('dragstart', NOOP);
 
-            a[removeEventListener]('selectstart', noop)
-            a[removeEventListener]('dragstart', noop)
-            b[removeEventListener]('selectstart', noop)
-            b[removeEventListener]('dragstart', noop)
+        a.style.userSelect = 'none';
+        a.style.webkitUserSelect = 'none';
+        a.style.MozUserSelect = 'none';
+        a.style.pointerEvents = 'none';
 
-            a.style.userSelect = ''
-            a.style.webkitUserSelect = ''
-            a.style.MozUserSelect = ''
-            a.style.pointerEvents = ''
+        b.style.userSelect = 'none';
+        b.style.webkitUserSelect = 'none';
+        b.style.MozUserSelect = 'none';
+        b.style.pointerEvents = 'none';
 
-            b.style.userSelect = ''
-            b.style.webkitUserSelect = ''
-            b.style.MozUserSelect = ''
-            b.style.pointerEvents = ''
+        // Set the cursor, both on the gutter and the parent element.
+        // Doing only a, b and gutter causes flickering.
+        self.gutter.style.cursor = cursor;
+        self.parent.style.cursor = cursor;
 
-            self.gutter.style.cursor = ''
-            self.parent.style.cursor = ''
-        }
-
-      // drag, where all the magic happens. The logic is really quite simple:
-      // 
-      // 1. Ignore if the pair is not dragging.
-      // 2. Get the offset of the event.
-      // 3. Snap offset to min if within snappable range (within min + snapOffset).
-      // 4. Actually adjust each element in the pair to offset.
-      // 
-      // ---------------------------------------------------------------------
-      // |    | <- this.aMin               ||              this.bMin -> |    |
-      // |    |  | <- this.snapOffset      ||     this.snapOffset -> |  |    |
-      // |    |  |                         ||                        |  |    |
-      // |    |  |                         ||                        |  |    |
-      // ---------------------------------------------------------------------
-      // | <- this.start                                        this.size -> |
-      , drag = function (e) {
-            var offset
-
-            if (!this.dragging) return
-
-            // Get the offset of the event from the first side of the
-            // pair `this.start`. Supports touch events, but not multitouch, so only the first
-            // finger `touches[0]` is counted.
-            if ('touches' in e) {
-                offset = e.touches[0][clientAxis] - this.start
-            } else {
-                offset = e[clientAxis] - this.start
-            }
-
-            // If within snapOffset of min or max, set offset to min or max.
-            // snapOffset buffers aMin and bMin, so logic is opposite for both.
-            // Include the appropriate gutter sizes to prevent overflows.
-            if (offset <= this.aMin + options.snapOffset + this.aGutterSize) {
-                offset = this.aMin + this.aGutterSize
-            } else if (offset >= this.size - (this.bMin + options.snapOffset + this.bGutterSize)) {
-                offset = this.size - (this.bMin + this.bGutterSize)
-            }
-
-            offset = offset - FLOAT_FUDGING
-
-            // Actually adjust the size.
-            adjust.call(this, offset)
-
-            // Call the drag callback continously. Don't do anything too intensive
-            // in this callback.
-            if (options.onDrag) {
-                options.onDrag()
-            }
-        }
-
-      // Cache some important sizes when drag starts, so we don't have to do that
-      // continously:
-      // 
-      // `size`: The total size of the pair. First element + second element + first gutter + second gutter.
-      // `percentage`: The percentage between 0-100 that the pair occupies in the parent.
-      // `start`: The leading side of the first element.
-      //
-      // ------------------------------------------------ - - - - - - - - - - -
-      // |      aGutterSize -> |||                      |                     |
-      // |                     |||                      |                     |
-      // |                     |||                      |                     |
-      // |                     ||| <- bGutterSize       |                     |
-      // ------------------------------------------------ - - - - - - - - - - -
-      // | <- start                             size -> |       parentSize -> |
-      , calculateSizes = function () {
-            // Figure out the parent size minus padding.
-            var computedStyle = global.getComputedStyle(this.parent)
-              , parentSize = this.parent[clientDimension] - parseFloat(computedStyle[paddingA]) - parseFloat(computedStyle[paddingB])
-
-            this.size = this.a[getBoundingClientRect]()[dimension] + this.b[getBoundingClientRect]()[dimension] + this.aGutterSize + this.bGutterSize
-            this.percentage = Math.min(this.size / parentSize * 100, 100)
-            this.start = this.a[getBoundingClientRect]()[position]
-        }
-
-      // Actually adjust the size of elements `a` and `b` to `offset` while dragging.
-      // calc is used to allow calc(percentage + gutterpx) on the whole split instance,
-      // which allows the viewport to be resized without additional logic.
-      // Element a's size is the same as offset. b's size is total size - a size.
-      // Both sizes are calculated from the initial parent percentage, then the gutter size is subtracted.
-      , adjust = function (offset) {
-            setElementSize(this.a, (offset / this.size * this.percentage), this.aGutterSize)
-            setElementSize(this.b, (this.percentage - (offset / this.size * this.percentage)), this.bGutterSize)
-        }
-      , setElementSize = function (el, size, gutterSize) {
-            // Split.js allows setting sizes via numbers (ideally), or if you must,
-            // by string, like '300px'. This is less than ideal, because it breaks
-            // the fluid layout that `calc(% - px)` provides. You're on your own if you do that,
-            // make sure you calculate the gutter size by hand.
-            var style = options.elementStyle(dimension, size, gutterSize)
-              , props = Object.keys(style)
-
-            for (var i = 0; i < props.length; i++) {
-                el.style[props[i]] = style[props[i]]
-            }
-        }
-      , setGutterSize = function (gutter, gutterSize) {
-            var style = options.gutterStyle(dimension, gutterSize)
-              , props = Object.keys(style)
-
-            for (var i = 0; i < props.length; i++) {
-                gutter.style[props[i]] = style[props[i]]
-            }
-        }
-
-      // No-op function to prevent default. Used to prevent selection.
-      , noop = function () { return false }
-
-      // All DOM elements in the split should have a common parent. We can grab
-      // the first elements parent and hope users read the docs because the
-      // behavior will be whacky otherwise.
-      , parent = elementOrSelector(ids[0]).parentNode
-
-    // Set default options.sizes to equal percentages of the parent element.
-    if (!options.sizes) {
-        var percent = 100 / ids.length
-
-        options.sizes = []
-
-        for (i = 0; i < ids.length; i++) {
-            options.sizes.push(percent)
-        }
+        // Cache the initial sizes of the pair.
+        calculateSizes.call(self);
     }
 
-    // Standardize minSize to an array if it isn't already. This allows minSize
-    // to be passed as a number.
-    if (!Array.isArray(options.minSize)) {
-        var minSizes = []
-
-        for (i = 0; i < ids.length; i++) {
-            minSizes.push(options.minSize)
-        }
-
-        options.minSize = minSizes
-    }
-
-    // 5. Loop through the elements while pairing them off. Every pair gets a
+    // 5. Create pair and element objects. Each pair has an index reference to
+    // elements `a` and `b` of the pair (first and second elements).
+    // Loop through the elements while pairing them off. Every pair gets a
     // `pair` object, a gutter, and isFirst/isLast properties.
     //
     // Basic logic:
     //
     // - Starting with the second element `i > 0`, create `pair` objects with
-    //   `a = ids[i - 1]` and `b = ids[i]`
+    //   `a = i - 1` and `b = i`
     // - Set gutter sizes based on the _pair_ being first/last. The first and last
     //   pair have gutterSize / 2, since they only have one half gutter, and not two.
     // - Create gutter elements and add event listeners.
@@ -79889,45 +79853,44 @@ var global = this
     // |           pair 0                pair 1             pair 2           |
     // |             |                     |                  |              |
     // -----------------------------------------------------------------------
-    for (i = 0; i < ids.length; i++) {
-        var el = elementOrSelector(ids[i])
-          , isFirstPair = (i == 1)
-          , isLastPair = (i == ids.length - 1)
-          , size = options.sizes[i]
-          , gutterSize = options.gutterSize
-          , pair
-          , parentFlexDirection = window.getComputedStyle(parent).flexDirection
-          , temp
+    var pairs = [];
+    elements = ids.map(function (id, i) {
+        // Create the element object.
+        var element = {
+            element: elementOrSelector(id),
+            size: sizes[i],
+            minSize: minSizes[i],
+        };
+
+        var pair;
 
         if (i > 0) {
             // Create the pair object with it's metadata.
             pair = {
-                a: elementOrSelector(ids[i - 1]),
-                b: el,
-                aMin: options.minSize[i - 1],
-                bMin: options.minSize[i],
+                a: i - 1,
+                b: i,
                 dragging: false,
+                isFirst: (i === 1),
+                isLast: (i === ids.length - 1),
+                direction: direction,
                 parent: parent,
-                isFirst: isFirstPair,
-                isLast: isLastPair,
-                direction: options.direction
-            }
+            };
 
             // For first and last pairs, first and last gutter width is half.
-            pair.aGutterSize = options.gutterSize
-            pair.bGutterSize = options.gutterSize
+            pair.aGutterSize = gutterSize;
+            pair.bGutterSize = gutterSize;
 
-            if (isFirstPair) {
-                pair.aGutterSize = options.gutterSize / 2
+            if (pair.isFirst) {
+                pair.aGutterSize = gutterSize / 2;
             }
 
-            if (isLastPair) {
-                pair.bGutterSize = options.gutterSize / 2
+            if (pair.isLast) {
+                pair.bGutterSize = gutterSize / 2;
             }
 
             // if the parent has a reverse flex-direction, switch the pair elements.
             if (parentFlexDirection === 'row-reverse' || parentFlexDirection === 'column-reverse') {
-                temp = pair.a;
+                var temp = pair.a;
                 pair.a = pair.b;
                 pair.b = temp;
             }
@@ -79936,119 +79899,108 @@ var global = this
         // Determine the size of the current element. IE8 is supported by
         // staticly assigning sizes without draggable gutters. Assigns a string
         // to `size`.
-        // 
+        //
         // IE9 and above
         if (!isIE8) {
             // Create gutter elements for each pair.
             if (i > 0) {
-                var gutter = document.createElement('div')
+                var gutterElement = gutter(i, direction);
+                setGutterSize(gutterElement, gutterSize);
 
-                gutter.className = gutterClass
+                gutterElement[addEventListener]('mousedown', startDragging.bind(pair));
+                gutterElement[addEventListener]('touchstart', startDragging.bind(pair));
 
-                setGutterSize(gutter, gutterSize)
+                parent.insertBefore(gutterElement, element.element);
 
-                gutter[addEventListener]('mousedown', startDragging.bind(pair))
-                gutter[addEventListener]('touchstart', startDragging.bind(pair))
-
-                parent.insertBefore(gutter, el)
-
-                pair.gutter = gutter
-            }
-
-            // Half-size gutters for first and last elements.
-            if (i === 0 || i == ids.length - 1) {
-                gutterSize = options.gutterSize / 2
+                pair.gutter = gutterElement;
             }
         }
 
         // Set the element size to our determined size.
-        setElementSize(el, size, gutterSize)
+        // Half-size gutters for first and last elements.
+        if (i === 0 || i === ids.length - 1) {
+            setElementSize(element.element, element.size, gutterSize / 2);
+        } else {
+            setElementSize(element.element, element.size, gutterSize);
+        }
 
-        if (i > 0) {
-            var aSize = pair.a[getBoundingClientRect]()[dimension]
-              , bSize = pair.b[getBoundingClientRect]()[dimension]
+        var computedSize = element.element[getBoundingClientRect]()[dimension];
 
-            if (aSize < pair.aMin) {
-                pair.aMin = aSize
-            }
-
-            if (bSize < pair.bMin) {
-                pair.bMin = bSize
-            }
+        if (computedSize < element.minSize) {
+            element.minSize = computedSize;
         }
 
         // After the first iteration, and we have a pair object, append it to the
         // list of pairs.
         if (i > 0) {
-            pairs.push(pair)
+            pairs.push(pair);
+        }
+
+        return element
+    });
+
+    function setSizes (newSizes) {
+        newSizes.forEach(function (newSize, i) {
+            if (i > 0) {
+                var pair = pairs[i - 1];
+                var a = elements[pair.a];
+                var b = elements[pair.b];
+
+                a.size = newSizes[i - 1];
+                b.size = newSize;
+
+                setElementSize(a.element, a.size, pair.aGutterSize);
+                setElementSize(b.element, b.size, pair.bGutterSize);
+            }
+        });
+    }
+
+    function destroy () {
+        pairs.forEach(function (pair) {
+            pair.parent.removeChild(pair.gutter);
+            elements[pair.a].element.style[dimension] = '';
+            elements[pair.b].element.style[dimension] = '';
+        });
+    }
+
+    if (isIE8) {
+        return {
+            setSizes: setSizes,
+            destroy: destroy,
         }
     }
 
     return {
-        setSizes: function (sizes) {
-            for (var i = 0; i < sizes.length; i++) {
-                if (i > 0) {
-                    var pair = pairs[i - 1]
-
-                    setElementSize(pair.a, sizes[i - 1], pair.aGutterSize)
-                    setElementSize(pair.b, sizes[i], pair.bGutterSize)
-                }
-            }
+        setSizes: setSizes,
+        getSizes: function getSizes () {
+            return elements.map(function (element) { return element.size; })
         },
-        getSizes: function () {
-            var sizes = []
-
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i]
-                  , computedStyle = global.getComputedStyle(pair.parent)
-                  , parentSize = pair.parent[clientDimension] - parseFloat(computedStyle[paddingA]) - parseFloat(computedStyle[paddingB])
-
-                sizes.push((pair.a[getBoundingClientRect]()[dimension] + pair.aGutterSize) / parentSize * 100)
-
-                if (i === pairs.length - 1) {
-                    sizes.push((pair.b[getBoundingClientRect]()[dimension] + pair.bGutterSize) / parentSize * 100)
-                }
-            }
-
-            return sizes
-        },
-        collapse: function (i) {
-            var pair
-
+        collapse: function collapse (i) {
             if (i === pairs.length) {
-                pair = pairs[i - 1]
+                var pair = pairs[i - 1];
 
-                calculateSizes.call(pair)
-                adjust.call(pair, pair.size - pair.bGutterSize)
+                calculateSizes.call(pair);
+
+                if (!isIE8) {
+                    adjust.call(pair, pair.size - pair.bGutterSize);
+                }
             } else {
-                pair = pairs[i]
+                var pair$1 = pairs[i];
 
-                calculateSizes.call(pair)
-                adjust.call(pair, pair.aGutterSize)
+                calculateSizes.call(pair$1);
+
+                if (!isIE8) {
+                    adjust.call(pair$1, pair$1.aGutterSize);
+                }
             }
         },
-        destroy: function () {
-            for (var i = 0; i < pairs.length; i++) {
-                pairs[i].parent.removeChild(pairs[i].gutter)
-                pairs[i].a.style[dimension] = ''
-                pairs[i].b.style[dimension] = ''
-            }
-        }
+        destroy: destroy,
     }
-}
+};
 
-// Play nicely with module systems, and the browser too if you include it raw.
-if (true) {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = Split
-    }
-    exports.Split = Split
-} else {
-    global.Split = Split
-}
+return Split;
 
-// Call our wrapper function with the current global. In this case, `window`.
-}).call(window);
+})));
 
 
 /***/ }),
@@ -80827,6 +80779,157 @@ function createError$1(t,e){const s=new SyntaxError(t+" ("+e.start.line+":"+e.st
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(module) {
+const colorConvert = __webpack_require__(18);
+
+const wrapAnsi16 = (fn, offset) => function () {
+	const code = fn.apply(colorConvert, arguments);
+	return `\u001B[${code + offset}m`;
+};
+
+const wrapAnsi256 = (fn, offset) => function () {
+	const code = fn.apply(colorConvert, arguments);
+	return `\u001B[${38 + offset};5;${code}m`;
+};
+
+const wrapAnsi16m = (fn, offset) => function () {
+	const rgb = fn.apply(colorConvert, arguments);
+	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
+};
+
+function assembleStyles() {
+	const styles = {
+		modifier: {
+			reset: [0, 0],
+			// 21 isn't widely supported and 22 does the same thing
+			bold: [1, 22],
+			dim: [2, 22],
+			italic: [3, 23],
+			underline: [4, 24],
+			inverse: [7, 27],
+			hidden: [8, 28],
+			strikethrough: [9, 29]
+		},
+		color: {
+			black: [30, 39],
+			red: [31, 39],
+			green: [32, 39],
+			yellow: [33, 39],
+			blue: [34, 39],
+			magenta: [35, 39],
+			cyan: [36, 39],
+			white: [37, 39],
+			gray: [90, 39],
+
+			// Bright color
+			redBright: [91, 39],
+			greenBright: [92, 39],
+			yellowBright: [93, 39],
+			blueBright: [94, 39],
+			magentaBright: [95, 39],
+			cyanBright: [96, 39],
+			whiteBright: [97, 39]
+		},
+		bgColor: {
+			bgBlack: [40, 49],
+			bgRed: [41, 49],
+			bgGreen: [42, 49],
+			bgYellow: [43, 49],
+			bgBlue: [44, 49],
+			bgMagenta: [45, 49],
+			bgCyan: [46, 49],
+			bgWhite: [47, 49],
+
+			// Bright color
+			bgBlackBright: [100, 49],
+			bgRedBright: [101, 49],
+			bgGreenBright: [102, 49],
+			bgYellowBright: [103, 49],
+			bgBlueBright: [104, 49],
+			bgMagentaBright: [105, 49],
+			bgCyanBright: [106, 49],
+			bgWhiteBright: [107, 49]
+		}
+	};
+
+	// Fix humans
+	styles.color.grey = styles.color.gray;
+
+	Object.keys(styles).forEach(groupName => {
+		const group = styles[groupName];
+
+		Object.keys(group).forEach(styleName => {
+			const style = group[styleName];
+
+			styles[styleName] = {
+				open: `\u001B[${style[0]}m`,
+				close: `\u001B[${style[1]}m`
+			};
+
+			group[styleName] = styles[styleName];
+		});
+
+		Object.defineProperty(styles, groupName, {
+			value: group,
+			enumerable: false
+		});
+	});
+
+	const rgb2rgb = (r, g, b) => [r, g, b];
+
+	styles.color.close = '\u001B[39m';
+	styles.bgColor.close = '\u001B[49m';
+
+	styles.color.ansi = {};
+	styles.color.ansi256 = {};
+	styles.color.ansi16m = {
+		rgb: wrapAnsi16m(rgb2rgb, 0)
+	};
+
+	styles.bgColor.ansi = {};
+	styles.bgColor.ansi256 = {};
+	styles.bgColor.ansi16m = {
+		rgb: wrapAnsi16m(rgb2rgb, 10)
+	};
+
+	for (const key of Object.keys(colorConvert)) {
+		if (typeof colorConvert[key] !== 'object') {
+			continue;
+		}
+
+		const suite = colorConvert[key];
+
+		if ('ansi16' in suite) {
+			styles.color.ansi[key] = wrapAnsi16(suite.ansi16, 0);
+			styles.bgColor.ansi[key] = wrapAnsi16(suite.ansi16, 10);
+		}
+
+		if ('ansi256' in suite) {
+			styles.color.ansi256[key] = wrapAnsi256(suite.ansi256, 0);
+			styles.bgColor.ansi256[key] = wrapAnsi256(suite.ansi256, 10);
+		}
+
+		if ('rgb' in suite) {
+			styles.color.ansi16m[key] = wrapAnsi16m(suite.rgb, 0);
+			styles.bgColor.ansi16m[key] = wrapAnsi16m(suite.rgb, 10);
+		}
+	}
+
+	return styles;
+}
+
+Object.defineProperty(module, 'exports', {
+	enumerable: true,
+	get: assembleStyles
+});
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 
 // compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
@@ -81321,18 +81424,18 @@ var objectKeys = Object.keys || function (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 var _typeof='function'==typeof Symbol&&'symbol'==typeof Symbol.iterator?function(a){return typeof a}:function(a){return a&&'function'==typeof Symbol&&a.constructor===Symbol&&a!==Symbol.prototype?'symbol':typeof a},_split=__webpack_require__(11),_split2=_interopRequireDefault(_split),_tetherShepherd=__webpack_require__(12),_lodash=__webpack_require__(9),_lodash2=_interopRequireDefault(_lodash),_highlight=__webpack_require__(6),_highlight2=_interopRequireDefault(_highlight),_javascript=__webpack_require__(7),_javascript2=_interopRequireDefault(_javascript),_prettyFormat=__webpack_require__(10),_prettyFormat2=_interopRequireDefault(_prettyFormat),_prettierBabylon=__webpack_require__(3),_babelStandalone=__webpack_require__(5),_2=__webpack_require__(4),_3=_interopRequireDefault(_2),_readme=__webpack_require__(8),_readme2=_interopRequireDefault(_readme);function _interopRequireDefault(a){return a&&a.__esModule?a:{default:a}}function getStorage(a){try{return JSON.parse(window.localStorage.getItem(a))}catch(b){}}function setStorage(a,b){try{return window.localStorage.setItem(a,JSON.stringify(b))}catch(c){}}var $=document.querySelector.bind(document),helpButton=$('.right .material-icons.help'),helpModal=$('#help-modal'),helpModalBody=$('#help-modal .body'),closeButton=$('#help-modal .close'),topButton=$('#help-modal .top-button-wrapper');helpModalBody.innerHTML=_readme2.default,_highlight2.default.registerLanguage('javascript',_javascript2.default),_highlight2.default.initHighlightingOnLoad();var codeBlocks=document.querySelectorAll('code.lang-js');function getQueryProp(a){var b=new RegExp('[?&]'+a+'=([^&]*)'),c=b.exec(window.location.search);return c&&decodeURIComponent(c[1].replace(/\+/g,' '))}function removeQueryProp(a){var b=window.location.href,c=b.split('?');if(!(2>c.length)){for(var d=encodeURIComponent(a)+'=',f=c[1].split(/[&;]/g),g=f.length;0<g--;)-1!==f[g].lastIndexOf(d,0)&&f.splice(g,1);return c[0]+(0<f.length?'?'+f.join('&'):'')}}function setModalState(a){var b='visible'===helpModal.style.visibility;if(!!b!=!!a)return a?(helpModal.style.visibility='visible',helpModal.classList.add('visible'),!getQueryProp('readme'))?setURL(window.location.href+'?readme=true'):void 0:(setURL(removeQueryProp('readme')),helpModal.classList.remove('visible'),setTimeout(function(){return helpModal.style.visibility='hidden'},250))}function setURL(a){return window.history.pushState?window.history.pushState('','',a):window.location.href=a}function checkQuery(){return setModalState(!!getQueryProp('readme'))}function checkScroll(){return 1e3<=helpModalBody.scrollTop?topButton.style.bottom='1rem':topButton.style.bottom='-3.5rem'}checkQuery(),checkScroll(),window.addEventListener('popstate',checkQuery),helpModalBody.addEventListener('scroll',(0,_lodash2.default)(checkScroll,200)),topButton.addEventListener('click',function(){return helpModalBody.scrollTop=0}),helpButton.addEventListener('click',function(){return setModalState(!0)}),closeButton.addEventListener('click',function(){return setModalState(!1)});function loadRunButtons(a,b,c){helpModal.addEventListener('click',function(d){var f=d.target;if('send-to-editor'!==f.className)if('send-to-editor'===f.parentElement.className)f=f.parentElement;else return;return c.setValue(''),a.setValue(f.parentElement.textContent.split('\n').slice(0,-3).join('\n')),a.clearSelection(),setModalState(!1)});for(var d=0,f=codeBlocks.length;d<f;d++){var g=codeBlocks[d],h=document.createElement('button');h.type='button',h.innerHTML='\n      <i class="material-icons">mode_edit</i>\n      <span class="send-to-editor-label">send to editor</span>\n    ',h.className='send-to-editor',g.appendChild(h)}}(0,_split2.default)(['#editor-wrapper','#output-wrapper']),(0,_split2.default)(['#compiled-wrapper','#console-wrapper'],{direction:'vertical',sizes:[85,15]});function loadEditors(a){for(var k,b=[ace.edit('editor'),ace.edit('compiled'),ace.edit('console')],c=b[0],d=b[1],f=b[2],g=[c,d,f],h=0,j=g.length;h<j;h++)k=g[h],k.setTheme('ace/theme/tomorrow'),k.session.setMode('ace/mode/javascript'),k.setHighlightActiveLine(!1),k.setHighlightGutterLine(!1),k.$blockScrolling=Infinity;return d.setReadOnly(!0),c.getSession().setUseSoftTabs(!0),c.getSession().setTabSize(2),f.setShowPrintMargin(!1),f.renderer.setShowGutter(!1),f.setReadOnly(!0),a&&(c.setValue(a.editor),d.setValue(a.compiled),f.setValue(a.result),[c,d,f].forEach(function(g){return g.clearSelection()})),{editor:c,compiled:d,result:f}}var _loadEditors=loadEditors(getStorage('editorState')),editor=_loadEditors.editor,compiled=_loadEditors.compiled,result=_loadEditors.result;if(loadRunButtons(editor,compiled,result),!getStorage('tourComplete')){var a=getQueryProp('readme');a&&removeQueryProp('readme'),closeButton.click();var b=new _tetherShepherd.Tour({defaults:{classes:'shepherd-theme-square',scrollTo:!0,showCancelLink:!0}});b.addStep('readme-button',{title:'docs are just a click away',text:'These editors make it easy to try out the plugin. If you need help or just a quick reference, click the <i class="material-icons">help</i> button.<br/><br/><i>you will only see this once</i>',attachTo:{element:helpButton,on:'bottom'},buttons:[{text:'next',action:function action(){return b.next()}}]}),b.addStep('github-reference',{title:'easily head to the GitHub repo',text:'The plugin is open source on GitHub! Check it out if you would like to contribute or <i class="material-icons" style="padding-right: 2px;">star</i>the project to throw some good vibes.',attachTo:{element:helpButton,on:'bottom'},buttons:[{text:'next',action:function action(){return helpButton.click(),b.next()}}]}),b.addStep('back-to-app-button',{title:'back to the editor',text:'With the readme open, click a `send to editor` button to easily try any example code.<br><br>If you want to return to the editor, click <i class="material-icons">exit_to_app</i> to close the readme.',attachTo:{element:closeButton,on:'bottom'},buttons:[{text:'done',action:function action(){return a||closeButton.click(),b.complete()}}]}),b.once('complete',function(){return setStorage('tourComplete',!0)}),b.start()}var logLineReducer=function(a,b,c,d){if(0===c&&'Arguments ['===b.trim())return d.splice(-1,1),a;var f=b.endsWith(',')?-1:b.length,g=b.slice(0,f).trim();return(''+a+(g?' ':'')+g).trim()},tryEval=(0,_lodash2.default)(function(a){result.setValue(''),console.clear();try{var b=function(){for(var c=Object.create(console),d='',f=function _loop(g,h){var k=g[h];c[k]=function(){if(Function.prototype.apply.call(console[k],console,arguments),arguments.length){var l=(0,_prettyFormat2.default)(arguments),m=l.split('\n').reduce(logLineReducer,'');return d?d+='\n'+m:d+=m}}},g=['error','log','info','debug'],h=0,j=g.length;h<j;h++)f(g,h,j);return Function('console',a)(c),d?{v:result.setValue(d)}:{v:result.setValue('')}}();if('object'===('undefined'==typeof b?'undefined':_typeof(b)))return b.v}catch(c){console.error(c),result.setValue(c.message)}finally{return result.clearSelection()}},200),persist=(0,_lodash2.default)(function(a){return setStorage('editorState',a||{editor:editor.getValue(),compiled:compiled.getValue(),result:result.getValue()})},1e3);editor.getSession().on('change',(0,_lodash2.default)(handleCodeChange,200));function handleCodeChange(){var a=editor.getValue(),b=void 0;try{var c=(0,_babelStandalone.transform)(a,{presets:[],plugins:[_3.default]});b=c.code}catch(d){compiled.setValue(d.message)}finally{compiled.clearSelection()}if(b)return compiled.setValue((0,_prettierBabylon.format)(b,{printWidth:50,useTabs:!1,tabWidth:2,singleQuote:!0,semi:!1})),compiled.clearSelection(),tryEval(b),persist()}
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var conversions = __webpack_require__(2);
-var route = __webpack_require__(18);
+var route = __webpack_require__(19);
 
 var convert = {};
 
@@ -81412,7 +81515,7 @@ module.exports = convert;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var conversions = __webpack_require__(2);
@@ -81516,7 +81619,7 @@ module.exports = function (fromModel) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -81671,7 +81774,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -81900,136 +82003,6 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(module) {
-const colorConvert = __webpack_require__(17);
-
-const wrapAnsi16 = (fn, offset) => function () {
-	const code = fn.apply(colorConvert, arguments);
-	return `\u001B[${code + offset}m`;
-};
-
-const wrapAnsi256 = (fn, offset) => function () {
-	const code = fn.apply(colorConvert, arguments);
-	return `\u001B[${38 + offset};5;${code}m`;
-};
-
-const wrapAnsi16m = (fn, offset) => function () {
-	const rgb = fn.apply(colorConvert, arguments);
-	return `\u001B[${38 + offset};2;${rgb[0]};${rgb[1]};${rgb[2]}m`;
-};
-
-function assembleStyles() {
-	const styles = {
-		modifier: {
-			reset: [0, 0],
-			// 21 isn't widely supported and 22 does the same thing
-			bold: [1, 22],
-			dim: [2, 22],
-			italic: [3, 23],
-			underline: [4, 24],
-			inverse: [7, 27],
-			hidden: [8, 28],
-			strikethrough: [9, 29]
-		},
-		color: {
-			black: [30, 39],
-			red: [31, 39],
-			green: [32, 39],
-			yellow: [33, 39],
-			blue: [34, 39],
-			magenta: [35, 39],
-			cyan: [36, 39],
-			white: [37, 39],
-			gray: [90, 39]
-		},
-		bgColor: {
-			bgBlack: [40, 49],
-			bgRed: [41, 49],
-			bgGreen: [42, 49],
-			bgYellow: [43, 49],
-			bgBlue: [44, 49],
-			bgMagenta: [45, 49],
-			bgCyan: [46, 49],
-			bgWhite: [47, 49]
-		}
-	};
-
-	// fix humans
-	styles.color.grey = styles.color.gray;
-
-	Object.keys(styles).forEach(groupName => {
-		const group = styles[groupName];
-
-		Object.keys(group).forEach(styleName => {
-			const style = group[styleName];
-
-			styles[styleName] = group[styleName] = {
-				open: `\u001B[${style[0]}m`,
-				close: `\u001B[${style[1]}m`
-			};
-		});
-
-		Object.defineProperty(styles, groupName, {
-			value: group,
-			enumerable: false
-		});
-	});
-
-	const rgb2rgb = (r, g, b) => [r, g, b];
-
-	styles.color.close = '\u001B[39m';
-	styles.bgColor.close = '\u001B[49m';
-
-	styles.color.ansi = {};
-	styles.color.ansi256 = {};
-	styles.color.ansi16m = {
-		rgb: wrapAnsi16m(rgb2rgb, 0)
-	};
-
-	styles.bgColor.ansi = {};
-	styles.bgColor.ansi256 = {};
-	styles.bgColor.ansi16m = {
-		rgb: wrapAnsi16m(rgb2rgb, 10)
-	};
-
-	for (const key of Object.keys(colorConvert)) {
-		if (typeof colorConvert[key] !== 'object') {
-			continue;
-		}
-
-		const suite = colorConvert[key];
-
-		if ('ansi16' in suite) {
-			styles.color.ansi[key] = wrapAnsi16(suite.ansi16, 0);
-			styles.bgColor.ansi[key] = wrapAnsi16(suite.ansi16, 10);
-		}
-
-		if ('ansi256' in suite) {
-			styles.color.ansi256[key] = wrapAnsi256(suite.ansi256, 0);
-			styles.bgColor.ansi256[key] = wrapAnsi256(suite.ansi256, 10);
-		}
-
-		if ('rgb' in suite) {
-			styles.color.ansi16m[key] = wrapAnsi16m(suite.rgb, 0);
-			styles.bgColor.ansi16m[key] = wrapAnsi16m(suite.rgb, 10);
-		}
-	}
-
-	return styles;
-}
-
-Object.defineProperty(module, 'exports', {
-	enumerable: true,
-	get: assembleStyles
-});
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
 
 /***/ }),
 /* 22 */
