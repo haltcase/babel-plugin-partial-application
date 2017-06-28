@@ -392,7 +392,7 @@ const array = [
   { nested: { key: 'things' } }
 ]
 
-const newArray = mapper(array))
+const newArray = mapper(array)
 // -> ['value', 'default', 'things']
 ```
 
@@ -460,10 +460,9 @@ when using this plugin:
 ```js
 import _ from 'lodash'
 
-// -> SyntaxError: src.js: Cannot use placeholder as an identifier.
+// -> src.js: Cannot use placeholder as an identifier.
 ```
 
-The reason this plugin uses `_` by default then is not to make your life harder.
 There are a few reasons this is not seen as problematic.
 
 1. `_` is a common symbol for partial application
