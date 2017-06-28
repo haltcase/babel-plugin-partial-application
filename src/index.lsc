@@ -53,19 +53,38 @@ module.exports = ({ types: t }) ->
   getUniqueName (path, name = 'a') ->
     path.scope.generateUidIdentifier(name)
 
-  isPlaceholder (node, placeholder) ->
-    t.isIdentifier(node, { name: placeholder })
+  toNode (pathOrNode) ->
+    pathOrNode?.node or pathOrNode
 
-  isSpreadPlaceholder (node, placeholder) ->
+  isPlaceholder (target, placeholder) ->
+    t.isIdentifier(target~toNode(), { name: placeholder })
+
+  isSpreadPlaceholder (target, placeholder) ->
+    node = target~toNode()
     t.isSpreadElement(node) and
     node.argument~isPlaceholder(placeholder)
 
-  isPartialCaller (node, placeholder) ->
+  isPositionalPlaceholder(target, placeholder) ->
+    { tag, quasi } = target~toNode()
+    tag~isPlaceholder(placeholder) and
+    POSITIONALS.indexOf(quasi.quasis[0]?.value?.raw) > -1
+
+  hasPlaceholders (nodes, placeholder) ->
+    for elem target in nodes:
+      node = target~toNode()
+      if (
+        node~isPlaceholder(placeholder) or
+        node~isPositionalPlaceholder(placeholder)
+      ): return true
+
+    false
+
+  isPartialCaller (target, placeholder) ->
+    node = target~toNode()
     t.isCallExpression(node) and
     node.arguments~hasPlaceholders(placeholder)
 
   isPluginRequire (node) ->
-    if !node: return
     { callee, arguments: args } = node
 
     isRequire =
@@ -76,7 +95,13 @@ module.exports = ({ types: t }) ->
 
     isRequire and t.isStringLiteral(args[0], { value: PACKAGE_NAME })
 
-  shouldHoist (node, placeholder) ->
+  pullPathLink (path) ->
+    if path.isMemberExpression(): path.get('object')
+    else if path.isCallExpression(): path.get('callee.object')
+
+  shouldHoist (target, placeholder) ->
+    node = target~toNode()
+
     if t.isTaggedTemplateExpression(node):
       return !node~isPositionalPlaceholder(placeholder)
 
@@ -92,13 +117,6 @@ module.exports = ({ types: t }) ->
       'FunctionExpression'
       'ArrowFunctionExpression'
     ].every(type => type != node.type)
-
-  hasPlaceholders (nodes, placeholder) ->
-    for elem node in nodes:
-      if (
-        node~isPlaceholder(placeholder) or
-        node~isPositionalPlaceholder(placeholder)
-      ): return true
 
   makeWrapperFunction (params, returnValue) ->
     props = {
@@ -130,12 +148,11 @@ module.exports = ({ types: t }) ->
 
     tail
 
-  findDeepestLink (node, { predicate, fn } = {}) ->
-    fallback (link) -> link?.object or link?.callee?.object
-    now predicate = predicate or fallback
+  findDeepestLink (path, { predicate, fn } = {}) ->
+    now predicate = predicate or pullPathLink
     now fn = fn or predicate
 
-    let link = node
+    let link = path
     while predicate(link):
       now link = fn(link)
 
@@ -155,16 +172,15 @@ module.exports = ({ types: t }) ->
   checkDeclarations (path, state) ->
     placeholder = state~getPlaceholder()
     for elem { init, id } in path.node.declarations:
-      if init~isPluginRequire() and t.isIdentifier(id):
+      if init and init~isPluginRequire() and t.isIdentifier(id):
         state~setPlaceholder(id.name)
         return path.remove()
 
       if id.name == placeholder:
         throw path~makeIdentifierError(placeholder)
-
-  isPositionalPlaceholder({ tag, quasi }, placeholder) ->
-    tag~isPlaceholder(placeholder) and
-    POSITIONALS.indexOf(quasi.quasis[0]?.value?.raw) > -1
+        
+  getPlaceholderPosition (path) ->
+    Number(path.node.quasi.quasis[0].value.raw)
 
   parsePosition (node, fallback = 99) ->
     result = Number(node.position)
@@ -178,11 +194,11 @@ module.exports = ({ types: t }) ->
       childPath.skip()
 
     Identifier (childPath): void ->
-      { node, parent } = childPath
+      { parent, node: { defaultParameter } } = childPath
 
       if (
         childPath.key == 'property' or
-        !node~isPlaceholder(this.placeholder) or
+        !childPath~isPlaceholder(this.placeholder) or
         parent~isPositionalPlaceholder(this.placeholder)
       ): return
 
@@ -192,20 +208,20 @@ module.exports = ({ types: t }) ->
         parent.wasPlaceholder = true
 
       id = childPath~getUniqueName(name)
-      if node.defaultParameter:
-        t.assignmentPattern(id, node.defaultParameter)
+      id.wasPlaceholder = true
+      if defaultParameter:
+        t.assignmentPattern(id, defaultParameter)
           ~this.fn.params.push()
       else:
         this.fn.params.push(id)
 
-      node.name = id.name
-      node.wasPlaceholder = true
+      childPath.replaceWith(id)
 
     TaggedTemplateExpression (childPath): void ->
       if !childPath.node~isPositionalPlaceholder(this.placeholder):
         return
 
-      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      position = childPath~getPlaceholderPosition()
       current = this.fn.positionals[position]
       id = current or childPath~getUniqueName('pos')
       id.position = position
@@ -233,7 +249,7 @@ module.exports = ({ types: t }) ->
       if !childPath.node~isPositionalPlaceholder(this.placeholder):
         return
 
-      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      position = childPath~getPlaceholderPosition()
       current = this.tail.node.positionals[position]
       id = current or childPath~getUniqueName('pos')
       id.position = position
@@ -254,7 +270,7 @@ module.exports = ({ types: t }) ->
 
       id = childPath~getUniqueName('bin')
       this.tail.node.params.push(id)
-      childPath.node.name = id.name
+      childPath.replaceWith(id)
   }
 
   templateLiteralVisitor = {
@@ -262,7 +278,7 @@ module.exports = ({ types: t }) ->
       if !childPath.node~isPositionalPlaceholder(this.placeholder):
         return
 
-      position = Number(childPath.node.quasi.quasis[0].value.raw)
+      position = childPath~getPlaceholderPosition()
       let wrapper = childPath.findParent(p =>
         t.isArrowFunctionExpression(p) and p.node.isWrapper
       )
@@ -292,7 +308,7 @@ module.exports = ({ types: t }) ->
       if childPath.key == 'property': return
 
       id = childPath~getUniqueName('exp')
-      childPath.node.name = id.name
+      childPath.replaceWith(id)
 
       if t.isArrowFunctionExpression(this.path):
         this.path.node.params.push(id)
@@ -344,35 +360,38 @@ module.exports = ({ types: t }) ->
 
       CallExpression (path, state) ->
         placeholder = state~getPlaceholder()
-        { arguments: args } = path.node
+        args = path.get('arguments')
 
-        if args.length and args~hasPlaceholders(placeholder):
-          fn = makeWrapperFunction([], path.node)
-          path.traverse(appliedChildVisitor, { fn, placeholder })
+        if !args.length or !args~hasPlaceholders(placeholder):
+          return
 
-          for elem arg, idx i in args:
-            hoist = arg~shouldHoist(placeholder)
-            if hoist and !arg~isPartialCaller(placeholder):
-              id = path~getUniqueName('ref')
-              ref = t.variableDeclaration('const', [
-                t.variableDeclarator(id, arg)
-              ])
+        fn = makeWrapperFunction([], path.node)
+        path.traverse(appliedChildVisitor, { fn, placeholder })
 
-              parent = path.getStatementParent()
-              parent.insertBefore(ref)
-              args[i] = id
+        for elem arg in args:
+          hoist = arg.node~shouldHoist(placeholder)
+          if hoist and !arg.node~isPartialCaller(placeholder):
+            id = path~getUniqueName('ref')
+            ref = t.variableDeclaration('const', [
+              t.variableDeclarator(id, arg.node)
+            ])
 
-          path.replaceWith(fn)
+            parent = path.getStatementParent()
+            parent.insertBefore(ref)
+            arg.replaceWith(id)
+
+        path.replaceWith(fn)
 
       MemberExpression (path, state) ->
         placeholder = state~getPlaceholder()
-        { node: { object } } = path
+        object = path.get('object')
+        { node } = object
 
-        if !object~isPlaceholder(placeholder):
+        if !node~isPlaceholder(placeholder):
           return
 
-        last = object._meta?.links?[0]
-        param = object._meta?.right
+        last = node._meta?.links?[0]
+        param = node._meta?.right
         let pattern
         if last:
           name = path~getUniqueName('arg')
@@ -383,8 +402,8 @@ module.exports = ({ types: t }) ->
             )
           ])
 
-          if object._meta.links.length > 1:
-            for idx i, elem link in object._meta.links:
+          if node._meta.links.length > 1:
+            for idx i, elem link in node._meta.links:
               if i == 0: continue
               now pattern = t.objectPattern([
                 t.objectProperty(link, pattern)
@@ -400,29 +419,19 @@ module.exports = ({ types: t }) ->
           top.replaceWith(name)
           return
 
-        let comparingPlaceholders = false
-        binaryParent = path.findParent(
-          p => t.isBinaryExpression(p)
-        )
-
+        binaryParent = path.findParent(p => t.isBinaryExpression(p))
         ids = [path~getUniqueName('obj')]
 
         if binaryParent:
-          { right } = binaryParent.node
-          if right~isPlaceholder(placeholder):
-            now comparingPlaceholders = true
-          else:
-            let target = right?.object or right?.callee?.object
-            while target?.object or target?.callee:
-              now target = target.object or target.callee.object
-
-            if target~isPlaceholder(placeholder):
-              now comparingPlaceholders = true
+          right = binaryParent.get('right')
+          if !right.node~isPlaceholder(placeholder):
+            target = right~findDeepestLink()
+            if target?.node~isPlaceholder(placeholder):
               id = path~getUniqueName('obj')
               ids.push(id)
-              target.name = id.name
+              target.replaceWith(id)
 
-        object.name = ids[0].name
+        object.replaceWith(ids[0])
 
         tail = path~findTopmostLink()
         if tail.container:
@@ -434,7 +443,8 @@ module.exports = ({ types: t }) ->
 
       SpreadElement (path, state) ->
         placeholder = state~getPlaceholder()
-        { parent, parentPath, node: { argument } } = path
+        { parent, parentPath } = path
+        argument = path.get('argument')
 
         if !argument~isPlaceholder(placeholder): return
 
@@ -463,14 +473,14 @@ module.exports = ({ types: t }) ->
         else:
           id = makeSpreadIdentifier()
           parent.params.push(t.restElement(id))
-          path.node.argument = id
+          argument.replaceWith(id)
 
         parentPath.stop()
 
       BinaryExpression (path, state) ->
         placeholder = state~getPlaceholder()
-        { node: { left, right } } = path
-        nodes = [left, right].filter(v =>
+
+        nodes = [path.get('left'), path.get('right')].filter(v =>
           v~isPlaceholder(placeholder) or
           v~isPositionalPlaceholder(placeholder) or
           v~findDeepestLink()~isPositionalPlaceholder(placeholder)
@@ -479,7 +489,7 @@ module.exports = ({ types: t }) ->
         if !nodes.length: return
 
         let tail = path
-        while t.isBinaryExpression(tail.parent):
+        while tail.parentPath.isBinaryExpression():
           now tail = tail.parentPath
 
         if tail.container:
@@ -496,13 +506,13 @@ module.exports = ({ types: t }) ->
         path.traverse(templateLiteralVisitor, { path, placeholder })
 
       TaggedTemplateExpression (path, state) ->
-        { node, parentPath } = path
+        { parentPath } = path
         placeholder = state~getPlaceholder()
-        if !node~isPositionalPlaceholder(placeholder): return
+        if !path~isPositionalPlaceholder(placeholder): return
 
         if (
-          t.isVariableDeclarator(parentPath) or
-          t.isExpressionStatement(parentPath)
+          parentPath.isVariableDeclarator() or
+          parentPath.isExpressionStatement()
         ):
           throw path.buildCodeFrameError(
             'Positional placeholders must be part of some expression.'
@@ -515,7 +525,7 @@ module.exports = ({ types: t }) ->
           now fn = path.findParent(p => t.isArrowFunctionExpression(p))
           now current = fn.node.positionals[position]
 
-        position = Number(node.quasi.quasis[0].value.raw)
+        position = path~getPlaceholderPosition()
         id = current or path~getUniqueName('pos')
         id.position = position
 
