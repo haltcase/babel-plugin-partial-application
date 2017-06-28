@@ -7,6 +7,8 @@ makeIdentifierError (path, current) ->
   path.buildCodeFrameError(
     `Cannot use placeholder as an identifier.\n
      If you need to use '${current}' as a variable name:
+     - import or require the plugin to a new token
+       ( \`import it from '${PACKAGE_NAME}'\` )
      - set 'options.placeholder' to a different custom token
      - set 'options.useAlternatePlaceholder' for '__'
        ( a double underscore )\n
