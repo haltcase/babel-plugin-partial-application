@@ -2,11 +2,11 @@ const something = [];
 const foo = () => 42;
 const H = class {};
 
-const _ref = _obj2 => {
+const _ref = (_obj2) => {
   return _obj2.method();
 };
 
-const _ref2 = fn(_obj3 => {
+const _ref2 = fn((_obj3) => {
   return _obj3.foo();
 });
 

@@ -1,4 +1,4 @@
-const prop = _obj => {
+const prop = (_obj) => {
   return _obj.name;
 };
 

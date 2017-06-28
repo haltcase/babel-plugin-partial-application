@@ -1,4 +1,4 @@
-_obj => {
+(_obj) => {
   return _obj.fn().bar().baz <= parseInt('10');
 };
 
@@ -6,7 +6,7 @@ _obj => {
   return _obj2.fn().foo >= _obj3.bar.foo.baz();
 };
 
-const foo = _obj4 => {
+const foo = (_obj4) => {
   return _obj4.method().value > 10;
 };
 
