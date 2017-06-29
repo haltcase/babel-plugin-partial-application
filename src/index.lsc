@@ -313,7 +313,7 @@ module.exports = ({ types: t }) ->
       id = childPath~getUniqueName('exp')
       childPath.replaceWith(id)
 
-      if t.isArrowFunctionExpression(this.path):
+      if this.path.isArrowFunctionExpression():
         this.path.node.params.push(id)
         return
 
@@ -376,8 +376,8 @@ module.exports = ({ types: t }) ->
         path.traverse(appliedChildVisitor, { fn, placeholder })
 
         for elem arg in args:
-          hoist = arg.node~shouldHoist(placeholder)
-          if hoist and !arg.node~isPartialCaller(placeholder):
+          hoist = arg~shouldHoist(placeholder)
+          if hoist and !arg~isPartialCaller(placeholder):
             id = path~getUniqueName('ref')
             ref = t.variableDeclaration('const', [
               t.variableDeclarator(id, arg.node)
@@ -426,14 +426,14 @@ module.exports = ({ types: t }) ->
           top.replaceWith(name)
           return
 
-        binaryParent = path.findParent(p => t.isBinaryExpression(p))
+        binaryParent = path.findParent(p => p.isBinaryExpression())
         ids = [path~getUniqueName('obj')]
 
         if binaryParent:
           right = binaryParent.get('right')
-          if !right.node~isPlaceholder(placeholder):
+          if !right~isPlaceholder(placeholder):
             target = right~findDeepestLink()
-            if target?.node~isPlaceholder(placeholder):
+            if target~isPlaceholder(placeholder):
               id = path~getUniqueName('obj')
               ids.push(id)
               target.replaceWith(id)
@@ -526,7 +526,7 @@ module.exports = ({ types: t }) ->
 
         let fn, current
         if wasTransformed:
-          now fn = path.findParent(p => t.isArrowFunctionExpression(p))
+          now fn = path.findParent(p => p.isArrowFunctionExpression())
           now current = fn.node.positionals[position]
 
         position = path~getPlaceholderPosition()
