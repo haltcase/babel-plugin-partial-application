@@ -160,6 +160,9 @@ module.exports = ({ types: t }) ->
 
     link
 
+  findWrapperFunction (path) ->
+    path.findParent(p => p.isArrowFunctionExpression() and p.node.isWrapper)
+
   checkImports (path, state) ->
     placeholder = state~getPlaceholder()
     { node: { specifiers, source } } = path
@@ -180,7 +183,7 @@ module.exports = ({ types: t }) ->
 
       if id.name == placeholder:
         throw path~makeIdentifierError(placeholder)
-        
+
   getPlaceholderPosition (path) ->
     Number(path.node.quasi.quasis[0].value.raw)
 
@@ -281,9 +284,7 @@ module.exports = ({ types: t }) ->
         return
 
       position = childPath~getPlaceholderPosition()
-      let wrapper = childPath.findParent(p =>
-        t.isArrowFunctionExpression(p) and p.node.isWrapper
-      )
+      let wrapper = childPath~findWrapperFunction()
 
       if !wrapper:
         fn = makeWrapperFunction([], this.path.node)
@@ -316,8 +317,12 @@ module.exports = ({ types: t }) ->
         this.path.node.params.push(id)
         return
 
-      makeWrapperFunction([id], this.path.node)
-        ~this.path.replaceWith()
+      if this.path.container:
+        makeWrapperFunction([id], this.path.node)
+          ~this.path.replaceWith()
+      else:
+        wrapper = childPath~findWrapperFunction()
+        if wrapper: wrapper.node.params.push(id)
 
       this.path.stop()
   }
@@ -455,12 +460,9 @@ module.exports = ({ types: t }) ->
             'Placeholder spread is only supported as a function argument.'
           )
 
-        wrapper = path.findParent(p =>
-          t.isArrowFunctionExpression(p) and p.node.isWrapper
-        )
-
         makeSpreadIdentifier () -> path~getUniqueName('spr')
 
+        wrapper = path~findWrapperFunction()
         if wrapper:
           if !path.container: return
 
