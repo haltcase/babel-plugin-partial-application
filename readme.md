@@ -237,7 +237,7 @@ You can combine this with object placeholders and lambda parameters:
 
 ```js
 const heroes = [
-  { getPower () { return { level: 9001 } } }
+  { getPower () { return { level: 9001 } } },
   { getPower () { return { level: 4500 } } }
 ]
 
@@ -255,10 +255,11 @@ const stringify = JSON.stringify(_, null, _ = 2)
 
 This compiles to a standard JavaScript default parameter so the default
 would be used under the same circumstances, ie. when the argument is either
-`undefined` or absent.
+`undefined` or absent. Compare the output of these:
 
 ```js
 stringify({ foo: 'bar' })
+stringify({ foo: 'bar' }, '>>>>')
 ```
 
 ```json
@@ -267,9 +268,7 @@ stringify({ foo: 'bar' })
 }
 ```
 
-```js
-strinfigy({ foo: 'bar' }, '>>>>')
-```
+vs.
 
 ```json
 {
