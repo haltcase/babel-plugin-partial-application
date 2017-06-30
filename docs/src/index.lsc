@@ -254,6 +254,28 @@ logLineReducer = (list, line, i, col) =>
   add = line.slice(0, end).trim()
   `${list}${add ? ' ' : ''}${add}`.trim()
 
+logger ({ types: t }) ->
+  {
+    visitor: {
+      Program (path) ->
+        body = path.get('body')
+        last = body[body.length - 1]
+
+        if (
+          !t.isExpression(last) and
+          !t.isExpressionStatement(last)
+        ): return
+        
+        final = eval(last.hub.file.code)
+        if final~looseEq(null): return
+
+        current = result.getValue()
+        pre = current ? current + '\n' : current
+        result.setValue(`${pre}=> ${prettyFormat(final)}`)
+        console.log(final)
+    }
+  }
+
 tryEval = debounce(input => {
   result.setValue('')
   console.clear()
@@ -275,6 +297,11 @@ tryEval = debounce(input => {
     Function('console', input)(capturer)
     if output: result.setValue(output)
     else: result.setValue('')
+    
+    transform(input, {
+      presets: []
+      plugins: [logger]
+    })
   catch e:
     console.error(e)
     result.setValue(e.message)
