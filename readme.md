@@ -100,16 +100,8 @@ You can also use spread to represent multiple arguments:
 ```js
 const maxOf = Math.max(..._)
 
-console.log(maxOf(1, 2, 3, 4, 5))
+maxOf(1, 2, 3, 4, 5)
 // -> 5
-```
-
-This is compiled to:
-
-```js
-const maxOf = (..._spr) => {
-  return Math.max(..._spr)
-}
 ```
 
 > If your target environment doesn't support rest / spread,
@@ -140,6 +132,7 @@ The object that will replace the placeholder becomes the first argument to
 the resulting function, so you'd use it like this:
 
 ```js
+const hasOwn = _.hasOwnProperty(_)
 const object = { flammable: true }
 
 hasOwn(object, 'flammable')
@@ -160,16 +153,8 @@ const people = [
   { name: 'Genevieve' }
 ]
 
-console.log(people.map(_.name))
+people.map(_.name)
 // -> ['Jeff', 'Karen', 'Genevieve']
-```
-
-... compiles to:
-
-```js
-console.log(people.map(_obj => {
-  return _obj.name
-}))
 ```
 
 ### positional placeholders
@@ -210,21 +195,13 @@ isSameThing(NaN)
 ### binary expressions
 
 You can use placeholders within logical comparisons ( `===` ) or
-addition, subtraction, string concatenation, etc. So this:
+addition, subtraction, string concatenation, etc.
 
 ```js
-array.map(_ === true)
+array.filter(_ === true)
 ```
 
-... transforms into this:
-
-```js
-array.map(_bin => {
-  return _bin === true
-})
-```
-
-And for a classic example, let's say you have an Array of numbers
+For a classic example, let's say you have an Array of numbers
 and want the total sum of them all:
 
 ```js
@@ -237,11 +214,12 @@ You can combine this with object placeholders and lambda parameters:
 
 ```js
 const heroes = [
-  { getPower () { return { level: 9001 } } },
-  { getPower () { return { level: 4500 } } }
+  { name: 'bob', getPower () { return { level: 9001 } } },
+  { name: 'joe', getPower () { return { level: 4500 } } }
 ]
 
 heroes.filter(_.getPower().level > 9000)
+// -> { name: 'bob', getPower: [Function] }
 ```
 
 ### default parameters
@@ -318,10 +296,11 @@ You can either use options in your Babel config as described
 [below](#usage) or simply import / require the plugin:
 
 ```js
-import _ from 'babel-plugin-partial-application'
+import it from 'babel-plugin-partial-application'
+```
 
-// or, using require:
-const _ = require('babel-plugin-partial-application')
+```js
+const it = require('babel-plugin-partial-application')
 ```
 
 This import is removed from the compiled output - so you don't
