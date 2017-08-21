@@ -4,6 +4,12 @@
 
 > **try it live** on the **[online playground](https://citycide.github.io/babel-plugin-partial-application/)**
 
+If you like this plugin, go to [@rbuckton](https://github.com/rbuckton)'s TC39
+proposal to add syntactic partial application to JavaScript - star it to show support,
+start conversations to improve it, and share it to make it happen.
+
+The proposal is here: https://github.com/rbuckton/proposal-partial-application
+
 - [overview](#overview)
 - [installation](#installation)
 - [examples & features](#examples)
