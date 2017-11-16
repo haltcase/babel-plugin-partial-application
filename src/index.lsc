@@ -328,7 +328,7 @@ module.exports = ({ types: t }) ->
   }
 
   assignmentVisitor = {
-    AssignmentExpression (childPath) ->
+    AssignmentExpression (childPath): void ->
       { node: { left, right }, listKey } = childPath
 
       if left~isPlaceholder(this.placeholder):
@@ -355,17 +355,17 @@ module.exports = ({ types: t }) ->
 
   return {
     visitor: {
-      Program (path, state) ->
+      Program (path, state): void ->
         placeholder = state~getPlaceholder()
         path.traverse(assignmentVisitor, { placeholder })
 
-      ImportDeclaration (path, state) ->
+      ImportDeclaration (path, state): void ->
         path~checkImports(state)
 
-      VariableDeclaration (path, state) ->
+      VariableDeclaration (path, state): void ->
         path~checkDeclarations(state)
 
-      CallExpression (path, state) ->
+      CallExpression (path, state): void ->
         placeholder = state~getPlaceholder()
         args = path.get('arguments')
 
@@ -389,7 +389,7 @@ module.exports = ({ types: t }) ->
 
         path.replaceWith(fn)
 
-      MemberExpression (path, state) ->
+      MemberExpression (path, state): void ->
         placeholder = state~getPlaceholder()
         object = path.get('object')
         { node } = object
@@ -448,7 +448,7 @@ module.exports = ({ types: t }) ->
           for elem id in ids:
             tail.parent.params.push(id)
 
-      SpreadElement (path, state) ->
+      SpreadElement (path, state): void ->
         placeholder = state~getPlaceholder()
         { parent, parentPath } = path
         argument = path.get('argument')
@@ -481,7 +481,7 @@ module.exports = ({ types: t }) ->
 
         parentPath.stop()
 
-      BinaryExpression (path, state) ->
+      BinaryExpression (path, state): void ->
         placeholder = state~getPlaceholder()
 
         nodes = [path.get('left'), path.get('right')].filter(v =>
@@ -505,11 +505,11 @@ module.exports = ({ types: t }) ->
         tail.traverse(binaryChildVisitor, { tail, placeholder })
         tail.stop()
 
-      TemplateLiteral (path, state) ->
+      TemplateLiteral (path, state): void ->
         placeholder = state~getPlaceholder()
         path.traverse(templateLiteralVisitor, { path, placeholder })
 
-      TaggedTemplateExpression (path, state) ->
+      TaggedTemplateExpression (path, state): void ->
         { parentPath } = path
         placeholder = state~getPlaceholder()
         if !path~isPositionalPlaceholder(placeholder): return
