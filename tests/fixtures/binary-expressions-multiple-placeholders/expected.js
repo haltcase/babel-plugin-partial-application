@@ -1,11 +1,11 @@
-(_bin, _bin2) => {
-  return _bin === _bin2;
+(_ide, _arg) => {
+  return _ide === _arg;
 };
 
-const foo = (_obj, _obj2) => {
-  return _obj.trash === _obj2.treasure;
+const foo = (_ide2, _mem) => {
+  return _ide2.trash === _mem.treasure;
 };
 
-const nope = (_obj3, _obj4) => {
-  return _obj3[1] !== _obj4[1];
+const nope = (_ide3, _mem2) => {
+  return _ide3[1] !== _mem2[1];
 };

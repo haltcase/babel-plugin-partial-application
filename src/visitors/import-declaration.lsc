@@ -1,0 +1,15 @@
+{ name: PACKAGE_NAME } = require('../../package.json')
+
+export default (t, util, tracker) ->
+  ImportDeclaration (path, state) ->
+    placeholder = tracker.getPlaceholder(state)
+    { node: { specifiers, source } } = path
+
+    if source.value == PACKAGE_NAME and specifiers.length:
+      tracker.setPlaceholder(state, specifiers[0].local.name)
+      return path.remove()
+
+    for elem specifier in specifiers:
+      if specifier.local.name == placeholder:
+        message = util.makeIdentifierError(placeholder)
+        throw path.buildCodeFrameError(message)

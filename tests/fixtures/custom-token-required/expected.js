@@ -3,6 +3,6 @@
 // should be unaffected
 const map = require('lodash.map');
 
-const str = (_exp) => {
-  return `Such a ${_exp} plugin!`;
+const str = (_ide) => {
+  return `Such a ${_ide} plugin!`;
 };

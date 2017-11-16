@@ -1,23 +1,27 @@
-(_bin, _bin2, _bin3) => {
-  return _bin + _bin2 + _bin3;
+(_ide, _arg) => {
+  return (_ide2) => {
+    return _ide + _ide2 + _arg;
+  };
 };
 
-(_bin4) => {
-  return _bin4 + 4;
+(_ide3) => {
+  return _ide3 + 4;
 };
 
-(_bin5, _bin6, _bin7) => {
-  return _bin5 + '(' + _bin6 + ')' + _bin7;
+(_ide4, _arg2) => {
+  return (_ide5) => {
+    return _ide4 + '(' + _ide5 + ')' + _arg2;
+  };
 };
 
-foo.filter((_bin8) => {
-  return _bin8 % 2 === 0;
+foo.filter((_ide6) => {
+  return _ide6 % 2 === 0;
 });
 
-foo.filter((_bin9) => {
-  return _bin9 === true;
-});
+(_bin) => {
+  return foo.filter(_bin === true);
+};
 
-foo.reduce((_bin10, _bin11) => {
-  return _bin10 + _bin11;
-});
+(_bin3, _bin4) => {
+  return foo.reduce(_bin3 + _bin4);
+};

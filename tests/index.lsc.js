@@ -4,6 +4,7 @@ import vm from 'vm'
 import fs from 'fs'
 import pify from 'pify'
 import { join } from 'path'
+import { isMatch } from 'matcher'
 import { transformFile } from 'babel-core'
 
 transform = pify(transformFile)
@@ -28,7 +29,7 @@ getExpected (atPath) ->
     .catch(e => if e.code != 'ENOENT': throw e)
 
 parseError (error) ->
-  error.message
+  (error.message or '')
     .split('.js: ', 2)[1]
     .split('\n', 1)[0]
 
@@ -36,7 +37,7 @@ handleFailure (filePath, error, options) ->
   thrown = error~parseError()
   if options.throws and options.throws != thrown:
     return {
-      thrown,
+      thrown
       type: 'fail'
       message:
         `Unexpected failure in '${filePath}' ::\n` +
@@ -45,7 +46,7 @@ handleFailure (filePath, error, options) ->
     }
 
   return {
-    thrown,
+    thrown
     type: 'pass'
     message: `'${filePath}' failed as expected. :: ${thrown}`
   }
@@ -92,7 +93,7 @@ createTests (testFiles) ->
         try:
           now { code } <- transform(actualPath, {
             babelrc: false
-            plugins: [require('..')]
+            plugins: [require('../dist').default]
           })
         catch e:
           thrown = parseError(e)
@@ -110,7 +111,13 @@ createTests (testFiles) ->
     }
   )
 
+filterTests (files) ->
+  { TEST_ONLY } = process.env
+  if !TEST_ONLY: return files
+  files.filter(file => file~isMatch(TEST_ONLY))
+
 fixturesDir
   ~fs.readdirSync()
+  ~filterTests()
   ~createTests()
   .map(({ name, runner }) => test(name, runner))

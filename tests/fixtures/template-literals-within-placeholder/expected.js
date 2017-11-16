@@ -1,3 +1,3 @@
-(_obj, _exp) => {
-  return _obj.method(`${_exp}`);
+(_ide, _arg) => {
+  return _ide.method(`${_arg}`);
 };

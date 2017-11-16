@@ -1,0 +1,41 @@
+let idx = 0
+
+export default (t, util, tracker) ->
+  {
+    isOrDescendsFromPlaceholder
+    findTopmostLink
+    makeWrapper
+    maybeTransformWrapper
+    shouldHoist
+    transformPlaceholder
+  } = util
+
+  CallExpression (path, state) ->
+    placeholder = tracker.getPlaceholder(state)
+
+    [placeholders, args] = path.get('arguments').reduce((final, value) => {
+      i = isOrDescendsFromPlaceholder(value, placeholder) ? 0 : 1
+      final[i].push(value)
+      final
+    }, [[], []])
+
+    if !placeholders.length: return
+
+    fn = makeWrapper(path)
+
+    for elem arg in placeholders:
+      top = arg~findTopmostLink()
+      transformPlaceholder(top, fn.params, placeholder)
+      maybeTransformWrapper(path, top, fn)
+
+    for elem arg in args:
+      if !arg~shouldHoist(): return
+
+      id = arg.scope.generateUidIdentifier('ref')
+      ref = t.variableDeclaration('const', [
+        t.variableDeclarator(id, arg.node)
+      ])
+
+      upper = path.getStatementParent()
+      upper.insertBefore(ref)
+      arg.replaceWith(id)

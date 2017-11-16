@@ -1,0 +1,185 @@
+{ name: PACKAGE_NAME } = require('../package.json')
+
+export default makeUtil (t) ->
+  isContextBreaker (path, callCheck = false) ->
+    { parentPath: parent } = path
+
+    isCalleeTail =
+      (callCheck and parent.isCallExpression()) and
+      parent.get('callee') == path and
+      !parent.get('arguments').includes(path)
+
+    parent.isMemberExpression() or
+    parent.isBinaryExpression() or
+    parent.isTemplateLiteral() or
+    isCalleeTail
+
+  isPlaceholder (path, placeholder) ->
+    path and path.isIdentifier({ name: placeholder })
+
+  isPlaceholderExpression (path, placeholder) ->
+    if !path: return false
+
+    is = obj => obj~isPlaceholder(placeholder)
+    if path.isMemberExpression():
+      is(path.get('object'))
+    else if path.isCallExpression():
+      is(path.get('callee.object'))
+    else if path.isSpreadElement():
+      is(path.get('argument'))
+    else if path.isBinaryExpression():
+      paths = [path.get('left'), path.get('right')]
+      paths.some(v => v~findDeepestLink()~is())
+    else:
+      false
+
+  isOrDescendsFromPlaceholder (path, placeholder) ->
+    path~isPlaceholder(placeholder) or
+    path~findTopmostLink()~isPlaceholderExpression(placeholder)
+
+  pullPathLink (path) ->
+    if path.isMemberExpression():
+      path.get('object')
+    else if path.isCallExpression():
+      path.get('callee.object')
+
+  findDeepestLink (path, { predicate, fn } = {}) ->
+    now predicate = predicate or pullPathLink
+    now fn = fn or predicate
+
+    let link = path
+    while predicate(link):
+      now link = fn(link)
+
+    link
+
+  findParent (path, fn, breakTest) ->
+    while now path = path.parentPath:
+      if breakTest and breakTest(path): break
+      if fn(path): return path
+
+    null
+
+  findParentWrapper (path) ->
+    isParentCaller = p =>
+      p.isCallExpression() and !p.get('arguments').includes(path)
+
+    findParent(
+      path,
+      p => p.isArrowFunctionExpression() and p.node.wasPlaceholder,
+      p => p.isBinaryExpression() or p~isParentCaller()
+    )
+
+  findTopmostLink (path, log) ->
+    let tail = path
+    if log:
+      console.log(
+        'provided path is a context breaker: ',
+        !tail~isContextBreaker(true)
+      )
+
+    while tail.parentPath:
+      if !tail~isContextBreaker(true): break
+      now tail = tail.parentPath
+
+    tail
+
+  makeID (path, name) ->
+    Object.defineProperties(path.scope.generateUidIdentifier(name), {
+      wasPlaceholder: { value: true }
+      placeholderType: { value: path.type }
+    })
+
+  makeIdentifierError (name) ->
+    `
+    Cannot use placeholder as an identifier.\n
+      If you need to use '${name}' as a variable name:
+      - import or require the plugin to a new token
+        ( \`import it from '${PACKAGE_NAME}'\` )
+      - set 'options.placeholder' to a different custom token
+      - set 'options.useAlternatePlaceholder' for '__'
+        ( a double underscore )\n
+      See https://github.com/citycide/${PACKAGE_NAME}#caveats--limitations
+    for more information.\n
+    `
+
+  makeWrapper (path, params, toReturn) ->
+    fn = t.arrowFunctionExpression(
+      params or [],
+      t.blockStatement([
+        t.returnStatement(toReturn or path.node)
+      ])
+    )
+
+    Object.defineProperties(fn, {
+      wasPlaceholder: { value: true }
+    })
+
+  maybeTransformWrapper (path, arg, replacement) ->
+    console.log('transforming wrapper')
+    if path~isContextBreaker(true):
+      now path = arg
+      now replacement = makeWrapper(path, replacement.params, arg.node)
+
+    path.replaceWith(replacement)
+
+  shouldHoist (path) ->
+    if path.isCallExpression():
+      return !path.get('arguments').some(arg => !arg.node.wasPlaceholder)
+
+    // if path.isMemberExpression():
+      // hoisting this means getters would only be fired once
+      // is this the expected behavior?
+      // return !path.node.object.wasPlaceholder
+
+    !path.isLiteral() and [
+      'Identifier'
+      'SpreadElement'
+      'FunctionExpression'
+      'ArrowFunctionExpression'
+    ].every(type => type != path.type)
+
+  transformPlaceholder (path, paramList, placeholder) ->
+    name = path.type.slice(0, 3).toLowerCase()
+    id = makeID(path, name)
+
+    console.log('call exp - transforming placeholder')
+    if path.isIdentifier():
+      path.replaceWith(id)
+      paramList.push(id)
+    else if path.isMemberExpression():
+      path.get('object').replaceWith(id)
+      paramList.push(id)
+    else if path.isCallExpression():
+      path.get('callee.object').replaceWith(id)
+      paramList.push(id)
+    else if path.isSpreadElement():
+      path.get('argument').replaceWith(id)
+      paramList.push(t.restElement(id))
+    else if path.isBinaryExpression():
+      paths = [path.get('left'), path.get('right')].filter(Boolean)
+      ids = paths.length > 1 ? [id, makeID(path, name)] : [id]
+      paths.forEach((v, i) =>
+        target = v~findDeepestLink()
+        if !target~isPlaceholder(placeholder): return
+
+        target.replaceWith(ids[i])
+        paramList.push(ids[i])
+      )
+
+  {
+    isContextBreaker
+    isPlaceholder
+    isPlaceholderExpression
+    isOrDescendsFromPlaceholder
+    findDeepestLink
+    findParent
+    findParentWrapper
+    findTopmostLink
+    makeID
+    makeIdentifierError
+    makeWrapper
+    maybeTransformWrapper
+    shouldHoist
+    transformPlaceholder
+  }

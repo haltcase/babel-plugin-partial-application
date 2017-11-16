@@ -1,0 +1,25 @@
+{ name: PACKAGE_NAME } = require('../../package.json')
+
+export default (t, util, tracker) ->
+  isPluginRequire (node) ->
+    { callee, arguments: args } = node
+
+    isRequire =
+      t.isIdentifier(callee, { name: 'require' }) or (
+        t.isMemberExpression(callee) and
+        t.isIdentifier(callee.object, { name: 'require' })
+      )
+
+    isRequire and t.isStringLiteral(args[0], { value: PACKAGE_NAME })
+
+  VariableDeclaration (path, state) ->
+    placeholder = tracker.getPlaceholder(state)
+
+    for elem { init, id } in path.node.declarations:
+      if init and init~isPluginRequire() and t.isIdentifier(id):
+        tracker.setPlaceholder(state, id.name)
+        return path.remove()
+
+      if id.name == placeholder:
+        message = util.makeIdentifierError(placeholder)
+        throw path.buildCodeFrameError(message)

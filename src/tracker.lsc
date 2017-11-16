@@ -1,0 +1,42 @@
+import {
+  ALTERNATE_PLACEHOLDER,
+  DEFAULT_PLACEHOLDER
+} from './constants'
+
+export default () ->
+  hash = new Map()
+
+  getPlaceholder (state) ->
+    {
+      file: { opts: { filename } },
+      opts: { useAlternatePlaceholder }
+    } = state
+
+    let placeholder =
+      hash.get(filename) or
+      state.opts.placeholder or
+      DEFAULT_PLACEHOLDER
+
+    if (
+      placeholder == DEFAULT_PLACEHOLDER and
+      useAlternatePlaceholder
+    ): now placeholder = ALTERNATE_PLACEHOLDER
+
+    kind = typeof placeholder
+    if kind != 'string':
+      throw new TypeError(
+        'Expected a string for `options.placeholder` ' +
+        `and got ${kind}`
+      )
+
+    hash.set(filename, placeholder)
+    placeholder
+
+  setPlaceholder (state, token) ->
+    if typeof token == 'string':
+      hash.set(state.file.opts.filename, token)
+
+  {
+    getPlaceholder,
+    setPlaceholder
+  }

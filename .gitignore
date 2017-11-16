@@ -4,6 +4,7 @@
 .vscode
 
 # ignore built files
+dist
 /index.js
 
 node_modules

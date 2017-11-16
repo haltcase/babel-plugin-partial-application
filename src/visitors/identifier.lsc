@@ -1,0 +1,62 @@
+{ name: PACKAGE_NAME } = require('../../package.json')
+
+export default (t, util, tracker) ->
+  {
+    isPlaceholder
+    findParentWrapper
+    findTopmostLink
+    makeIdentifierError
+    makeWrapper
+  } = util
+
+  Identifier (path, state) ->
+    placeholder = tracker.getPlaceholder(state)
+    if !path~isPlaceholder(placeholder): return
+    if path.key == 'property': return
+
+    if path.parentPath.isVariableDeclarator():
+      message = makeIdentifierError(placeholder)
+      throw path.buildCodeFrameError(message)
+
+    parent = path~findParentWrapper()
+    let top = path~findTopmostLink()
+
+    if parent:
+      let uid
+      if (
+        path.parentPath.isMemberExpression() and
+        !top.isTemplateLiteral()
+      ):
+        // shouldUnshift = false
+        now uid = parent.scope.generateUidIdentifier('mem')
+        parent.node.params.push(uid)
+      else:
+        now uid = parent.scope.generateUidIdentifier('arg')
+        parent.node.params.push(uid)
+
+      path.replaceWith(uid)
+      return
+
+    if top.parentPath.isTemplateLiteral():
+      now top = top.parentPath
+
+    id = path.scope.generateUidIdentifier('ide')
+    fn = makeWrapper(path, [id], top.node)
+
+    // TODO: make `_.foo(_)` work
+    // currently generates an extra inner wrapper function
+    /*
+    if (
+      top.container and
+      not top.isCallExpression() and
+      not top.get('callee').isMemberExpression()
+    ):
+    */
+    if top.container:
+      top.replaceWith(fn)
+    else:
+      existing = top~findParentWrapper()
+      if existing:
+        existing.node.params.push(id)
+
+    path.replaceWith(id)

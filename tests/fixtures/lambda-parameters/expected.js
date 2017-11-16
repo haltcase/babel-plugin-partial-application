@@ -1,9 +1,9 @@
-[1, 2, 3].map((_obj) => {
-  return _obj.toString();
-});
+(_cal) => {
+  return [1, 2, 3].map(_cal.toString());
+};
 
 const people = [{ name: 'Jeff' }, { name: 'Karen' }, { name: 'Genevieve' }];
 
-console.log(people.map((_obj2) => {
-  return _obj2.name;
-}));
+console.log((_mem) => {
+  return people.map(_mem.name);
+});

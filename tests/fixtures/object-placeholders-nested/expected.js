@@ -1,7 +1,7 @@
-(_obj, _obj2) => {
-  return _obj.foo(_obj2.bar);
+(_ide, _mem) => {
+  return _ide.foo(_mem.bar);
 };
 
-(_obj3, _obj4) => {
-  return _obj3.foo(_obj4.baz());
+(_ide2, _cal) => {
+  return _ide2.foo(_cal.baz());
 };

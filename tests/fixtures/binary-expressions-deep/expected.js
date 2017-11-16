@@ -1,18 +1,18 @@
-(_obj) => {
-  return _obj.fn().bar().baz <= parseInt('10');
+(_ide) => {
+  return _ide.fn().bar().baz <= parseInt('10');
 };
 
-(_obj2, _obj3) => {
-  return _obj2.fn().foo >= _obj3.bar.foo.baz();
+(_ide2, _ide3) => {
+  return _ide2.fn().foo >= _ide3.bar.foo.baz();
 };
 
-const foo = (_obj4) => {
-  return _obj4.method().value > 10;
+const foo = (_ide4) => {
+  return _ide4.method().value > 10;
 };
 
-const bar = (_obj5, _obj6) => {
-  return _obj5.method().value === _obj6.method().value();
+const bar = (_ide5, _ide6) => {
+  return _ide5.method().value === _ide6.method().value();
 };
-const baz = (_obj7, _obj8) => {
-  return _obj7.method().value() === _obj8.method().value;
+const baz = (_ide7, _ide8) => {
+  return _ide7.method().value() === _ide8.method().value;
 };

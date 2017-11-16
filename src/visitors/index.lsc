@@ -1,0 +1,12 @@
+import makeIdentifierVisitor from './identifier'
+import makeCallExpressionVisitor from './call-expression'
+import makeImportDeclarationVisitor from './import-declaration'
+import makeVariableDeclarationVisitor from './variable-declaration'
+
+export default (t, util, tracker) ->
+  {
+    Identifier: makeIdentifierVisitor(t, util, tracker)
+    CallExpression: makeCallExpressionVisitor(t, util, tracker)
+    ImportDeclaration: makeImportDeclarationVisitor(t, util, tracker)
+    VariableDeclaration: makeVariableDeclarationVisitor(t, util, tracker)
+  }

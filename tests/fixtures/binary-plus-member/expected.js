@@ -1,9 +1,9 @@
-foo.filter((_obj) => {
-  return _obj.level > 0;
-});
-foo.filter((_obj2) => {
-  return _obj2.getName().length > 10;
-});
-foo.filter((_obj3) => {
-  return _obj3.prop._ === 2;
-});
+(_bin) => {
+  return foo.filter(_bin.level > 0);
+};
+(_bin3) => {
+  return foo.filter(_bin3.getName().length > 10);
+};
+(_bin5) => {
+  return foo.filter(_bin5.prop._ === 2);
+};

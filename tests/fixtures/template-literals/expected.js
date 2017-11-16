@@ -1,25 +1,25 @@
-(_exp) => {
-  return `this is super ${_exp}`;
+(_ide) => {
+  return `this is super ${_ide}`;
 };
 
-const greet = (_exp2) => {
-  return `Hello, ${_exp2}!`;
+const greet = (_ide2) => {
+  return `Hello, ${_ide2}!`;
 };
-const greetProperty = (_exp3) => {
-  return `Hello, ${_exp3.name}!`;
+const greetProperty = (_ide3) => {
+  return `Hello, ${_ide3.name}!`;
 };
-const greetMethod = (_exp4) => {
-  return `Hello, ${_exp4.getName()}!`;
+const greetMethod = (_ide4) => {
+  return `Hello, ${_ide4.getName()}!`;
 };
 
-const foo = (_exp5, _exp6) => {
-  return `${_exp5} ${true ? '' : '-'} ${_exp6}`;
+const foo = (_ide5, _arg) => {
+  return `${_ide5} ${true ? '' : '-'} ${_arg}`;
 };
 
 // only the top `_` should be affected
-const bar = (_exp7) => {
-  return `${_exp7.foo._.bar._}`;
+const bar = (_ide6) => {
+  return `${_ide6.foo._.bar._}`;
 };
-const baz = (_exp8) => {
-  return `${_exp8.foo()._().bar._()}`;
+const baz = (_ide7) => {
+  return `${_ide7.foo()._().bar._()}`;
 };

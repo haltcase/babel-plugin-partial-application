@@ -1,1 +1,0 @@
-_.name = 'world'

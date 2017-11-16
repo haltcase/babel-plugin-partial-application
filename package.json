@@ -33,10 +33,11 @@
     "index.js"
   ],
   "scripts": {
-    "build": "babel src -d . -x .lsc",
+    "build": "babel src -d dist -x .lsc",
     "pretest": "npm run build",
     "test": "ava",
-    "prepublish": "npm test"
+    "prepublish": "npm test",
+    "demo": "babel --no-babelrc --plugins ./dist/index.js demo.js -o demo-out.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -50,6 +51,7 @@
     "babel-preset-flow": "^6.23.0",
     "lodash.get": "^4.4.2",
     "lodash.map": "^4.6.0",
+    "matcher": "^1.0.0",
     "pify": "^3.0.0"
   },
   "ava": {

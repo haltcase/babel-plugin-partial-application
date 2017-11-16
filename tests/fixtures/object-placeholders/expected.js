@@ -1,7 +1,7 @@
-const prop = (_obj) => {
-  return _obj.name;
+const prop = (_ide) => {
+  return _ide.name;
 };
 
-const hasOwn = (_obj2, _arg) => {
-  return _obj2.hasOwnProperty(_arg);
+const hasOwn = (_ide3, _ide2) => {
+  return _ide3.hasOwnProperty(_ide2);
 };

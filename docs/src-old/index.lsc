@@ -7,7 +7,7 @@ import prettyFormat from 'pretty-format'
 import { format } from '@oigroup/prettier-babylon'
 import { transform } from 'babel-standalone'
 
-import plugin from '../../dist'
+import plugin from '../..'
 import readme from '../../readme.md'
 
 getStorage (key) ->

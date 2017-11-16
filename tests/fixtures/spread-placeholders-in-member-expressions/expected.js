@@ -1,11 +1,11 @@
-(_obj, ..._spr) => {
-  return _obj.foo(..._spr);
+(_ide, ..._spr) => {
+  return _ide.foo(..._spr);
 };
 
-(_obj2, _arg, ..._spr2) => {
-  return _obj2.foo(_arg, ..._spr2);
+(_ide3, _ide2, ..._spr2) => {
+  return _ide3.foo(_ide2, ..._spr2);
 };
 
-(_obj3, _obj4, ..._spr3) => {
-  return _obj3.foo(_obj4.bar, ..._spr3);
+(_ide4, _mem, ..._spr3) => {
+  return _ide4.foo(_mem.bar, ..._spr3);
 };
