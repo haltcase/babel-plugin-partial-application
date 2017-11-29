@@ -1,5 +1,11 @@
 # babel-plugin-partial-application &middot; [![Version](https://img.shields.io/npm/v/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![License](https://img.shields.io/npm/l/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://www.npmjs.com/package/babel-plugin-partial-application) [![Travis CI](https://img.shields.io/travis/citycide/babel-plugin-partial-application.svg?style=flat-square&maxAge=3600)](https://travis-ci.org/citycide/babel-plugin-partial-application) [![LightScript](https://img.shields.io/badge/written%20in-lightscript-00a99d.svg?style=flat-square)](http://www.lightscript.org) [![Gitter](https://img.shields.io/gitter/room/citycide/trilogy.js.svg?style=flat-square&maxAge=3600)](https://gitter.im/citycide/babel-plugin-partial-application)
 
+**deprecated**
+
+I've moved work to [`param.macro`][macro] - a more focused, stable, and explicit implementation of this concept. I'd heavily recommend using it instead! Only critical fixes will be made here.
+
+---
+
 > Partial application syntax for JavaScript, inspired by Scala's `_` & Kotlin's `it`.
 
 > **try it live** on the **[online playground](https://citycide.github.io/babel-plugin-partial-application/)**
@@ -516,6 +522,7 @@ found are always welcome.
 
 MIT © [Bo Lingen / citycide](https://github.com/citycide)
 
+[macro]: https://github.com/citycide/param.macro
 [2ality]: http://www.2ality.com/2011/09/currying-vs-part-eval.html
 [lightscript]: http://www.lightscript.org
 [babel]: https://babeljs.io
