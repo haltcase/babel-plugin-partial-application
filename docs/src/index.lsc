@@ -10,6 +10,8 @@ import { transform } from 'babel-standalone'
 import plugin from '../..'
 import readme from '../../readme.md'
 
+macroUrl = 'https://citycide.github.io/param.macro'
+
 getStorage (key) ->
   try:
     JSON.parse(window.localStorage.getItem(key))
@@ -169,7 +171,7 @@ loadEditors (state) ->
 
 loadRunButtons(editor, compiled, result)
 
-if !getStorage('tourComplete'):
+if !getStorage('tourComplete') or !getStorage('seenDeprecation'):
   isReadmeURL = getQueryProp('readme')
   if isReadmeURL: removeQueryProp('readme')
 
@@ -181,6 +183,27 @@ if !getStorage('tourComplete'):
       scrollTo: true
       showCancelLink: true
     }
+  })
+
+  tour.addStep('deprecation-notice', {
+    title: `deprecation & replacement`
+    text:
+      'Hello and thanks for checking out ' +
+      '<code>babel-plugin-partial-application</code>.<br/><br/>' +
+      `However, it is heavily recommended that you use ` +
+      `<code><a href="${macroUrl}">param.macro</a></code> ` +
+      `instead as it has a much improved, clearer usage model.<br/><br/>` +
+      `Hope to see you there!`
+    attachTo: '#deprecation-notice'
+    buttons: [{
+      text: 'check it out'
+      action: () =>
+        window.location.href = macroUrl
+    }, {
+      text: 'continue'
+      action: () =>
+        tour.next()
+    }]
   })
 
   tour.addStep('readme-button', {
@@ -241,6 +264,7 @@ if !getStorage('tourComplete'):
 
   tour.once('complete', () =>
     setStorage('tourComplete', true)
+    setStorage('seenDeprecation', true)
   )
 
   tour.start()
@@ -265,7 +289,7 @@ logger ({ types: t }) ->
           !t.isExpression(last) and
           !t.isExpressionStatement(last)
         ): return
-        
+
         final = eval(last.hub.file.code)
         if final~looseEq(null): return
 
@@ -297,7 +321,7 @@ tryEval = debounce(input => {
     Function('console', input)(capturer)
     if output: result.setValue(output)
     else: result.setValue('')
-    
+
     transform(input, {
       presets: []
       plugins: [logger]
