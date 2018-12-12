@@ -2,13 +2,14 @@
 
 **deprecated**
 
-I've moved work to [`param.macro`][macro] - a more focused, stable, and explicit implementation of this concept. I'd heavily recommend using it instead! Only critical fixes will be made here.
+Please use [`param.macro`][macro] instead as it's a more focused, stable, and explicit
+implementation of this concept. All development on `babel-plugin-partial-application`
+has ceased and I'd heavily recommend using [`param.macro`][macro] instead! No fixes,
+additions, or updates will be made here &mdash; regardless of severity.
 
 ---
 
 > Partial application syntax for JavaScript, inspired by Scala's `_` & Kotlin's `it`.
-
-> **try it live** on the **[online playground](https://citycide.github.io/babel-plugin-partial-application/)**
 
 If you like this plugin, go to [@rbuckton](https://github.com/rbuckton)'s TC39
 proposal to add syntactic partial application to JavaScript - star it to show support,
@@ -54,6 +55,9 @@ arguments. Think of the values that aren't placeholders as being "bound". Check
 out the [examples](#examples) section to see all the different ways this is useful.
 
 ## installation
+
+Before you install this, note that this project is no longer maintained or supported,
+and it's highly recommended you use its successor [`param.macro`][macro] instead.
 
 ```console
 npm i --save-dev babel-plugin-partial-application
@@ -510,13 +514,7 @@ into regular functions that don't have to check arguments to see if a placeholde
 
 ## contributing
 
-Pull requests and any [issues](https://github.com/citycide/babel-plugin-partial-application/issues)
-found are always welcome.
-
-1. Fork the project, and preferably create a branch named something like `feat-make-better`
-2. Modify as needed, `src/index.lsc` being the source file
-3. Make sure all tests continue to pass, and it never hurts to have more tests
-4. Push & pull request! :tada:
+This project is no longer maintained or supported, so please check out its successor [`param.macro`][macro].
 
 ## license
 
